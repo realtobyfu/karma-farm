@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   uuid = "D463E8CC-36CF-4371-BACB-3716AF5EAFBB"
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "FF42E54C-979E-4EAC-A1DB-CE72225D6B08"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Threads/Core/Profile/EditProfile/ViewModel/EditProfileViewModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "11"
+            endingLineNumber = "11"
+            landmarkName = "EditProfileViewModel"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "FF42E54C-979E-4EAC-A1DB-CE72225D6B08 - a27d955c5ab5132a"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Threads.EditProfileViewModel.deinit"
+                  moduleName = "Threads"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Threads/Core/Profile/EditProfile/ViewModel/EditProfileViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "20">
+               </Location>
+               <Location
+                  uuid = "FF42E54C-979E-4EAC-A1DB-CE72225D6B08 - db740649e1e7516d"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Threads.EditProfileViewModel.__deallocating_deinit"
+                  moduleName = "Threads"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Threads/Core/Profile/EditProfile/ViewModel/EditProfileViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "16">
+               </Location>
+               <Location
+                  uuid = "FF42E54C-979E-4EAC-A1DB-CE72225D6B08 - febade4cfcfc9af1"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Threads.EditProfileViewModel.__allocating_init() -&gt; Threads.EditProfileViewModel"
+                  moduleName = "Threads"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Threads/Core/Profile/EditProfile/ViewModel/EditProfileViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0"
+                  offsetFromSymbolStart = "16">
+               </Location>
+               <Location
+                  uuid = "FF42E54C-979E-4EAC-A1DB-CE72225D6B08 - 1c8d1a754efc0706"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Threads.EditProfileViewModel.init() -&gt; Threads.EditProfileViewModel"
+                  moduleName = "Threads"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Threads/Core/Profile/EditProfile/ViewModel/EditProfileViewModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "19"
+                  endingLineNumber = "19"
+                  offsetFromSymbolStart = "348">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BDED8D15-4786-4D39-946A-3113CB868FAC"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Threads/Core/Profile/Components/View/ProfileHeaderView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "18"
+            endingLineNumber = "18"
+            landmarkName = "body"
+            landmarkType = "24">
+            <Locations>
+               <Location
+                  uuid = "BDED8D15-4786-4D39-946A-3113CB868FAC - 8306527ed8729a4e"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Threads.ProfileHeaderView.body.getter : some"
+                  moduleName = "Threads"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Threads/Core/Profile/Components/View/ProfileHeaderView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "18"
+                  endingLineNumber = "18"
+                  offsetFromSymbolStart = "196">
+               </Location>
+               <Location
+                  uuid = "BDED8D15-4786-4D39-946A-3113CB868FAC - ceef035820ccb5c5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; SwiftUI.TupleView&lt;(SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(SwiftUI.VStack&lt;SwiftUI.TupleView&lt;(SwiftUI.Text, SwiftUI.Text)&gt;&gt;, Swift.Optional&lt;SwiftUI.Text&gt;, SwiftUI.Text)&gt;&gt;, SwiftUI.Spacer, Threads.CircularProfileImageView)&gt; in Threads.ProfileHeaderView.body.getter : some"
+                  moduleName = "Threads"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Threads/Core/Profile/Components/View/ProfileHeaderView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "20"
+                  endingLineNumber = "20"
+                  offsetFromSymbolStart = "240">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "CB14FB6E-81AA-4B2F-BF99-B55F38E3D63E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Threads/Model/Post.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "12"
+            endingLineNumber = "12"
+            landmarkName = "Post"
+            landmarkType = "14">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F4EA2AC6-6DA2-44F6-A8B2-71227315E308"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Karma Farm/Core/Authentication/Services/AuthService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "42"
+            endingLineNumber = "42"
+            landmarkName = "createUser(withEmail:password:fullname:username:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "F4EA2AC6-6DA2-44F6-A8B2-71227315E308 - ea682fcdc00282a"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Karma_Farm.AuthService.createUser(withEmail: Swift.String, password: Swift.String, fullname: Swift.String, username: Swift.String) async throws -&gt; ()"
+                  moduleName = "Karma Farm"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Karma%20Farm/Core/Authentication/Services/AuthService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "44"
+                  endingLineNumber = "44"
+                  offsetFromSymbolStart = "220">
+               </Location>
+               <Location
+                  uuid = "F4EA2AC6-6DA2-44F6-A8B2-71227315E308 - 19b3c6a1a63a800d"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(4) await resume partial function for Karma_Farm.AuthService.createUser(withEmail: Swift.String, password: Swift.String, fullname: Swift.String, username: Swift.String) async throws -&gt; ()"
+                  moduleName = "Karma Farm"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Karma%20Farm/Core/Authentication/Services/AuthService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "44"
+                  endingLineNumber = "44"
+                  offsetFromSymbolStart = "36">
+               </Location>
+               <Location
+                  uuid = "F4EA2AC6-6DA2-44F6-A8B2-71227315E308 - a210b64026696c28"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(5) suspend resume partial function for Karma_Farm.AuthService.createUser(withEmail: Swift.String, password: Swift.String, fullname: Swift.String, username: Swift.String) async throws -&gt; ()"
+                  moduleName = "Karma Farm"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Karma%20Farm/Core/Authentication/Services/AuthService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "44"
+                  endingLineNumber = "44"
+                  offsetFromSymbolStart = "68">
+               </Location>
+               <Location
+                  uuid = "F4EA2AC6-6DA2-44F6-A8B2-71227315E308 - d782eba583b2a016"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(7) suspend resume partial function for Karma_Farm.AuthService.createUser(withEmail: Swift.String, password: Swift.String, fullname: Swift.String, username: Swift.String) async throws -&gt; ()"
+                  moduleName = "Karma Farm"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Karma%20Farm/Core/Authentication/Services/AuthService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "44"
+                  endingLineNumber = "44"
+                  offsetFromSymbolStart = "120">
+               </Location>
+               <Location
+                  uuid = "F4EA2AC6-6DA2-44F6-A8B2-71227315E308 - 99346e9f723ed5ee"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(1) suspend resume partial function for Karma_Farm.AuthService.createUser(withEmail: Swift.String, password: Swift.String, fullname: Swift.String, username: Swift.String) async throws -&gt; ()"
+                  moduleName = "Karma Farm"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Karma%20Farm/Core/Authentication/Services/AuthService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "42"
+                  endingLineNumber = "42"
+                  offsetFromSymbolStart = "132">
+               </Location>
+               <Location
+                  uuid = "F4EA2AC6-6DA2-44F6-A8B2-71227315E308 - 54d5f4bc0cd14dcd"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(2) await resume partial function for Karma_Farm.AuthService.createUser(withEmail: Swift.String, password: Swift.String, fullname: Swift.String, username: Swift.String) async throws -&gt; ()"
+                  moduleName = "Karma Farm"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Karma%20Farm/Core/Authentication/Services/AuthService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "42"
+                  endingLineNumber = "42"
+                  offsetFromSymbolStart = "52">
+               </Location>
+               <Location
+                  uuid = "F4EA2AC6-6DA2-44F6-A8B2-71227315E308 - ea682fcdc0029e8"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(3) suspend resume partial function for Karma_Farm.AuthService.createUser(withEmail: Swift.String, password: Swift.String, fullname: Swift.String, username: Swift.String) async throws -&gt; ()"
+                  moduleName = "Karma Farm"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Karma%20Farm/Core/Authentication/Services/AuthService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "42"
+                  endingLineNumber = "42"
+                  offsetFromSymbolStart = "84">
+               </Location>
+               <Location
+                  uuid = "F4EA2AC6-6DA2-44F6-A8B2-71227315E308 - 685bc076755e03d5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "(6) suspend resume partial function for Karma_Farm.AuthService.createUser(withEmail: Swift.String, password: Swift.String, fullname: Swift.String, username: Swift.String) async throws -&gt; ()"
+                  moduleName = "Karma Farm"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/realtobyfu/Documents/Threads/Karma%20Farm/Core/Authentication/Services/AuthService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "42"
+                  endingLineNumber = "42"
+                  offsetFromSymbolStart = "112">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>
