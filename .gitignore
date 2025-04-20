@@ -1,0 +1,56 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Expo
+.expo/
+web-build/
+dist/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# macOS
+.DS_Store
+*.pem
+
+# env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# TypeScript
+*.tsbuildinfo
+
+# Testing
+coverage/
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Build directories
+build/
+*.apk
+*.aab
+*.ipa
+
+# misc
+*.log
+.vercel 
