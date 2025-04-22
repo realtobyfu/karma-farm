@@ -1,9 +1,10 @@
-// Temporarily disable expo-dev-client to fix build issues
-// import 'expo-dev-client';
-
+// Polyfills and setup
+import 'expo-dev-client';
 import 'react-native-url-polyfill/auto';
 import { registerRootComponent } from 'expo';
-import App from './App';
+
+// Direct import without using default
+import { default as App } from './App';
 
 // Register the main component
 registerRootComponent(App); 
