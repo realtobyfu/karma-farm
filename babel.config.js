@@ -4,9 +4,10 @@ module.exports = function (api) {
     presets: ['babel-preset-expo'],
     plugins: [
       [
-        'transform-inline-environment-variables',
+        '@babel/plugin-transform-runtime',
         {
-          include: 'TAMAGUI_TARGET',
+          helpers: true,
+          regenerator: true,
         },
       ],
       [
