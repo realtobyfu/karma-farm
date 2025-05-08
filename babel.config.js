@@ -3,6 +3,8 @@ module.exports = function (api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
+      // React Native Reanimated plugin should be last
+      'react-native-reanimated/plugin',
       [
         '@babel/plugin-transform-runtime',
         {
@@ -15,6 +17,14 @@ module.exports = function (api) {
         {
           components: ['tamagui'],
           config: './tamagui.config.ts',
+          logTimings: true,
+          disableExtraction: process.env.NODE_ENV === 'development',
+        },
+      ],
+      [
+        'transform-inline-environment-variables',
+        {
+          include: 'TAMAGUI_TARGET',
         },
       ],
       [

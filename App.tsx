@@ -4,18 +4,22 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { TamaguiProvider } from 'tamagui';
 import { useFonts } from 'expo-font';
-import { Platform, LogBox } from 'react-native';
+import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 
 import config from './tamagui.config';
 import AppNavigation from './app/navigation';
 
-// Ignore specific warnings that might be noisy during development
-LogBox.ignoreLogs([
-  'ViewPropTypes will be removed',
-  'ColorPropType will be removed',
-]);
+// Conditionally import LogBox for native platforms only
+if (Platform.OS !== 'web') {
+  // Import LogBox and ignore specific warnings
+  const { LogBox } = require('react-native');
+  LogBox.ignoreLogs([
+    'ViewPropTypes will be removed',
+    'ColorPropType will be removed',
+  ]);
+}
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
