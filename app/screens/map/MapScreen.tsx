@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { StyleSheet, View, Dimensions } from 'react-native';
 import MapView, { PROVIDER_GOOGLE, Region } from 'react-native-maps';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { YStack, Card, Button, XStack } from 'tamagui';
 import { MapStackParamList } from '@lib/types';
 import { usePostsStore } from '@store/posts';
@@ -10,7 +10,7 @@ import { DistanceSlider } from '@components/DistanceSlider';
 import { MapMarker } from '@components/MapMarker';
 import { colors } from '../../../tamagui.config';
 
-type MapScreenNavigationProp = StackNavigationProp<MapStackParamList, 'MapScreen'>;
+type MapScreenNavigationProp = NativeStackNavigationProp<MapStackParamList, 'MapScreen'>;
 
 const { width, height } = Dimensions.get('window');
 const ASPECT_RATIO = width / height;
@@ -61,7 +61,9 @@ export default function MapScreen() {
 
   // Navigate to post details
   const handlePostPress = (postId: string) => {
-    navigation.navigate('PostDetails', { postId });
+    // Comment out navigation to non-existent screen
+    // navigation.navigate('PostDetails', { postId });
+    console.log('Post pressed:', postId);
   };
 
   // Handle filter change

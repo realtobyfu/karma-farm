@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { FlatList, RefreshControl } from 'react-native';
 import { YStack, Spinner, Text, Button, XStack } from 'tamagui';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { FeedStackParamList, PostType, PostMode } from '@lib/types';
 import { usePostsStore } from '@store/posts';
 import { PostCard } from '@components/PostCard';
 import { colors } from '../../../tamagui.config';
 
-type FeedScreenNavigationProp = StackNavigationProp<FeedStackParamList, 'FeedScreen'>;
+type FeedScreenNavigationProp = NativeStackNavigationProp<FeedStackParamList, 'FeedScreen'>;
 
 type FilterChip = {
   label: string;
@@ -43,7 +43,9 @@ export default function FeedScreen() {
   };
 
   const handlePostPress = (postId: string) => {
-    navigation.navigate('PostDetails', { postId });
+    // Comment out navigation to non-existent screen
+    // navigation.navigate('PostDetails', { postId });
+    console.log('Post pressed:', postId);
   };
 
   const handleFilter = (filter: FilterChip) => {
@@ -136,7 +138,11 @@ export default function FeedScreen() {
             <PostCard
               post={item}
               onPress={() => handlePostPress(item.id)}
-              onMessagePress={() => navigation.navigate('PostDetails', { postId: item.id })}
+              onMessagePress={() => {
+                // Comment out navigation to non-existent screen
+                // navigation.navigate('PostDetails', { postId: item.id });
+                console.log('Message pressed:', item.id);
+              }}
             />
           )}
           refreshControl={

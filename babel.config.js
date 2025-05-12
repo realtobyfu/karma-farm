@@ -3,7 +3,6 @@ module.exports = function (api) {
   return {
     presets: ['babel-preset-expo'],
     plugins: [
-      // React Native Reanimated plugin should be last
       'react-native-reanimated/plugin',
       [
         '@babel/plugin-transform-runtime',
@@ -30,7 +29,8 @@ module.exports = function (api) {
       [
         'module-resolver',
         {
-          root: ['./'],
+          root: ['.'],
+          extensions: ['.ios.js', '.android.js', '.js', '.ts', '.tsx', '.json'],
           alias: {
             '@': './',
             '@app': './app',
@@ -41,9 +41,10 @@ module.exports = function (api) {
             '@hooks': './app/hooks',
             '@utils': './app/utils',
             '@assets': './assets',
+            'tamagui.config': './tamagui.config.ts',
           },
         },
       ],
     ],
   };
-}; 
+};

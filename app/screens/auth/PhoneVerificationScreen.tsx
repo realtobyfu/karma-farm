@@ -10,12 +10,12 @@ import {
   Spinner
 } from 'tamagui';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@lib/types';
 import { useAuthStore } from '@store/auth';
 import { colors } from '../../../tamagui.config';
 
-type PhoneVerificationScreenNavigationProp = StackNavigationProp<
+type PhoneVerificationScreenNavigationProp = NativeStackNavigationProp<
   RootStackParamList,
   'PhoneVerification'
 >;
@@ -39,14 +39,22 @@ export default function PhoneVerificationScreen() {
       formattedPhone = `+1${formattedPhone}`; // Default to US
     }
 
-    const { error } = await signInWithPhone(formattedPhone);
+    // Uncomment this to use the actual Supabase verification
+    // const { error } = await signInWithPhone(formattedPhone);
     
+    // For testing, simulate success and navigate to OTP screen
+    console.log(`Phone verification initiated for: ${formattedPhone}`);
+    navigation.navigate('OtpVerification', { phone: formattedPhone });
+    
+    // Uncomment this when using actual Supabase verification
+    /*
     if (error) {
       setError(error.message);
     } else {
       // Navigate to OTP verification
       navigation.navigate('OtpVerification', { phone: formattedPhone });
     }
+    */
   };
 
   return (

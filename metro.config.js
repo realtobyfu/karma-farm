@@ -1,29 +1,46 @@
+// Updated metro.config.js
 const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');
 
-const config = getDefaultConfig(__dirname);
+const projectRoot = __dirname;
+const config = getDefaultConfig(projectRoot);
 
-// 1. Watch all files in the project directory
-config.watchFolders = [path.resolve(__dirname)];
+// Add additional watch folders
+config.watchFolders = [
+  path.resolve(projectRoot, 'node_modules'),
+];
 
-// 2. Enable CSS and custom modules support needed by Tamagui
+// Enable CSS and custom modules support needed by Tamagui
 config.resolver.sourceExts = ['jsx', 'js', 'ts', 'tsx', 'json', 'cjs', 'mjs', 'css'];
 config.resolver.assetExts = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'ttf', 'otf'];
 
-// 3. Add resolution for @babel/runtime package with more specific path
+// Fix module resolution for Node built-ins and Tamagui config
 config.resolver.extraNodeModules = {
+  ...config.resolver.extraNodeModules,
   '@babel/runtime': path.resolve(__dirname, 'node_modules/@babel/runtime'),
+  ws: path.resolve(projectRoot, 'emptyModule.js'),
+  stream: path.resolve(projectRoot, 'emptyModule.js'),
+  http: path.resolve(projectRoot, 'emptyModule.js'),
+  https: path.resolve(projectRoot, 'emptyModule.js'),
+  crypto: path.resolve(projectRoot, 'emptyModule.js'),
 };
 
-// 4. Add resolution for Tamagui modules
-config.resolver.nodeModulesPaths = [
-  path.resolve(__dirname, 'node_modules'),
-];
-
-// 5. Enable symlinks for better Tamagui workspace support
+// Ensure tamagui.config.ts is properly resolved
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  // Logic for custom module resolution
+  // Handle tamagui config imports
+  if (
+    moduleName === 'tamagui.config' || 
+    moduleName === './tamagui.config' || 
+    moduleName === '../tamagui.config' || 
+    moduleName === '../../tamagui.config' || 
+    moduleName === '../../../tamagui.config'
+  ) {
+    return {
+      filePath: path.resolve(projectRoot, 'tamagui.config.ts'),
+      type: 'sourceFile',
+    };
+  }
   return context.resolveRequest(context, moduleName, platform);
 };
 
-module.exports = config; 
+module.exports = config;

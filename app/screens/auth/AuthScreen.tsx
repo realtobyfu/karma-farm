@@ -2,11 +2,11 @@ import React from 'react';
 import { Image } from 'react-native';
 import { H1, Button, YStack, Text, XStack } from 'tamagui';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@lib/types';
 import { colors } from '../../../tamagui.config';
 
-type AuthScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Auth'>;
+type AuthScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Auth'>;
 
 export default function AuthScreen() {
   const navigation = useNavigation<AuthScreenNavigationProp>();

@@ -10,7 +10,7 @@ import {
   Image,
 } from 'tamagui';
 import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '@lib/supabase';
 import { KarmaTransaction, ProfileStackParamList, Review } from '@lib/types';
@@ -21,7 +21,7 @@ import { KarmaCounter } from '@components/KarmaCounter';
 import { RatingStars } from '@components/RatingStars';
 import { colors } from '../../../tamagui.config';
 
-type ProfileScreenNavigationProp = StackNavigationProp<ProfileStackParamList, 'ProfileScreen'>;
+type ProfileScreenNavigationProp = NativeStackNavigationProp<ProfileStackParamList, 'ProfileScreen'>;
 
 export default function ProfileScreen() {
   const navigation = useNavigation<ProfileScreenNavigationProp>();

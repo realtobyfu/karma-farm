@@ -11,24 +11,25 @@ import { colors } from '../../tamagui.config';
 // Auth Screens
 import AuthScreen from '@screens/auth/AuthScreen';
 import PhoneVerificationScreen from '@screens/auth/PhoneVerificationScreen';
+// Commented out screens that don't exist yet
 import OtpVerificationScreen from '@screens/auth/OtpVerificationScreen';
-import EmailVerificationScreen from '@screens/auth/EmailVerificationScreen';
-import FaceVerificationScreen from '@screens/auth/FaceVerificationScreen';
-import ProfileSetupScreen from '@screens/auth/ProfileSetupScreen';
+// import EmailVerificationScreen from '@screens/auth/EmailVerificationScreen';
+// import FaceVerificationScreen from '@screens/auth/FaceVerificationScreen';
+// import ProfileSetupScreen from '@screens/auth/ProfileSetupScreen';
 
 // Tab Screens and their Stacks
 import MapScreen from '@screens/map/MapScreen';
-import PostDetailsScreen from '@screens/shared/PostDetailsScreen';
+// import PostDetailsScreen from '@screens/shared/PostDetailsScreen';
 import FeedScreen from '@screens/feed/FeedScreen';
-import NewPostScreen from '@screens/post/NewPostScreen';
-import LocationPickerScreen from '@screens/post/LocationPickerScreen';
-import ChatListScreen from '@screens/chat/ChatListScreen';
-import ChatRoomScreen from '@screens/chat/ChatRoomScreen';
+// import NewPostScreen from '@screens/post/NewPostScreen';
+// import LocationPickerScreen from '@screens/post/LocationPickerScreen';
+// import ChatListScreen from '@screens/chat/ChatListScreen';
+// import ChatRoomScreen from '@screens/chat/ChatRoomScreen';
 import ProfileScreen from '@screens/profile/ProfileScreen';
-import EditProfileScreen from '@screens/profile/EditProfileScreen';
-import KarmaHistoryScreen from '@screens/profile/KarmaHistoryScreen';
-import ReviewsScreen from '@screens/profile/ReviewsScreen';
-import SettingsScreen from '@screens/profile/SettingsScreen';
+// import EditProfileScreen from '@screens/profile/EditProfileScreen';
+// import KarmaHistoryScreen from '@screens/profile/KarmaHistoryScreen';
+// import ReviewsScreen from '@screens/profile/ReviewsScreen';
+// import SettingsScreen from '@screens/profile/SettingsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -49,11 +50,12 @@ const MapStackNavigator = () => (
     }}
   >
     <MapStack.Screen name="MapScreen" component={MapScreen} options={{ title: 'Map' }} />
-    <MapStack.Screen 
+    {/* Commented out screens that don't exist yet */}
+    {/* <MapStack.Screen 
       name="PostDetails" 
       component={PostDetailsScreen} 
       options={{ title: 'Post Details' }}
-    />
+    /> */}
   </MapStack.Navigator>
 );
 
@@ -67,11 +69,12 @@ const FeedStackNavigator = () => (
     }}
   >
     <FeedStack.Screen name="FeedScreen" component={FeedScreen} options={{ title: 'Feed' }} />
-    <FeedStack.Screen 
+    {/* Commented out screens that don't exist yet */}
+    {/* <FeedStack.Screen 
       name="PostDetails" 
       component={PostDetailsScreen} 
       options={{ title: 'Post Details' }} 
-    />
+    /> */}
   </FeedStack.Navigator>
 );
 
@@ -84,14 +87,17 @@ const ChatStackNavigator = () => (
       headerTitleStyle: { fontWeight: '600' },
     }}
   >
-    <ChatStack.Screen name="ChatList" component={ChatListScreen} options={{ title: 'Chats' }} />
+    {/* Placeholder screen */}
+    <ChatStack.Screen name="ChatPlaceholder" component={MapScreen} options={{ title: 'Chats (Coming Soon)' }} />
+    {/* Commented out screens that don't exist yet */}
+    {/* <ChatStack.Screen name="ChatList" component={ChatListScreen} options={{ title: 'Chats' }} />
     <ChatStack.Screen 
       name="ChatRoom" 
       component={ChatRoomScreen} 
       options={({ route }) => ({ 
         title: route.params?.name || 'Chat',
       })} 
-    />
+    /> */}
   </ChatStack.Navigator>
 );
 
@@ -109,7 +115,8 @@ const ProfileStackNavigator = () => (
       component={ProfileScreen} 
       options={{ title: 'Profile' }} 
     />
-    <ProfileStack.Screen 
+    {/* Commented out screens that don't exist yet */}
+    {/* <ProfileStack.Screen 
       name="EditProfile" 
       component={EditProfileScreen} 
       options={{ title: 'Edit Profile' }} 
@@ -128,7 +135,7 @@ const ProfileStackNavigator = () => (
       name="Settings" 
       component={SettingsScreen} 
       options={{ title: 'Settings' }} 
-    />
+    /> */}
   </ProfileStack.Navigator>
 );
 
@@ -142,7 +149,14 @@ const NewPostStackNavigator = () => (
       presentation: 'modal',
     }}
   >
+    {/* Placeholder screen */}
     <NewPostStack.Screen 
+      name="NewPostPlaceholder" 
+      component={MapScreen} 
+      options={{ title: 'New Post (Coming Soon)' }} 
+    />
+    {/* Commented out screens that don't exist yet */}
+    {/* <NewPostStack.Screen 
       name="NewPostScreen" 
       component={NewPostScreen} 
       options={{ title: 'New Post' }} 
@@ -151,7 +165,7 @@ const NewPostStackNavigator = () => (
       name="LocationPicker" 
       component={LocationPickerScreen} 
       options={{ title: 'Choose Location' }} 
-    />
+    /> */}
   </NewPostStack.Navigator>
 );
 
@@ -257,9 +271,10 @@ export default function AppNavigation() {
             <Stack.Screen name="Auth" component={AuthScreen} />
             <Stack.Screen name="PhoneVerification" component={PhoneVerificationScreen} />
             <Stack.Screen name="OtpVerification" component={OtpVerificationScreen} />
-            <Stack.Screen name="EmailVerification" component={EmailVerificationScreen} />
+            {/* Commented out screens that don't exist yet */}
+            {/* <Stack.Screen name="EmailVerification" component={EmailVerificationScreen} />
             <Stack.Screen name="FaceVerification" component={FaceVerificationScreen} />
-            <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} />
+            <Stack.Screen name="ProfileSetup" component={ProfileSetupScreen} /> */}
           </>
         )}
       </Stack.Navigator>
