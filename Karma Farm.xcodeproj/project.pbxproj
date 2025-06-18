@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3E7E708E2E022FC500E5E93F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 3E7E708D2E022FC500E5E93F /* FirebaseAuth */; };
+		3E7E70BA2E024E7D00E5E93F /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 3E7E70B92E024E7D00E5E93F /* IQKeyboardManagerSwift */; };
+		3E7E70C22E02529400E5E93F /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 3E7E70C12E02529400E5E93F /* Alamofire */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		3E80EF9C2E02264F007AA9BE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +35,22 @@
 		3E80EFA52E02264F007AA9BE /* Karma FarmUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Karma FarmUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		3E7E70BF2E024F9C00E5E93F /* Exceptions for "Karma Farm" folder in "Karma Farm" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Karma-Farm-Info.plist",
+			);
+			target = 3E80EF842E02264D007AA9BE /* Karma Farm */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3E80EF872E02264D007AA9BE /* Karma Farm */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				3E7E70BF2E024F9C00E5E93F /* Exceptions for "Karma Farm" folder in "Karma Farm" target */,
+			);
 			path = "Karma Farm";
 			sourceTree = "<group>";
 		};
@@ -52,6 +71,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3E7E70C22E02529400E5E93F /* Alamofire in Frameworks */,
+				3E7E708E2E022FC500E5E93F /* FirebaseAuth in Frameworks */,
+				3E7E70BA2E024E7D00E5E93F /* IQKeyboardManagerSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +134,9 @@
 			);
 			name = "Karma Farm";
 			packageProductDependencies = (
+				3E7E708D2E022FC500E5E93F /* FirebaseAuth */,
+				3E7E70B92E024E7D00E5E93F /* IQKeyboardManagerSwift */,
+				3E7E70C12E02529400E5E93F /* Alamofire */,
 			);
 			productName = "Karma Farm";
 			productReference = 3E80EF852E02264D007AA9BE /* Karma Farm.app */;
@@ -195,6 +220,11 @@
 			);
 			mainGroup = 3E80EF7C2E02264D007AA9BE;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				3E7E708C2E022FC500E5E93F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				3E7E70972E02344C00E5E93F /* XCRemoteSwiftPackageReference "IQKeyboardManager" */,
+				3E7E70C02E02529400E5E93F /* XCRemoteSwiftPackageReference "Alamofire" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3E80EF862E02264D007AA9BE /* Products */;
 			projectDirPath = "";
@@ -389,11 +419,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Karma Farm/Karma_Farm.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Karma Farm/Preview Content\"";
+				DEVELOPMENT_TEAM = 679K683SQ5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Karma-Farm-Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -409,7 +442,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tobiasfu.Karma-Farm";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tobiasfu.karma-farm";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -426,11 +459,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Karma Farm/Karma_Farm.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Karma Farm/Preview Content\"";
+				DEVELOPMENT_TEAM = 679K683SQ5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Karma-Farm-Info.plist";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -446,7 +482,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.tobiasfu.Karma-Farm";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tobiasfu.karma-farm";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -583,6 +619,51 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3E7E708C2E022FC500E5E93F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 11.14.0;
+			};
+		};
+		3E7E70972E02344C00E5E93F /* XCRemoteSwiftPackageReference "IQKeyboardManager" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/hackiftekhar/IQKeyboardManager";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.1;
+			};
+		};
+		3E7E70C02E02529400E5E93F /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 5.10.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3E7E708D2E022FC500E5E93F /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3E7E708C2E022FC500E5E93F /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		3E7E70B92E024E7D00E5E93F /* IQKeyboardManagerSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3E7E70972E02344C00E5E93F /* XCRemoteSwiftPackageReference "IQKeyboardManager" */;
+			productName = IQKeyboardManagerSwift;
+		};
+		3E7E70C12E02529400E5E93F /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3E7E70C02E02529400E5E93F /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3E80EF7D2E02264D007AA9BE /* Project object */;
 }

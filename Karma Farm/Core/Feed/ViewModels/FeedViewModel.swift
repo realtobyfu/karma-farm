@@ -5,6 +5,8 @@
 //  Created by Tobias Fu on 6/17/25.
 //
 
+import Foundation
+
 
 @MainActor
 class FeedViewModel: ObservableObject {

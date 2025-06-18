@@ -5,16 +5,23 @@
 //  Created by Tobias Fu on 6/17/25.
 //
 
+import Firebase
+import IQKeyboardManagerSwift
+import Foundation
 import SwiftUI
 
 @main
-struct Karma_FarmApp: App {
-    let persistenceController = PersistenceController.shared
-
+struct KarmaFarmApp: App {
+    init() {
+        FirebaseApp.configure()
+        IQKeyboardManager.shared.isEnabled = true
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(\.managedObjectContext, persistenceController.container.viewContext)
+                .environmentObject(AuthManager.shared)
+                .environmentObject(LocationManager.shared)
         }
     }
 }
