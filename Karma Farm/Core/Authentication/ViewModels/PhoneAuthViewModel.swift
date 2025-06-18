@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import FirebaseAuth
 
 class PhoneAuthViewModel: ObservableObject {
     @Published var phoneNumber: String = ""
@@ -16,13 +17,38 @@ class PhoneAuthViewModel: ObservableObject {
     @Published var errorMessage: String?
     
     func sendVerificationCode() {
-        // TODO: Implement phone verification logic
         isVerifying = true
-        // Add your phone verification implementation here
+        errorMessage = nil
+        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
+            DispatchQueue.main.async {
+                self?.isVerifying = false
+                if let error = error {
+                    self?.errorMessage = error.localizedDescription
+                    return
+                }
+                UserDefaults.standard.set(verificationID, forKey: "authVerificationID")
+            }
+        }
     }
     
     func verifyCode() {
-        // TODO: Implement code verification logic
-        // Add your code verification implementation here
+        isVerifying = true
+        errorMessage = nil
+        guard let verificationID = UserDefaults.standard.string(forKey: "authVerificationID") else {
+            self.isVerifying = false
+            self.errorMessage = "No verification ID found."
+            return
+        }
+        let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID, verificationCode: verificationCode)
+        Auth.auth().signIn(with: credential) { [weak self] authResult, error in
+            DispatchQueue.main.async {
+                self?.isVerifying = false
+                if let error = error {
+                    self?.errorMessage = error.localizedDescription
+                    return
+                }
+                // Handle successful sign in if needed
+            }
+        }
     }
 }

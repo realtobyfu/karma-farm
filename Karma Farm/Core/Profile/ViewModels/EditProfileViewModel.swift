@@ -41,7 +41,24 @@ class EditProfileViewModel: ObservableObject {
         }
     }
     
-    func saveProfile() {
-        // TODO: Save profile changes to backend
+    func saveProfile() async {
+        guard let user = AuthManager.shared.currentUser else { return }
+        do {
+            let request = ProfileUpdateRequest(
+                username: username,
+                bio: bio,
+                profilePicture: profileImage,
+                isCollegeStudent: false,
+                collegeEmail: "",
+                privateProfile: PrivateProfile(
+                    realName: realName,
+                    age: age,
+                    gender: gender
+                )
+            )
+            try await APIService.shared.updateProfile(request: request)
+        } catch {
+            print("Failed to save profile: \(error)")
+        }
     }
 }

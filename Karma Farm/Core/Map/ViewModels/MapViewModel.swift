@@ -25,6 +25,12 @@ class MapViewModel: ObservableObject {
     }
     
     func fetchNearbyPosts() async {
-        // TODO: Fetch posts from backend based on location and radius
+        guard let location = LocationManager.shared.userLocation else { return }
+        do {
+            let posts = try await APIService.shared.fetchNearbyPosts(latitude: location.latitude, longitude: location.longitude)
+            self.posts = posts
+        } catch {
+            print("Failed to fetch nearby posts: \(error)")
+        }
     }
 }

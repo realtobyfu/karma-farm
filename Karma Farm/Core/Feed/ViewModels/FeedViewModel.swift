@@ -20,9 +20,12 @@ class FeedViewModel: ObservableObject {
     }
     
     func fetchPosts() async {
-        isLoading = true
-        // TODO: Fetch posts from backend
-        isLoading = false
+        do {
+            let posts = try await APIService.shared.fetchPosts()
+            self.posts = posts
+        } catch {
+            print("Failed to fetch posts: \(error)")
+        }
     }
     
     func refresh() async {

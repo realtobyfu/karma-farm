@@ -19,6 +19,11 @@ class ChatListViewModel: ObservableObject {
     }
     
     func fetchChats() async {
-        // TODO: Fetch chats from backend
+        do {
+            let chats = try await APIService.shared.fetchChats()
+            self.chats = chats
+        } catch {
+            print("Failed to fetch chats: \(error)")
+        }
     }
 }
