@@ -123,6 +123,24 @@ class AuthManager: ObservableObject {
     }
     
     private func fetchUserProfile() {
-        // TODO: Implement logic to fetch the user profile from your backend or local storage
+        Task {
+            do {
+                guard let user = Auth.auth().currentUser else { return }
+                let idToken = try await user.getIDToken()
+                guard let url = URL(string: "\(APIConfig.baseURL)/auth/me") else { return }
+                var request = URLRequest(url: url)
+                request.httpMethod = "GET"
+                request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
+                let (data, _) = try await URLSession.shared.data(for: request)
+                let user = try JSONDecoder().decode(User.self, from: data)
+                DispatchQueue.main.async {
+                    self.currentUser = user
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    self.errorMessage = error.localizedDescription
+                }
+            }
+        }
     }
 }
