@@ -6,7 +6,8 @@
 //
 
 import Foundation
-import SwiftUICore
+import SwiftUI
+import FirebaseAuth
 
 @MainActor
 class ChatListViewModel: ObservableObject {
@@ -20,10 +21,18 @@ class ChatListViewModel: ObservableObject {
     
     func fetchChats() async {
         do {
-            let chats = try await APIService.shared.fetchChats()
+            // Get current user's auth token
+            guard let user = AuthManager.shared.firebaseUser else {
+                print("No authenticated user")
+                return
+            }
+            let token = try await user.getIDToken()
+            let chats = try await APIService.shared.fetchChats(token)
             self.chats = chats
         } catch {
             print("Failed to fetch chats: \(error)")
+            // Use mock data for now
+            self.chats = Chat.mockChats
         }
     }
 }

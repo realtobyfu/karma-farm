@@ -5,6 +5,7 @@
 //  Created by Tobias Fu on 6/17/25.
 //
 import Foundation
+import FirebaseAuth
 
 @MainActor
 class ProfileViewModel: ObservableObject {

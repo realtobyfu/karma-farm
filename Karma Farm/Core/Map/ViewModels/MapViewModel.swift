@@ -7,6 +7,7 @@
 import Foundation
 import MapKit
 import SwiftUI
+import FirebaseAuth
 
 @MainActor
 class MapViewModel: ObservableObject {
@@ -27,10 +28,19 @@ class MapViewModel: ObservableObject {
     func fetchNearbyPosts() async {
         guard let location = LocationManager.shared.userLocation else { return }
         do {
-            let posts = try await APIService.shared.fetchNearbyPosts(latitude: location.latitude, longitude: location.longitude)
+            // Get current user's auth token
+            guard let user = AuthManager.shared.firebaseUser else {
+                print("No authenticated user")
+                self.posts = Post.mockPosts
+                return
+            }
+            let token = try await user.getIDToken()
+            let posts = try await APIService.shared.fetchNearbyPosts(token, latitude: location.coordinate.latitude, longitude: location.coordinate.longitude, radius: searchRadius)
             self.posts = posts
         } catch {
             print("Failed to fetch nearby posts: \(error)")
+            // Use mock data for now
+            self.posts = Post.mockPosts
         }
     }
 }

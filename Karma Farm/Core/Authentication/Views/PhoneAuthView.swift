@@ -7,6 +7,13 @@
 
 import SwiftUI
 
+struct CountryCode {
+    let name: String
+    let code: String
+    let dialCode: String
+    let flag: String
+}
+
 struct PhoneAuthView: View {
     @StateObject private var viewModel = PhoneAuthViewModel()
     @EnvironmentObject var authManager: AuthManager
@@ -15,97 +22,225 @@ struct PhoneAuthView: View {
     @State private var verificationCode = ""
     @State private var verificationID: String?
     @State private var showVerificationField = false
+    @State private var selectedCountry = CountryCode(name: "United States", code: "US", dialCode: "+1", flag: "🇺🇸")
+    @State private var showCountryPicker = false
+    @State private var isResendingCode = false
+    @State private var resendTimer = 60
+    @State private var canResend = false
+    
+    private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 30) {
-                // Logo
-                Image("karma_logo") // Add your logo to Assets
+        VStack(spacing: 0) {
+            // Logo section - bigger logo (same as original)
+            VStack(spacing: 32) {
+                Spacer()
+                
+                Image("Logo")
                     .resizable()
                     .scaledToFit()
-                    .frame(height: 100)
+                    .frame(width: 200, height: 200)
                 
-                Text("Welcome to Karma Farm")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                
-                Text("Connect, Share, and Build Community")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                
-                VStack(spacing: 20) {
-                    // Phone Number Input
-                    HStack {
-                        Text("+1")
-                            .foregroundColor(.secondary)
+                Spacer()
+            }
+            .frame(maxHeight: .infinity)
+            
+            if !showVerificationField {
+                // Phone input form section - compact like original
+                VStack(spacing: 12) {
+                    // Country code and phone number field
+                    HStack(spacing: 0) {
+                        // Country Picker Button
+                        Button(action: { showCountryPicker = true }) {
+                            HStack(spacing: 8) {
+                                Text(selectedCountry.flag)
+                                    .font(.system(size: 16))
+                                Text(selectedCountry.dialCode)
+                                    .font(.system(size: 15))
+                                    .fontWeight(.medium)
+                                Image(systemName: "chevron.down")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(12)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8, corners: [.topLeft, .bottomLeft])
+                        }
+                        .foregroundColor(.primary)
                         
+                        // Phone Number Input
                         TextField("Phone Number", text: $phoneNumber)
                             .keyboardType(.numberPad)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .textContentType(.telephoneNumber)
+                            .font(.system(size: 15))
+                            .padding(12)
+                            .background(Color(.systemGray6))
+                            .cornerRadius(8, corners: [.topRight, .bottomRight])
+                            .onChange(of: phoneNumber) { newValue in
+                                phoneNumber = formatPhoneNumber(newValue)
+                            }
                     }
-                    .padding(.horizontal)
                     
-                    if showVerificationField {
-                        TextField("Verification Code", text: $verificationCode)
-                            .keyboardType(.numberPad)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .padding(.horizontal)
-                    }
-                    
-                    // Action Button
-                    Button(action: {
-                        if showVerificationField {
-                            verifyCode()
-                        } else {
-                            sendVerificationCode()
-                        }
-                    }) {
+                    // Send Code button - purple like original
+                    Button(action: sendVerificationCode) {
                         HStack {
                             if authManager.isLoading {
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .scaleEffect(0.8)
                             }
-                            Text(showVerificationField ? "Verify Code" : "Send Code")
-                                .fontWeight(.semibold)
+                            Text("Send Verification Code")
+                                .font(.system(size: 16, weight: .medium))
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.orange)
                         .foregroundColor(.white)
-                        .cornerRadius(10)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(isValidPhoneNumber ? Color.purple : Color.gray)
+                        .cornerRadius(12)
                     }
-                    .disabled(authManager.isLoading || phoneNumber.isEmpty)
-                    .padding(.horizontal)
+                    .disabled(!isValidPhoneNumber || authManager.isLoading)
+                    .opacity(isValidPhoneNumber ? 1.0 : 0.6)
                     
+                    // Error message
                     if let errorMessage = authManager.errorMessage {
                         Text(errorMessage)
                             .foregroundColor(.red)
-                            .font(.caption)
-                            .padding(.horizontal)
+                            .font(.system(size: 12))
+                            .multilineTextAlignment(.center)
                     }
                 }
+                .padding(.horizontal, 24)
                 
-                Spacer()
-                
-                // Terms and Privacy
-                Text("By continuing, you agree to our Terms of Service and Privacy Policy")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding()
+            } else {
+                // Verification code form section - compact like original
+                VStack(spacing: 12) {
+                    // Info text
+                    Text("Enter the 6-digit code sent to \(selectedCountry.dialCode) \(phoneNumber)")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.bottom, 8)
+                    
+                    // Verification Code Input
+                    TextField("Verification Code", text: $verificationCode)
+                        .keyboardType(.numberPad)
+                        .textContentType(.oneTimeCode)
+                        .font(.system(size: 15))
+                        .multilineTextAlignment(.center)
+                        .padding(12)
+                        .background(Color(.systemGray6))
+                        .cornerRadius(8)
+                        .onChange(of: verificationCode) { newValue in
+                            if newValue.count > 6 {
+                                verificationCode = String(newValue.prefix(6))
+                            }
+                            if verificationCode.count == 6 {
+                                verifyCode()
+                            }
+                        }
+                    
+                    // Verify button - purple like original
+                    Button(action: verifyCode) {
+                        HStack {
+                            if authManager.isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .scaleEffect(0.8)
+                            }
+                            Text("Verify Code")
+                                .font(.system(size: 16, weight: .medium))
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(verificationCode.count == 6 ? Color.purple : Color.gray)
+                        .cornerRadius(12)
+                    }
+                    .disabled(verificationCode.count != 6 || authManager.isLoading)
+                    .opacity(verificationCode.count == 6 ? 1.0 : 0.6)
+                    
+                    // Error message
+                    if let errorMessage = authManager.errorMessage {
+                        Text(errorMessage)
+                            .foregroundColor(.red)
+                            .font(.system(size: 12))
+                            .multilineTextAlignment(.center)
+                    }
+                }
+                .padding(.horizontal, 24)
             }
-            .navigationBarHidden(true)
+            
+            Spacer()
+            
+            // Bottom section like original
+            VStack(spacing: 16) {
+                Divider()
+                
+                if showVerificationField {
+                    // Resend and back options
+                    VStack(spacing: 8) {
+                        if canResend {
+                            Button("Resend Code") {
+                                resendCode()
+                            }
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.primary)
+                            .disabled(isResendingCode)
+                        } else {
+                            Text("Resend code in \(resendTimer)s")
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                        }
+                        
+                        Button("Change Phone Number") {
+                            goBack()
+                        }
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.primary)
+                    }
+                } else {
+                    // Terms text like original signup flow
+                    Text("By continuing, you agree to our Terms of Service and Privacy Policy")
+                        .font(.system(size: 12))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+            }
+            .padding(.bottom, 34)
+        }
+        .background(Color(.systemBackground))
+        .sheet(isPresented: $showCountryPicker) {
+            CountryPickerView(selectedCountry: $selectedCountry)
+        }
+        .onReceive(timer) { _ in
+            if showVerificationField && !canResend && resendTimer > 0 {
+                resendTimer -= 1
+                if resendTimer == 0 {
+                    canResend = true
+                }
+            }
         }
     }
     
+    // MARK: - Computed Properties
+    private var isValidPhoneNumber: Bool {
+        let cleanedNumber = phoneNumber.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
+        return cleanedNumber.count >= 10
+    }
+    
+    // MARK: - Actions
     private func sendVerificationCode() {
-        let fullPhoneNumber = "+1\(phoneNumber)"
+        let fullPhoneNumber = selectedCountry.dialCode + phoneNumber.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
         
         Task {
             do {
                 verificationID = try await authManager.startPhoneVerification(phoneNumber: fullPhoneNumber)
-                withAnimation {
-                    showVerificationField = true
+                await MainActor.run {
+                    withAnimation {
+                        showVerificationField = true
+                        resendTimer = 60
+                        canResend = false
+                    }
                 }
             } catch {
                 print("Error sending verification code: \(error)")
@@ -124,4 +259,224 @@ struct PhoneAuthView: View {
             }
         }
     }
+    
+    private func resendCode() {
+        isResendingCode = true
+        verificationCode = ""
+        
+        Task {
+            do {
+                let fullPhoneNumber = selectedCountry.dialCode + phoneNumber.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
+                verificationID = try await authManager.startPhoneVerification(phoneNumber: fullPhoneNumber)
+                await MainActor.run {
+                    resendTimer = 60
+                    canResend = false
+                    isResendingCode = false
+                }
+            } catch {
+                await MainActor.run {
+                    isResendingCode = false
+                }
+                print("Error resending verification code: \(error)")
+            }
+        }
+    }
+    
+    private func goBack() {
+        withAnimation {
+            showVerificationField = false
+            verificationCode = ""
+            verificationID = nil
+            authManager.errorMessage = nil
+        }
+    }
+    
+    // MARK: - Helper Functions
+    private func formatPhoneNumber(_ number: String) -> String {
+        let cleanedNumber = number.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
+        
+        if selectedCountry.code == "US" {
+            // Format US numbers as (XXX) XXX-XXXX
+            if cleanedNumber.count <= 3 {
+                return cleanedNumber
+            } else if cleanedNumber.count <= 6 {
+                let areaCode = String(cleanedNumber.prefix(3))
+                let middle = String(cleanedNumber.dropFirst(3))
+                return "(\(areaCode)) \(middle)"
+            } else {
+                let areaCode = String(cleanedNumber.prefix(3))
+                let middle = String(cleanedNumber.dropFirst(3).prefix(3))
+                let last = String(cleanedNumber.dropFirst(6).prefix(4))
+                return "(\(areaCode)) \(middle)-\(last)"
+            }
+        } else {
+            // For other countries, just return the cleaned number
+            return cleanedNumber
+        }
+    }
+}
+
+// MARK: - Text Field Styles (matching original)
+struct CompactTextFieldStyle: TextFieldStyle {
+    func _body(configuration: TextField<Self._Label>) -> some View {
+        configuration
+            .padding(12)
+            .background(Color(.systemGray6))
+            .cornerRadius(8)
+            .font(.system(size: 15))
+    }
+}
+
+// MARK: - Country Picker View
+struct CountryPickerView: View {
+    @Binding var selectedCountry: CountryCode
+    @Environment(\.dismiss) private var dismiss
+    @State private var searchText = ""
+    
+    private let countries = [
+        CountryCode(name: "United States", code: "US", dialCode: "+1", flag: "🇺🇸"),
+        CountryCode(name: "Canada", code: "CA", dialCode: "+1", flag: "🇨🇦"),
+        CountryCode(name: "United Kingdom", code: "GB", dialCode: "+44", flag: "🇬🇧"),
+        CountryCode(name: "Australia", code: "AU", dialCode: "+61", flag: "🇦🇺"),
+        CountryCode(name: "Germany", code: "DE", dialCode: "+49", flag: "🇩🇪"),
+        CountryCode(name: "France", code: "FR", dialCode: "+33", flag: "🇫🇷"),
+        CountryCode(name: "Japan", code: "JP", dialCode: "+81", flag: "🇯🇵"),
+        CountryCode(name: "South Korea", code: "KR", dialCode: "+82", flag: "🇰🇷"),
+        CountryCode(name: "India", code: "IN", dialCode: "+91", flag: "🇮🇳"),
+        CountryCode(name: "China", code: "CN", dialCode: "+86", flag: "🇨🇳"),
+        CountryCode(name: "Brazil", code: "BR", dialCode: "+55", flag: "🇧🇷"),
+        CountryCode(name: "Mexico", code: "MX", dialCode: "+52", flag: "🇲🇽"),
+    ]
+    
+    private var filteredCountries: [CountryCode] {
+        if searchText.isEmpty {
+            return countries
+        } else {
+            return countries.filter { country in
+                country.name.localizedCaseInsensitiveContains(searchText) ||
+                country.dialCode.contains(searchText)
+            }
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            VStack {
+                // Search Bar
+                SearchBar(text: $searchText)
+                    .padding(.horizontal)
+                
+                // Country List
+                List(filteredCountries, id: \.code) { country in
+                    Button(action: {
+                        selectedCountry = country
+                        dismiss()
+                    }) {
+                        HStack {
+                            Text(country.flag)
+                                .font(.title2)
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(country.name)
+                                    .foregroundColor(.primary)
+                                Text(country.dialCode)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            Spacer()
+                            
+                            if selectedCountry.code == country.code {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(.purple)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
+                .listStyle(PlainListStyle())
+            }
+            .navigationTitle("Select Country")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// MARK: - Search Bar
+struct SearchBar: View {
+    @Binding var text: String
+    
+    var body: some View {
+        HStack {
+            Image(systemName: "magnifyingglass")
+                .foregroundColor(.secondary)
+            
+            TextField("Search countries", text: $text)
+                .textFieldStyle(PlainTextFieldStyle())
+        }
+        .padding(8)
+        .background(Color(.systemGray6))
+        .cornerRadius(8)
+    }
+}
+
+// MARK: - View Extensions
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
+
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(
+            roundedRect: rect,
+            byRoundingCorners: corners,
+            cornerRadii: CGSize(width: radius, height: radius)
+        )
+        return Path(path.cgPath)
+    }
+}
+
+#Preview("Phone Auth - Initial") {
+    PhoneAuthView()
+        .environmentObject(AuthManager.mockUnauthenticated as! AuthManager)
+}
+
+#Preview("Phone Auth - Verification") {
+    PhoneAuthView()
+        .onAppear {
+            // Note: This preview shows the initial state
+            // To see verification state, manually trigger it in the running app
+        }
+        .environmentObject(AuthManager.mockUnauthenticated as! AuthManager)
+}
+
+#Preview("Phone Auth - Loading") {
+    PhoneAuthView()
+        .environmentObject({
+            let auth = AuthManager.mockUnauthenticated as! MockAuthManager
+            auth.isLoading = true
+            return auth as! AuthManager
+        }())
+}
+
+#Preview("Phone Auth - Error") {
+    PhoneAuthView()
+        .environmentObject({
+            let auth = AuthManager.mockUnauthenticated as! MockAuthManager
+            auth.errorMessage = "Invalid phone number format. Please check and try again."
+            return auth as! AuthManager
+        }())
 }

@@ -5,7 +5,6 @@
 //  Created by Tobias Fu on 6/17/25.
 //
 
-
 import Foundation
 import Combine
 import FirebaseAuth
@@ -15,40 +14,50 @@ class PhoneAuthViewModel: ObservableObject {
     @Published var verificationCode: String = ""
     @Published var isVerifying: Bool = false
     @Published var errorMessage: String?
+    @Published var verificationID: String?
     
-    func sendVerificationCode() {
+    func sendVerificationCode(phoneNumber: String) async throws -> String {
         isVerifying = true
         errorMessage = nil
-        PhoneAuthProvider.provider().verifyPhoneNumber(phoneNumber, uiDelegate: nil) { [weak self] verificationID, error in
-            DispatchQueue.main.async {
-                self?.isVerifying = false
-                if let error = error {
-                    self?.errorMessage = error.localizedDescription
-                    return
-                }
-                UserDefaults.standard.set(verificationID, forKey: "authVerificationID")
+        
+        do {
+            let verificationID = try await PhoneAuthProvider.provider()
+                .verifyPhoneNumber(phoneNumber, uiDelegate: nil)
+            
+            await MainActor.run {
+                self.verificationID = verificationID
+                self.isVerifying = false
             }
+            
+            return verificationID
+        } catch {
+            await MainActor.run {
+                self.isVerifying = false
+                self.errorMessage = error.localizedDescription
+            }
+            throw error
         }
     }
     
-    func verifyCode() {
+    func verifyCode(verificationID: String, code: String) async throws {
         isVerifying = true
         errorMessage = nil
-        guard let verificationID = UserDefaults.standard.string(forKey: "authVerificationID") else {
-            self.isVerifying = false
-            self.errorMessage = "No verification ID found."
-            return
-        }
-        let credential = PhoneAuthProvider.provider().credential(withVerificationID: verificationID, verificationCode: verificationCode)
-        Auth.auth().signIn(with: credential) { [weak self] authResult, error in
-            DispatchQueue.main.async {
-                self?.isVerifying = false
-                if let error = error {
-                    self?.errorMessage = error.localizedDescription
-                    return
-                }
-                // Handle successful sign in if needed
+        
+        do {
+            let credential = PhoneAuthProvider.provider()
+                .credential(withVerificationID: verificationID, verificationCode: code)
+            
+            let _ = try await Auth.auth().signIn(with: credential)
+            
+            await MainActor.run {
+                self.isVerifying = false
             }
+        } catch {
+            await MainActor.run {
+                self.isVerifying = false
+                self.errorMessage = error.localizedDescription
+            }
+            throw error
         }
     }
 }

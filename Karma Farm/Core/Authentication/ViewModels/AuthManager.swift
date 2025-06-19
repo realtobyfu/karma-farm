@@ -125,16 +125,16 @@ class AuthManager: ObservableObject {
     private func fetchUserProfile() {
         Task {
             do {
-                guard let user = Auth.auth().currentUser else { return }
-                let idToken = try await user.getIDToken()
+                guard let firebaseUser = Auth.auth().currentUser else { return }
+                let idToken = try await firebaseUser.getIDToken()
                 guard let url = URL(string: "\(APIConfig.baseURL)/auth/me") else { return }
                 var request = URLRequest(url: url)
                 request.httpMethod = "GET"
                 request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
                 let (data, _) = try await URLSession.shared.data(for: request)
-                let user = try JSONDecoder().decode(User.self, from: data)
+                let fetchedUser = try JSONDecoder().decode(User.self, from: data)
                 DispatchQueue.main.async {
-                    self.currentUser = user
+                    self.currentUser = fetchedUser
                 }
             } catch {
                 DispatchQueue.main.async {
@@ -143,4 +143,56 @@ class AuthManager: ObservableObject {
             }
         }
     }
+}
+
+// MARK: - Mock AuthManager for Testing and Previews
+class MockAuthManager: ObservableObject {
+    @Published var isAuthenticated = false
+    @Published var currentUser: User?
+    @Published var firebaseUser: FirebaseAuth.User?
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+    
+    init(isAuthenticated: Bool = false, currentUser: User? = nil) {
+        self.isAuthenticated = isAuthenticated
+        self.currentUser = currentUser
+    }
+    
+    func startPhoneVerification(phoneNumber: String) async throws -> String {
+        isLoading = true
+        // Simulate network delay
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        isLoading = false
+        return "mock-verification-id"
+    }
+    
+    func verifyCode(verificationID: String, code: String) async throws {
+        isLoading = true
+        // Simulate network delay
+        try await Task.sleep(nanoseconds: 1_500_000_000)
+        
+        if code == "123456" {
+            // Success case
+            currentUser = User.mockUser
+            isAuthenticated = true
+            isLoading = false
+        } else {
+            // Error case
+            isLoading = false
+            errorMessage = "Invalid verification code. Please try again."
+            throw NSError(domain: "MockAuth", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid verification code"])
+        }
+    }
+    
+    func signOut() {
+        isAuthenticated = false
+        currentUser = nil
+        errorMessage = nil
+    }
+}
+
+// MARK: - Preview Helper
+extension AuthManager {
+    static let mockAuthenticated = MockAuthManager(isAuthenticated: true, currentUser: User.mockUser)
+    static let mockUnauthenticated = MockAuthManager(isAuthenticated: false, currentUser: nil)
 }

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Foundation
+import FirebaseAuth
 
 @MainActor
 class EditProfileViewModel: ObservableObject {
@@ -42,21 +43,27 @@ class EditProfileViewModel: ObservableObject {
     }
     
     func saveProfile() async {
-        guard let user = AuthManager.shared.currentUser else { return }
+        guard let firebaseUser = AuthManager.shared.firebaseUser else { return }
         do {
-            let request = ProfileUpdateRequest(
-                username: username,
-                bio: bio,
-                profilePicture: profileImage,
-                isCollegeStudent: false,
-                collegeEmail: "",
-                privateProfile: PrivateProfile(
-                    realName: realName,
-                    age: age,
-                    gender: gender
-                )
-            )
-            try await APIService.shared.updateProfile(request: request)
+            let token = try await firebaseUser.getIDToken()
+            let profileData: [String: Any] = [
+                "username": username,
+                "bio": bio,
+                "skills": skills,
+                "interests": interests,
+                "isDiscoverable": isDiscoverable,
+                "privateProfile": [
+                    "age": age,
+                    "gender": gender,
+                    "realName": realName
+                ]
+            ]
+            let updatedUser = try await APIService.shared.updateProfile(token, profileData: profileData)
+            
+            // Update the AuthManager's current user
+            await MainActor.run {
+                AuthManager.shared.currentUser = updatedUser
+            }
         } catch {
             print("Failed to save profile: \(error)")
         }
