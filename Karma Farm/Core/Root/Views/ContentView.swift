@@ -13,7 +13,11 @@ struct ContentView: View {
     var body: some View {
         Group {
             if authManager.isAuthenticated {
-                MainTabView()
+                if hasCompletedOnboarding {
+                    MainTabView()
+                } else {
+                    OnboardingContainerView()
+                }
             } else {
                 AuthenticationView()
             }
@@ -21,6 +25,10 @@ struct ContentView: View {
         .onAppear {
             // Check authentication state on app launch
         }
+    }
+    
+    private var hasCompletedOnboarding: Bool {
+        UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
     }
 }
 

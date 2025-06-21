@@ -46,6 +46,93 @@ class AuthManager: ObservableObject {
         }
     }
     
+    // MARK: - Email Authentication
+    func signUpWithEmail(email: String, password: String, firstName: String, lastName: String) async throws {
+        await MainActor.run {
+            isLoading = true
+            errorMessage = nil
+        }
+        
+        do {
+            let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
+            
+            // Update user profile with display name
+            let changeRequest = authResult.user.createProfileChangeRequest()
+            changeRequest.displayName = "\(firstName) \(lastName)"
+            try await changeRequest.commitChanges()
+            
+            // Send email verification
+            try await authResult.user.sendEmailVerification()
+            
+            // Get ID token for backend
+            let idToken = try await authResult.user.getIDToken()
+            
+            // Setup profile with backend
+            try await setupUserProfile(idToken: idToken, firstName: firstName, lastName: lastName)
+            
+            await MainActor.run {
+                isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                isLoading = false
+                errorMessage = error.localizedDescription
+            }
+            throw error
+        }
+    }
+    
+    func signInWithEmail(email: String, password: String) async throws {
+        await MainActor.run {
+            isLoading = true
+            errorMessage = nil
+        }
+        
+        do {
+            let authResult = try await Auth.auth().signIn(withEmail: email, password: password)
+            
+            // Get ID token for backend
+            let idToken = try await authResult.user.getIDToken()
+            
+            // Verify with backend
+            try await verifyWithBackend(idToken: idToken)
+            
+            await MainActor.run {
+                isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                isLoading = false
+                errorMessage = error.localizedDescription
+            }
+            throw error
+        }
+    }
+    
+    func resendEmailVerification() async throws {
+        guard let user = Auth.auth().currentUser else {
+            throw NSError(domain: "AuthManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "No user signed in"])
+        }
+        
+        await MainActor.run {
+            isLoading = true
+            errorMessage = nil
+        }
+        
+        do {
+            try await user.sendEmailVerification()
+            await MainActor.run {
+                isLoading = false
+            }
+        } catch {
+            await MainActor.run {
+                isLoading = false
+                errorMessage = error.localizedDescription
+            }
+            throw error
+        }
+    }
+    
     // MARK: - Phone Authentication
     func startPhoneVerification(phoneNumber: String) async throws -> String {
         print("🔥 AuthManager: Starting phone verification for: \(phoneNumber)")
@@ -122,11 +209,37 @@ class AuthManager: ObservableObject {
         
         let response = try JSONDecoder().decode(AuthResponse.self, from: data)
         
+        await MainActor.run {
             if response.isNewUser {
                 // Navigate to profile setup
                 self.currentUser = response.user
             } else {
                 self.currentUser = response.user
+            }
+        }
+    }
+    
+    private func setupUserProfile(idToken: String, firstName: String, lastName: String) async throws {
+        guard let url = URL(string: "\(APIConfig.baseURL)/auth/setup") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let profileData = [
+            "firstName": firstName,
+            "lastName": lastName
+        ]
+        
+        request.httpBody = try JSONSerialization.data(withJSONObject: profileData)
+        
+        let (data, _) = try await URLSession.shared.data(for: request)
+        
+        let user = try JSONDecoder().decode(User.self, from: data)
+        
+        await MainActor.run {
+            self.currentUser = user
         }
     }
     
@@ -201,9 +314,44 @@ class MockAuthManager: ObservableObject {
         } else {
             // Error case
             isLoading = false
-            errorMessage = "Invalid verification code. Please try again."
-            throw NSError(domain: "MockAuth", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid verification code"])
+            errorMessage = "Invalid verification code"
+            throw NSError(domain: "MockAuthManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid verification code"])
         }
+    }
+    
+    func signUpWithEmail(email: String, password: String, firstName: String, lastName: String) async throws {
+        isLoading = true
+        // Simulate network delay
+        try await Task.sleep(nanoseconds: 2_000_000_000)
+        
+        // Mock success
+        currentUser = User.mockUser
+        isAuthenticated = true
+        isLoading = false
+    }
+    
+    func signInWithEmail(email: String, password: String) async throws {
+        isLoading = true
+        // Simulate network delay
+        try await Task.sleep(nanoseconds: 1_500_000_000)
+        
+        if email == "test@example.com" && password == "password" {
+            // Success case
+            currentUser = User.mockUser
+            isAuthenticated = true
+            isLoading = false
+        } else {
+            // Error case
+            isLoading = false
+            errorMessage = "Invalid email or password"
+            throw NSError(domain: "MockAuthManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid email or password"])
+        }
+    }
+    
+    func resendEmailVerification() async throws {
+        isLoading = true
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        isLoading = false
     }
     
     func signOut() {
