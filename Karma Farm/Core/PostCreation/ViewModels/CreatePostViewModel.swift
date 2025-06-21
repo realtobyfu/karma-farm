@@ -7,17 +7,86 @@
 
 import SwiftUI
 import Foundation
+import CoreLocation
+import FirebaseAuth
 
 @MainActor
 class CreatePostViewModel: ObservableObject {
-    @Published var selectedLocation: String?
-    @Published var isCreating = false
+    @Published var isLoading = false
+    @Published var errorMessage: String?
     
-    func createPost(type: PostType, title: String, description: String, karmaValue: Int, isRequest: Bool) {
-        Task {
-            isCreating = true
-            // Create post via backend
-            isCreating = false
+    func createPost(
+        title: String,
+        description: String,
+        type: PostType,
+        karmaValue: Int,
+        isRequest: Bool,
+        location: CLLocation?,
+        locationName: String,
+        expiresAt: Date?
+    ) async throws {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            guard let idToken = try await Auth.auth().currentUser?.getIDToken() else {
+                throw CreatePostError.noAuthToken
+            }
+            
+            var postData: [String: Any] = [
+                "title": title,
+                "description": description,
+                "type": type.rawValue,
+                "karmaValue": karmaValue,
+                "isRequest": isRequest,
+                "locationName": locationName
+            ]
+            
+            if let location = location {
+                postData["location"] = [
+                    "latitude": location.coordinate.latitude,
+                    "longitude": location.coordinate.longitude
+                ]
+            }
+            
+            if let expiresAt = expiresAt {
+                let formatter = ISO8601DateFormatter()
+                postData["expiresAt"] = formatter.string(from: expiresAt)
+            }
+            
+            let newPost = try await APIService.shared.createPost(idToken, postData: postData)
+            
+            // Notify other parts of the app that a new post was created
+            NotificationCenter.default.post(name: .newPostCreated, object: newPost)
+            
+            isLoading = false
+        } catch {
+            isLoading = false
+            errorMessage = error.localizedDescription
+            throw error
         }
     }
+}
+
+// MARK: - Errors
+enum CreatePostError: LocalizedError {
+    case noAuthToken
+    case invalidData
+    case networkError
+    
+    var errorDescription: String? {
+        switch self {
+        case .noAuthToken:
+            return "Authentication token not available"
+        case .invalidData:
+            return "Invalid post data"
+        case .networkError:
+            return "Network error occurred"
+        }
+    }
+}
+
+// MARK: - Notifications
+extension Notification.Name {
+    static let newPostCreated = Notification.Name("newPostCreated")
 }

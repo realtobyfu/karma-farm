@@ -126,6 +126,13 @@ extension PrivateProfile {
     )
 }
 
+struct UserStats: Codable {
+    let postsCreated: Int
+    let karmaEarned: Int
+    let karmaGiven: Int
+    let connections: Int
+}
+
 extension UserStats {
     static let mockStats = UserStats(
         postsCreated: 12,
@@ -219,11 +226,4 @@ struct KarmaTransaction: Codable, Identifiable {
         case given = "given"
         case bonus = "bonus"
     }
-}
-
-struct UserStats: Codable {
-    let postsCreated: Int
-    let karmaEarned: Int
-    let karmaGiven: Int
-    let connections: Int
 }

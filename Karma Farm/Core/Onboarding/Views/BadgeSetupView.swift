@@ -8,13 +8,9 @@
 import SwiftUI
 
 struct BadgeSetupView: View {
+    @StateObject private var viewModel = OnboardingViewModel()
     @Binding var canProceed: Bool
     let onContinue: () -> Void
-    
-    @State private var isCollegeStudent = false
-    @State private var collegeEmail = ""
-    @State private var isVerifyingEmail = false
-    @State private var showVerificationSent = false
     
     var body: some View {
         ScrollView {
@@ -46,37 +42,43 @@ struct BadgeSetupView: View {
                         title: "College Student",
                         description: "Verify your .edu email to earn this badge",
                         color: .blue,
-                        isSelected: isCollegeStudent
+                        isSelected: viewModel.isCollegeStudent
                     ) {
-                        isCollegeStudent.toggle()
-                        if !isCollegeStudent {
-                            collegeEmail = ""
-                            showVerificationSent = false
+                        viewModel.isCollegeStudent.toggle()
+                        if !viewModel.isCollegeStudent {
+                            viewModel.collegeEmail = ""
+                            viewModel.emailVerificationSent = false
                         }
                     }
                     
-                    if isCollegeStudent {
+                    if viewModel.isCollegeStudent {
                         VStack(spacing: 12) {
-                            TextField("College Email (.edu)", text: $collegeEmail)
+                            TextField("College Email (.edu)", text: $viewModel.collegeEmail)
                                 .textFieldStyle(BadgeTextFieldStyle())
                                 .keyboardType(.emailAddress)
                                 .autocapitalization(.none)
                                 .autocorrectionDisabled()
                             
-                            if !showVerificationSent {
+                            if !viewModel.emailVerificationSent {
                                 Button("Verify Email") {
-                                    verifyCollegeEmail()
+                                    Task {
+                                        do {
+                                            try await viewModel.verifyCollegeEmail()
+                                        } catch {
+                                            print("Email verification error: \(error)")
+                                        }
+                                    }
                                 }
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 44)
-                                .background(isValidCollegeEmail ? Color.blue : Color.gray)
+                                .background(viewModel.isValidCollegeEmail ? Color.blue : Color.gray)
                                 .cornerRadius(8)
-                                .disabled(!isValidCollegeEmail || isVerifyingEmail)
+                                .disabled(!viewModel.isValidCollegeEmail || viewModel.isVerifyingEmail)
                                 .overlay(
                                     Group {
-                                        if isVerifyingEmail {
+                                        if viewModel.isVerifyingEmail {
                                             ProgressView()
                                                 .progressViewStyle(CircularProgressViewStyle(tint: .white))
                                                 .scaleEffect(0.8)
@@ -160,19 +162,7 @@ struct BadgeSetupView: View {
         }
     }
     
-    private var isValidCollegeEmail: Bool {
-        collegeEmail.lowercased().hasSuffix(".edu") && collegeEmail.contains("@")
-    }
-    
-    private func verifyCollegeEmail() {
-        isVerifyingEmail = true
-        
-        // Simulate API call
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            isVerifyingEmail = false
-            showVerificationSent = true
-        }
-    }
+
 }
 
 struct BadgeCard: View {
@@ -224,14 +214,10 @@ struct BadgeCard: View {
 struct BadgeTextFieldStyle: TextFieldStyle {
     func _body(configuration: TextField<Self._Label>) -> some View {
         configuration
-            .padding(12)
-            .background(Color(.systemBackground))
+            .padding()
+            .background(Color(.systemGray6))
             .cornerRadius(8)
-            .font(.system(size: 15))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(Color(.systemGray4), lineWidth: 1)
-            )
+            .font(.system(size: 16))
     }
 }
 

@@ -243,6 +243,10 @@ class AuthManager: ObservableObject {
         }
     }
     
+    func updateCurrentUser(_ user: User) {
+        currentUser = user
+    }
+    
     func signOut() {
         do {
             try Auth.auth().signOut()

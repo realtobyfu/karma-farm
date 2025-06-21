@@ -13,6 +13,10 @@ class ProfileViewModel: ObservableObject {
     @Published var stats = UserStats(postsCreated: 0, karmaEarned: 0, karmaGiven: 0, connections: 0)
     @Published var recentPosts: [Post] = []
     
+    var userStats: UserStats {
+        return stats
+    }
+    
     init() {
         Task {
             await loadProfile()
@@ -23,6 +27,12 @@ class ProfileViewModel: ObservableObject {
         currentUser = AuthManager.shared.currentUser
         await loadStats()
         await loadRecentPosts()
+    }
+    
+    func loadUserStats() {
+        Task {
+            await loadStats()
+        }
     }
 
     private func loadStats() async {

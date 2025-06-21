@@ -9,11 +9,9 @@ import SwiftUI
 import CoreLocation
 
 struct LocationPermissionView: View {
+    @StateObject private var locationManager = LocationManager.shared
     @Binding var canProceed: Bool
     let onContinue: () -> Void
-    
-    @State private var locationManager = CLLocationManager()
-    @State private var authorizationStatus: CLAuthorizationStatus = .notDetermined
     
     var body: some View {
         VStack(spacing: 0) {
@@ -66,13 +64,13 @@ struct LocationPermissionView: View {
             
             // Action buttons
             VStack(spacing: 12) {
-                Button(authorizationStatus == .notDetermined ? "Enable Location" : "Continue") {
-                    if authorizationStatus == .notDetermined {
-                        requestLocationPermission()
-                    } else {
-                        onContinue()
-                    }
+                            Button(locationManager.authorizationStatus == .notDetermined ? "Enable Location" : "Continue") {
+                if locationManager.authorizationStatus == .notDetermined {
+                    locationManager.requestLocationPermission()
+                } else {
+                    onContinue()
                 }
+            }
                 .font(.system(size: 16, weight: .medium))
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
@@ -80,7 +78,7 @@ struct LocationPermissionView: View {
                 .background(Color.purple)
                 .cornerRadius(12)
                 
-                if authorizationStatus == .notDetermined {
+                if locationManager.authorizationStatus == .notDetermined {
                     Button("Skip for Now") {
                         canProceed = true
                         onContinue()
@@ -93,18 +91,13 @@ struct LocationPermissionView: View {
             .padding(.bottom, 34)
         }
         .onAppear {
-            authorizationStatus = locationManager.authorizationStatus
-            canProceed = authorizationStatus != .notDetermined
+            canProceed = locationManager.authorizationStatus != .notDetermined
         }
         .onChange(of: locationManager.authorizationStatus) { status in
-            authorizationStatus = status
             canProceed = status != .notDetermined
         }
     }
-    
-    private func requestLocationPermission() {
-        locationManager.requestWhenInUseAuthorization()
-    }
+
 }
 
 struct PermissionBenefitRow: View {

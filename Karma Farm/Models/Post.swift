@@ -1,24 +1,43 @@
 import Foundation
 import CoreLocation
+import FirebaseAuth
 
 enum PostType: String, Codable, CaseIterable {
+    case general = "general"
     case skillShare = "skill_share"
     case task = "task"
     case interest = "interest"
+    case transportation = "transportation"
+    case food = "food"
+    case technology = "technology"
+    case education = "education"
+    case events = "events"
     
     var displayName: String {
         switch self {
+        case .general: return "General"
         case .skillShare: return "Skill Share"
         case .task: return "Task"
         case .interest: return "Interest"
+        case .transportation: return "Transportation"
+        case .food: return "Food"
+        case .technology: return "Technology"
+        case .education: return "Education"
+        case .events: return "Events"
         }
     }
     
     var icon: String {
         switch self {
+        case .general: return "star.fill"
         case .skillShare: return "lightbulb.fill"
         case .task: return "checkmark.circle.fill"
         case .interest: return "heart.fill"
+        case .transportation: return "car.fill"
+        case .food: return "fork.knife"
+        case .technology: return "laptopcomputer"
+        case .education: return "book.fill"
+        case .events: return "calendar"
         }
     }
 }
@@ -76,6 +95,12 @@ struct Post: Codable, Identifiable {
         } else {
             return "< 1h"
         }
+    }
+    
+    var isCurrentUserPost: Bool {
+        // Check if this post belongs to the current user
+        guard let currentUserId = AuthManager.shared.currentUser?.id else { return false }
+        return userId == currentUserId
     }
 }
 

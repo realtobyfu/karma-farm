@@ -10,6 +10,7 @@ import PhotosUI
 
 struct ProfileSetupView: View {
     @EnvironmentObject var authManager: AuthManager
+    @StateObject private var viewModel = OnboardingViewModel()
     @Binding var canProceed: Bool
     let onContinue: () -> Void
     
@@ -17,6 +18,7 @@ struct ProfileSetupView: View {
     @State private var bio = ""
     @State private var selectedImage: PhotosPickerItem?
     @State private var profileImage: Image?
+    @State private var profileUIImage: UIImage?
     @State private var skills: [String] = []
     @State private var interests: [String] = []
     @State private var newSkill = ""
@@ -80,12 +82,13 @@ struct ProfileSetupView: View {
                                 }
                             }
                             .onChange(of: selectedImage) { newItem in
-                                Task {
-                                    if let data = try? await newItem?.loadTransferable(type: Data.self),
-                                       let uiImage = UIImage(data: data) {
-                                        profileImage = Image(uiImage: uiImage)
-                                    }
+                                                            Task {
+                                if let data = try? await newItem?.loadTransferable(type: Data.self),
+                                   let uiImage = UIImage(data: data) {
+                                    profileImage = Image(uiImage: uiImage)
+                                    profileUIImage = uiImage
                                 }
+                            }
                             }
                             
                             Spacer()
@@ -226,9 +229,18 @@ struct ProfileSetupView: View {
                     .frame(height: 50)
                     .background(canProceed ? Color.purple : Color.gray)
                     .cornerRadius(12)
-                    .disabled(!canProceed)
+                    .disabled(!canProceed || viewModel.isLoading)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 34)
+                    .overlay(
+                        Group {
+                            if viewModel.isLoading {
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                    .scaleEffect(0.8)
+                            }
+                        }
+                    )
                 }
                 .background(Color(.systemBackground))
             }
@@ -236,6 +248,15 @@ struct ProfileSetupView: View {
         .onChange(of: username) { _ in updateCanProceed() }
         .onAppear {
             updateCanProceed()
+        }
+        .alert("Profile Setup Error", isPresented: .constant(viewModel.errorMessage != nil)) {
+            Button("OK") {
+                viewModel.errorMessage = nil
+            }
+        } message: {
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+            }
         }
     }
     
@@ -269,9 +290,19 @@ struct ProfileSetupView: View {
     
     private func saveProfile() {
         Task {
-            // TODO: API call to save profile
-            // For now, just continue to next step
-            onContinue()
+            do {
+                try await viewModel.updateProfile(
+                    username: username,
+                    bio: bio,
+                    skills: skills,
+                    interests: interests,
+                    profileImage: profileUIImage
+                )
+                onContinue()
+            } catch {
+                // Error is already handled in the view model
+                print("Profile setup error: \(error)")
+            }
         }
     }
 }
