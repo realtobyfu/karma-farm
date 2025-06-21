@@ -50,7 +50,7 @@ class PhoneAuthViewModel: ObservableObject {
             let _ = try await Auth.auth().signIn(with: credential)
             
             await MainActor.run {
-                self.isVerifying = false
+            self.isVerifying = false
             }
         } catch {
             await MainActor.run {

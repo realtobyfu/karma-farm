@@ -35,37 +35,59 @@ class AuthManager: ObservableObject {
     
     private func setupAuthListener() {
         handle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
-            self?.firebaseUser = user
-            self?.isAuthenticated = user != nil
+                    self?.firebaseUser = user
+                    self?.isAuthenticated = user != nil
             
-            if user != nil {
-                self?.fetchUserProfile()
-            } else {
-                self?.currentUser = nil
+                if user != nil {
+                    self?.fetchUserProfile()
+                } else {
+                        self?.currentUser = nil
             }
         }
     }
     
     // MARK: - Phone Authentication
     func startPhoneVerification(phoneNumber: String) async throws -> String {
-        isLoading = true
-        errorMessage = nil
+        print("🔥 AuthManager: Starting phone verification for: \(phoneNumber)")
+        
+        // Check if Firebase is configured
+        guard FirebaseApp.app() != nil else {
+            print("🔥 ERROR: Firebase is not configured!")
+            throw NSError(domain: "AuthManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Firebase is not configured"])
+        }
+        
+        await MainActor.run {
+            isLoading = true
+            errorMessage = nil
+        }
         
         do {
+            print("🔥 AuthManager: Calling Firebase PhoneAuthProvider")
             let verificationID = try await PhoneAuthProvider.provider()
                 .verifyPhoneNumber(phoneNumber, uiDelegate: nil)
-            isLoading = false
+            print("🔥 AuthManager: Firebase returned verification ID: \(verificationID)")
+            
+            await MainActor.run {
+                isLoading = false
+            }
             return verificationID
         } catch {
-            isLoading = false
-            errorMessage = error.localizedDescription
+            print("🔥 AuthManager ERROR: \(error)")
+            if let nsError = error as NSError? {
+                print("🔥 AuthManager ERROR Details: Domain: \(nsError.domain), Code: \(nsError.code), UserInfo: \(nsError.userInfo)")
+            }
+            
+            await MainActor.run {
+                isLoading = false
+                errorMessage = error.localizedDescription
+            }
             throw error
         }
     }
     
     func verifyCode(verificationID: String, code: String) async throws {
-        isLoading = true
-        errorMessage = nil
+            isLoading = true
+            errorMessage = nil
         
         do {
             let credential = PhoneAuthProvider.provider()
@@ -79,10 +101,10 @@ class AuthManager: ObservableObject {
             // Verify with backend
             try await verifyWithBackend(idToken: idToken)
             
-            isLoading = false
+                isLoading = false
         } catch {
-            isLoading = false
-            errorMessage = error.localizedDescription
+                isLoading = false
+                errorMessage = error.localizedDescription
             throw error
         }
     }
@@ -100,11 +122,11 @@ class AuthManager: ObservableObject {
         
         let response = try JSONDecoder().decode(AuthResponse.self, from: data)
         
-        if response.isNewUser {
-            // Navigate to profile setup
-            self.currentUser = response.user
-        } else {
-            self.currentUser = response.user
+            if response.isNewUser {
+                // Navigate to profile setup
+                self.currentUser = response.user
+            } else {
+                self.currentUser = response.user
         }
     }
     

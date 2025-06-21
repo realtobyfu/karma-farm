@@ -71,7 +71,7 @@ struct FeedView: View {
                     .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
             }
             .listStyle(PlainListStyle())
-            .navigationTitle("Feed")
+                .navigationTitle("Feed")
         }
     }
 }
@@ -145,7 +145,7 @@ struct MapView: View {
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
-            .navigationTitle("Map")
+                .navigationTitle("Map")
         }
     }
 }
@@ -154,14 +154,14 @@ struct CreatePostView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                Text("Create Post")
+            Text("Create Post")
                     .font(.title)
                 
                 Text("Form to create new posts will go here")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
             }
-            .navigationTitle("Create")
+                .navigationTitle("Create")
         }
     }
 }
@@ -174,7 +174,7 @@ struct ChatListView: View {
             List(chats) { chat in
                 ChatRowView(chat: chat)
             }
-            .navigationTitle("Messages")
+                .navigationTitle("Messages")
         }
     }
 }
@@ -273,7 +273,7 @@ struct ProfileView: View {
                             .foregroundColor(.secondary)
                     }
                     
-                    VStack {
+            VStack {
                         Text("\(userStats.connections)")
                             .font(.title2)
                             .fontWeight(.bold)

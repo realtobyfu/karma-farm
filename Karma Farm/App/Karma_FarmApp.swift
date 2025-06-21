@@ -32,18 +32,42 @@ struct KarmaFarmApp: App {
 class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         
+        print("🔥 AppDelegate: Starting Firebase configuration")
+        
         // Configure Firebase
-        FirebaseApp.configure()
+        do {
+            FirebaseApp.configure()
+            print("🔥 AppDelegate: Firebase configured successfully")
+//            // Disable app verification for testing on simulator
+//            #if targetEnvironment(simulator)
+//            Auth.auth().settings?.isAppVerificationDisabledForTesting = true
+//            print("🔥 AppDelegate: Disabled app verification for testing")
+//            #endif
+            
+            // Verify Firebase app is available
+            if let app = FirebaseApp.app() {
+                print("🔥 AppDelegate: Firebase app name: \(app.name)")
+                print("🔥 AppDelegate: Firebase app options: \(app.options)")
+            } else {
+                print("🔥 ERROR: Firebase app is nil after configuration!")
+            }
+        } catch {
+            print("🔥 ERROR: Firebase configuration failed: \(error)")
+        }
         
         // Set up APNs for phone authentication
         UNUserNotificationCenter.current().delegate = self
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
-            print("Notification permission granted: \(granted)")
+            print("🔥 AppDelegate: Notification permission granted: \(granted)")
+            if let error = error {
+                print("🔥 AppDelegate: Notification permission error: \(error)")
+            }
         }
         application.registerForRemoteNotifications()
         
         // Set Auth language to match device
         Auth.auth().languageCode = nil
+        print("🔥 AppDelegate: Auth language set to device default")
         
         return true
     }

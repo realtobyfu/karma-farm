@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3E55113C2E0601B3004AB827 /* Karma-Farm-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3E55113A2E0601B3004AB827 /* Karma-Farm-Info.plist */; };
 		3E7E708E2E022FC500E5E93F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 3E7E708D2E022FC500E5E93F /* FirebaseAuth */; };
 		3E7E70BA2E024E7D00E5E93F /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 3E7E70B92E024E7D00E5E93F /* IQKeyboardManagerSwift */; };
 		3E7E70C22E02529400E5E93F /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 3E7E70C12E02529400E5E93F /* Alamofire */; };
@@ -30,6 +31,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3E55113A2E0601B3004AB827 /* Karma-Farm-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Karma-Farm-Info.plist"; sourceTree = "<group>"; };
 		3E80EF852E02264D007AA9BE /* Karma Farm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Karma Farm.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E80EF9B2E02264F007AA9BE /* Karma FarmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Karma FarmTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E80EFA52E02264F007AA9BE /* Karma FarmUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Karma FarmUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -88,6 +90,7 @@
 				3E80EF9E2E02264F007AA9BE /* Karma FarmTests */,
 				3E80EFA82E02264F007AA9BE /* Karma FarmUITests */,
 				3E80EF862E02264D007AA9BE /* Products */,
+				3E55113A2E0601B3004AB827 /* Karma-Farm-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -229,6 +232,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3E55113C2E0601B3004AB827 /* Karma-Farm-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

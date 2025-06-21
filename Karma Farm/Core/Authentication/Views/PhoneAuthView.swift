@@ -60,7 +60,7 @@ struct PhoneAuthView: View {
                                     .fontWeight(.medium)
                                 Image(systemName: "chevron.down")
                                     .font(.system(size: 12))
-                                    .foregroundColor(.secondary)
+                    .foregroundColor(.secondary)
                             }
                             .padding(12)
                             .background(Color(.systemGray6))
@@ -68,7 +68,7 @@ struct PhoneAuthView: View {
                         }
                         .foregroundColor(.primary)
                         
-                        // Phone Number Input
+                    // Phone Number Input
                         TextField("Phone Number", text: $phoneNumber)
                             .keyboardType(.numberPad)
                             .textContentType(.telephoneNumber)
@@ -108,9 +108,9 @@ struct PhoneAuthView: View {
                             .font(.system(size: 12))
                             .multilineTextAlignment(.center)
                     }
-                }
+                    }
                 .padding(.horizontal, 24)
-                
+                    
             } else {
                 // Verification code form section - compact like original
                 VStack(spacing: 12) {
@@ -122,8 +122,8 @@ struct PhoneAuthView: View {
                         .padding(.bottom, 8)
                     
                     // Verification Code Input
-                    TextField("Verification Code", text: $verificationCode)
-                        .keyboardType(.numberPad)
+                        TextField("Verification Code", text: $verificationCode)
+                            .keyboardType(.numberPad)
                         .textContentType(.oneTimeCode)
                         .font(.system(size: 15))
                         .multilineTextAlignment(.center)
@@ -135,7 +135,7 @@ struct PhoneAuthView: View {
                                 verificationCode = String(newValue.prefix(6))
                             }
                             if verificationCode.count == 6 {
-                                verifyCode()
+                            verifyCode()
                             }
                         }
                     
@@ -168,10 +168,10 @@ struct PhoneAuthView: View {
                     }
                 }
                 .padding(.horizontal, 24)
-            }
-            
-            Spacer()
-            
+                }
+                
+                Spacer()
+                
             // Bottom section like original
             VStack(spacing: 16) {
                 Divider()
@@ -200,10 +200,22 @@ struct PhoneAuthView: View {
                     }
                 } else {
                     // Terms text like original signup flow
-                    Text("By continuing, you agree to our Terms of Service and Privacy Policy")
+                Text("By continuing, you agree to our Terms of Service and Privacy Policy")
                         .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    
+                    // Debug button for testing
+                    #if DEBUG
+                    Button("🔧 Debug Firebase") {
+                        Task {
+                            await testFirebaseConfiguration()
+                        }
+                    }
+                    .font(.system(size: 12))
+                    .foregroundColor(.blue)
+                    .padding(.top, 8)
+                    #endif
                 }
             }
             .padding(.bottom, 34)
@@ -232,18 +244,29 @@ struct PhoneAuthView: View {
     private func sendVerificationCode() {
         let fullPhoneNumber = selectedCountry.dialCode + phoneNumber.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
         
+        print("🔥 DEBUG: Attempting to send verification code to: \(fullPhoneNumber)")
+        
         Task {
             do {
+                print("🔥 DEBUG: Calling authManager.startPhoneVerification")
                 verificationID = try await authManager.startPhoneVerification(phoneNumber: fullPhoneNumber)
+                print("🔥 DEBUG: Successfully got verification ID: \(verificationID ?? "nil")")
+                
                 await MainActor.run {
-                    withAnimation {
-                        showVerificationField = true
+                withAnimation {
+                    showVerificationField = true
                         resendTimer = 60
                         canResend = false
                     }
                 }
             } catch {
-                print("Error sending verification code: \(error)")
+                print("🔥 ERROR: Failed to send verification code: \(error)")
+                print("🔥 ERROR: Error details: \(error.localizedDescription)")
+                
+                // Ensure we're on main thread for UI updates
+                await MainActor.run {
+                    authManager.errorMessage = "Failed to send verification code: \(error.localizedDescription)"
+                }
             }
         }
     }
@@ -290,6 +313,40 @@ struct PhoneAuthView: View {
             authManager.errorMessage = nil
         }
     }
+    
+    // MARK: - Debug Functions
+    #if DEBUG
+    private func testFirebaseConfiguration() async {
+        print("🔧 DEBUG: Testing Firebase configuration...")
+        
+        // Test 1: Check if Firebase app exists
+        if let app = FirebaseApp.app() {
+            print("✅ Firebase app exists: \(app.name)")
+        } else {
+            print("❌ Firebase app is nil")
+            return
+        }
+        
+        // Test 2: Check Auth instance
+        let auth = Auth.auth()
+        print("✅ Auth instance created")
+        print("🔧 Auth app: \(auth.app?.name ?? "nil")")
+        
+        // Test 3: Check PhoneAuthProvider
+        let provider = PhoneAuthProvider.provider()
+        print("✅ PhoneAuthProvider created")
+        print("🔧 Provider auth: \(provider.auth?.app?.name ?? "nil")")
+        
+        // Test 4: Try a simple phone verification (should fail gracefully)
+        do {
+            print("🔧 Testing phone verification with dummy number...")
+            let _ = try await provider.verifyPhoneNumber("+1234567890", uiDelegate: nil)
+            print("⚠️ Unexpected success with dummy number")
+        } catch {
+            print("✅ Expected error with dummy number: \(error.localizedDescription)")
+        }
+    }
+    #endif
     
     // MARK: - Helper Functions
     private func formatPhoneNumber(_ number: String) -> String {
