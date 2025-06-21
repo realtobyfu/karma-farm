@@ -5,6 +5,7 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
+		<string>fetch</string>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
@@ -13,7 +14,7 @@
 			<string>GoogleService-Info</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.307905052917-lp0itvmjvbf1b8v99doh9oidlf9hupbj</string>
+				<string>com.googleusercontent.apps.307905052917-cq8p0ino91c1kbc9a3q3ssc2gsjp9gvi</string>
 			</array>
 		</dict>
 	</array>
