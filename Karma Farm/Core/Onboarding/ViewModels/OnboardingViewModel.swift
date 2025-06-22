@@ -49,10 +49,10 @@ class OnboardingViewModel: ObservableObject {
                 "collegeEmail": collegeEmail.isEmpty ? nil : collegeEmail
             ]
             
-            let updatedUser = try await APIService.shared.setupProfile(idToken, profileData: profileData)
+            try await APIService.shared.setupProfile(idToken, profileData: profileData)
             
-            // Update auth manager with new user data
-            await AuthManager.shared.updateCurrentUser(updatedUser)
+            // Refetch user data since setupProfile doesn't return it anymore
+            try await AuthManager.shared.fetchCurrentUser()
             
             isLoading = false
         } catch {

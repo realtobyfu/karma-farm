@@ -58,14 +58,19 @@ class EditProfileViewModel: ObservableObject {
                     "realName": realName
                 ]
             ]
-            let updatedUser = try await APIService.shared.updateProfile(token, profileData: profileData)
-            
-            // Update the AuthManager's current user
-            await MainActor.run {
-                AuthManager.shared.currentUser = updatedUser
+            try await APIService.shared.updateProfile(token, profileData: profileData)
+            // After updating, fetch the latest user profile
+            do {
+                let currentUser = try await APIService.shared.getCurrentUser(token)
+                await MainActor.run {
+                    AuthManager.shared.currentUser = currentUser
+                }
+            } catch {
+                print("Failed to fetch current user: \(error)")
             }
         } catch {
             print("Failed to save profile: \(error)")
         }
     }
 }
+

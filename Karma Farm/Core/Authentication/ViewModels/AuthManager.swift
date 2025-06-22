@@ -243,8 +243,21 @@ class AuthManager: ObservableObject {
         }
     }
     
+    // MARK: - User Profile
+    func fetchCurrentUser() async throws {
+        guard let idToken = try? await Auth.auth().currentUser?.getIDToken() else {
+            throw NSError(domain: "AuthManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Could not get auth token."])
+        }
+        
+        let user = try await APIService.shared.getCurrentUser(idToken)
+        
+        await MainActor.run {
+            self.currentUser = user
+        }
+    }
+    
     func updateCurrentUser(_ user: User) {
-        currentUser = user
+        self.currentUser = user
     }
     
     func signOut() {

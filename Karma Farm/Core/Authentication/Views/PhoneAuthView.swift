@@ -5,7 +5,9 @@
 //  Created by Tobias Fu on 6/17/25.
 //
 
+import FirebaseAuth
 import SwiftUI
+import FirebaseCore
 
 struct CountryCode {
     let name: String
@@ -334,8 +336,7 @@ struct PhoneAuthView: View {
         
         // Test 3: Check PhoneAuthProvider
         let provider = PhoneAuthProvider.provider()
-        print("✅ PhoneAuthProvider created")
-        print("🔧 Provider auth: \(provider.auth?.app?.name ?? "nil")")
+//	//        print("🔧 Provider auth: \(provider.auth.app?.name ?? "nil")")
         
         // Test 4: Try a simple phone verification (should fail gracefully)
         do {

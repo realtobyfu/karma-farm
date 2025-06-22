@@ -13,9 +13,9 @@ import FirebaseAuth
 // MARK: - API Configuration
 struct APIConfig {
     #if DEBUG
-    static let baseURL = "http://localhost:3000"
+    static let baseURL = "http://127.0.0.1:3000"
     #else
-    static let baseURL = "https://your-production-api.com"
+    static let baseURL = "http://127.0.0.1:3000"
     #endif
     
     static let timeout: TimeInterval = 30.0
@@ -85,6 +85,18 @@ class APIService {
         #endif
         
         return try await withCheckedThrowingContinuation { continuation in
+            // Use ISO8601 decoder with fractional seconds for Date fields
+            let decoder = JSONDecoder()
+            let isoFormatter = ISO8601DateFormatter()
+            isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+            decoder.dateDecodingStrategy = .custom { decoder in
+                let container = try decoder.singleValueContainer()
+                let dateStr = try container.decode(String.self)
+                if let date = isoFormatter.date(from: dateStr) {
+                    return date
+                }
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot decode date string: \(dateStr)")
+            }
             session.request(
                 url,
                 method: method,
@@ -93,7 +105,7 @@ class APIService {
                 headers: headers
             )
             .validate()
-            .responseDecodable(of: T.self) { response in
+            .responseDecodable(of: T.self, decoder: decoder) { response in
                 #if DEBUG
                 print("📱 API Response Status: \(response.response?.statusCode ?? 0)")
                 if let data = response.data {
@@ -143,18 +155,17 @@ class APIService {
         )
     }
     
-    func setupProfile(_ idToken: String, profileData: [String: Any]) async throws -> User {
+    func setupProfile(_ idToken: String, profileData: [String: Any]) async throws {
         let headers: HTTPHeaders = [
             "Authorization": "Bearer \(idToken)",
             "Content-Type": "application/json"
         ]
         
-        return try await performRequest(
+        try await performRequestEmptyResponse(
             endpoint: "/auth/setup-profile",
             method: .post,
             parameters: profileData,
-            headers: headers,
-            responseType: User.self
+            headers: headers
         )
     }
     
@@ -229,8 +240,8 @@ class APIService {
         )
     }
     
-    func updateProfile(_ idToken: String, profileData: [String: Any]) async throws -> User {
-        return try await setupProfile(idToken, profileData: profileData)
+    func updateProfile(_ idToken: String, profileData: [String: Any]) async throws {
+        try await setupProfile(idToken, profileData: profileData)
     }
     
     // MARK: - Network Status
@@ -247,6 +258,54 @@ class APIService {
             print("❌ Network check failed: \(error)")
             #endif
             return false
+        }
+    }
+    
+    private func performRequestEmptyResponse(
+        endpoint: String,
+        method: HTTPMethod = .post,
+        parameters: [String: Any]? = nil,
+        headers: HTTPHeaders? = nil
+    ) async throws {
+        let url = "\(APIConfig.baseURL)\(endpoint)"
+        
+        #if DEBUG
+        print("🌐 API Request: \(method.rawValue) \(url)")
+        if let params = parameters {
+            print("📋 Parameters: \(params)")
+        }
+        if let headers = headers {
+            print("📄 Headers: \(headers)")
+        }
+        #endif
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            session.request(
+                url,
+                method: method,
+                parameters: parameters,
+                encoding: JSONEncoding.default,
+                headers: headers
+            )
+            .validate()
+            .response { response in
+                #if DEBUG
+                print("📱 API Response Status: \(response.response?.statusCode ?? 0)")
+                if let data = response.data, let str = String(data: data, encoding: .utf8) {
+                    print("📄 Response Data: \(str)")
+                }
+                #endif
+                
+                switch response.result {
+                case .success:
+                    continuation.resume(returning: ())
+                case .failure(let error):
+                    #if DEBUG
+                    print("❌ API Error: \(error)")
+                    #endif
+                    continuation.resume(throwing: error)
+                }
+            }
         }
     }
 }
