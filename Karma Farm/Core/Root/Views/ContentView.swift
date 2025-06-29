@@ -33,37 +33,34 @@ struct ContentView: View {
 }
 
 struct MainTabView: View {
+    @State private var selectedTab = 0
+    @State private var showingCreatePost = false
+    
     var body: some View {
-        TabView {
-            FeedView()
-                .tabItem {
-                    Image(systemName: "house")
-                    Text("Feed")
+        ZStack {
+            // Content
+            Group {
+                switch selectedTab {
+                case 0:
+                    FeedView()
+                case 1:
+                    MapView()
+                case 3:
+                    ChatListView()
+                case 4:
+                    ProfileView()
+                default:
+                    FeedView()
                 }
+            }
             
-            MapView()
-                .tabItem {
-                    Image(systemName: "map")
-                    Text("Map")
-                }
+            // Modern Tab Bar
+            VStack {
+                Spacer()
+                ModernTabBar(selectedTab: $selectedTab)
+            }
             
-            CreatePostView()
-                .tabItem {
-                    Image(systemName: "plus.circle")
-                    Text("Create")
-                }
-            
-            ChatListView()
-                .tabItem {
-                    Image(systemName: "message")
-                    Text("Chat")
-                }
-            
-            ProfileView()
-                .tabItem {
-                    Image(systemName: "person")
-                    Text("Profile")
-                }
+            // Floating Action Button - removed from here as it's in FeedView
         }
     }
 }
@@ -73,10 +70,18 @@ struct ChatListView: View {
     
     var body: some View {
         NavigationView {
-            List(chats) { chat in
-                ChatRowView(chat: chat)
-            }
+            ZStack {
+                DesignSystem.Colors.backgroundPrimary
+                    .ignoresSafeArea()
+                
+                List(chats) { chat in
+                    ChatRowView(chat: chat)
+                        .listRowBackground(Color.clear)
+                }
+                .listStyle(PlainListStyle())
                 .navigationTitle("Messages")
+                .navigationBarTitleDisplayMode(.large)
+            }
         }
     }
 }
@@ -85,23 +90,24 @@ struct ChatRowView: View {
     let chat: Chat
     
     var body: some View {
-        HStack {
+        HStack(spacing: DesignSystem.Spacing.md) {
             Circle()
-                .fill(Color(.systemGray4))
+                .fill(DesignSystem.Colors.backgroundSecondary)
                 .frame(width: 50, height: 50)
                 .overlay(
                     Text(chat.user?.username.prefix(1).uppercased() ?? "?")
-                        .font(.headline)
-                        .foregroundColor(.white)
+                        .font(DesignSystem.Typography.title3)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
                 )
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(chat.user?.username ?? "Unknown")
-                    .font(.headline)
+                    .font(DesignSystem.Typography.bodyMedium)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                 
                 Text(chat.lastMessage?.content ?? "No messages")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .font(DesignSystem.Typography.footnote)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                     .lineLimit(1)
             }
             
@@ -109,22 +115,25 @@ struct ChatRowView: View {
             
             VStack(alignment: .trailing, spacing: 4) {
                 Text("2h")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                    .font(DesignSystem.Typography.caption)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                 
                 if chat.unreadCount > 0 {
                     Circle()
-                        .fill(Color.red)
+                        .fill(DesignSystem.Colors.primaryGreen)
                         .frame(width: 20, height: 20)
                         .overlay(
                             Text("\(chat.unreadCount)")
-                                .font(.caption2)
+                                .font(DesignSystem.Typography.caption)
                                 .foregroundColor(.white)
                         )
                 }
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, DesignSystem.Spacing.sm)
+        .background(DesignSystem.Colors.surface)
+        .cornerRadius(DesignSystem.Radius.medium)
+        .padding(.horizontal, DesignSystem.Spacing.sm)
     }
 }
 

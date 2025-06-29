@@ -13,15 +13,22 @@ struct CreatePostView: View {
     @StateObject private var locationManager = LocationManager.shared
     @Environment(\.dismiss) private var dismiss
     
+    let selectedTaskType: TaskType?
+    
     @State private var title = ""
     @State private var description = ""
     @State private var selectedType: PostType = .general
+    @State private var taskType: TaskType = .karma
     @State private var karmaValue = 10
     @State private var isRequest = true
     @State private var useCurrentLocation = true
     @State private var customLocationName = ""
     @State private var expirationDate = Date().addingTimeInterval(86400 * 7) // 7 days from now
     @State private var hasExpiration = true
+    
+    init(selectedTaskType: TaskType? = nil) {
+        self.selectedTaskType = selectedTaskType
+    }
     
     var body: some View {
         NavigationView {
@@ -201,6 +208,11 @@ struct CreatePostView: View {
                     Text(errorMessage)
                 }
             }
+            .onAppear {
+                if let selectedTaskType = selectedTaskType {
+                    taskType = selectedTaskType
+                }
+            }
         }
     }
     
@@ -218,6 +230,7 @@ struct CreatePostView: View {
                     title: title,
                     description: description,
                     type: selectedType,
+                    taskType: taskType,
                     karmaValue: karmaValue,
                     isRequest: isRequest,
                     location: location,

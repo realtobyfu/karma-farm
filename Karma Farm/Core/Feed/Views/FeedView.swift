@@ -11,44 +11,94 @@ struct FeedView: View {
     @StateObject private var viewModel = FeedViewModel()
     @State private var selectedFilter: FeedFilter = .all
     @State private var showingCreatePost = false
+    @State private var selectedTaskType: TaskType?
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // Filter picker
-                FilterPickerView(selectedFilter: $selectedFilter)
-                    .padding(.horizontal)
-                    .padding(.top, 8)
-                
-                // Feed content
-                if viewModel.isLoading && viewModel.posts.isEmpty {
-                    LoadingView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if viewModel.posts.isEmpty {
-                    EmptyFeedView()
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    PostsFeedView(posts: viewModel.posts, isLoading: viewModel.isLoading)
-                }
-            }
-            .navigationTitle("Feed")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { showingCreatePost = true }) {
-                        Image(systemName: "plus")
-                            .font(.title2)
-                            .foregroundColor(.purple)
+        ZStack {
+            // Background
+            DesignSystem.Colors.backgroundPrimary
+                .ignoresSafeArea()
+            
+            // Content
+            ScrollView {
+                VStack(spacing: DesignSystem.Spacing.md) {
+                    // Header
+                    HStack {
+                        Text(greetingText())
+                            .font(DesignSystem.Typography.largeTitle)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        Spacer()
+                        
+                        // Notification bell
+                        Button(action: {}) {
+                            Image(systemName: "bell.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+                    
+                    // Filter chips
+                    FilterPickerView(selectedFilter: $selectedFilter)
+                    
+                    // Feed content
+                    if viewModel.isLoading && viewModel.posts.isEmpty {
+                        LoadingView()
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 100)
+                    } else if viewModel.posts.isEmpty {
+                        EmptyFeedView { showingCreatePost = true }
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 100)
+                    } else {
+                        // Task cards
+                        VStack(spacing: DesignSystem.Spacing.md) {
+                            ForEach(viewModel.posts) { post in
+                                PostCardView(post: post)
+                            }
+                            
+                            if viewModel.isLoading {
+                                ProgressView()
+                                    .padding()
+                            }
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.bottom, 100)
                     }
                 }
             }
-            .sheet(isPresented: $showingCreatePost) {
-                CreatePostView()
+            .refreshable {
+                await viewModel.refresh()
             }
-            .onChange(of: selectedFilter) { newFilter in
-                viewModel.filterChanged(to: newFilter)
+            
+            // Floating Action Button
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    FloatingCreateButton { type in
+                        selectedTaskType = type
+                        showingCreatePost = true
+                    }
+                    .padding(.trailing, 20)
+                    .padding(.bottom, 80)
+                }
             }
         }
+        .sheet(isPresented: $showingCreatePost) {
+            CreatePostView(selectedTaskType: selectedTaskType)
+        }
+        .onChange(of: selectedFilter) { newFilter in
+            viewModel.filterChanged(to: newFilter)
+        }
+    }
+    
+    private func greetingText() -> String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        let greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening"
+        return "\(greeting)!"
     }
 }
 
@@ -61,57 +111,14 @@ struct FilterPickerView: View {
                 ForEach(FeedFilter.allCases, id: \.self) { filter in
                     FilterChip(
                         title: filter.displayName,
-                        isSelected: selectedFilter == filter
-                    ) {
-                        selectedFilter = filter
-                    }
+                        isSelected: selectedFilter == filter,
+                        action: {
+                            selectedFilter = filter
+                        }
+                    )
                 }
             }
-            .padding(.horizontal, 16)
-        }
-    }
-}
-
-struct FilterChip: View {
-    let title: String
-    let isSelected: Bool
-    let onTap: () -> Void
-    
-    var body: some View {
-        Button(action: onTap) {
-            Text(title)
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(isSelected ? .white : .purple)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(isSelected ? Color.purple : Color.purple.opacity(0.1))
-                .cornerRadius(20)
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
-
-struct PostsFeedView: View {
-    let posts: [Post]
-    let isLoading: Bool
-    
-    var body: some View {
-        ScrollView {
-            LazyVStack(spacing: 16) {
-                ForEach(posts) { post in
-                    PostCardView(post: post)
-                        .padding(.horizontal)
-                }
-                
-                if isLoading {
-                    ProgressView()
-                        .padding()
-                }
-            }
-            .padding(.vertical)
-        }
-        .refreshable {
-            await FeedViewModel().refresh()
+            .padding(.horizontal, 20)
         }
     }
 }
@@ -121,160 +128,67 @@ struct PostCardView: View {
     @State private var showingDetail = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Header
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(post.title)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.primary)
-                        .lineLimit(2)
-                    
-                    if let user = post.user {
-                        HStack(spacing: 4) {
-                            Circle()
-                                .fill(Color(.systemGray4))
-                                .frame(width: 20, height: 20)
-                                .overlay(
-                                    Text(user.username.prefix(1).uppercased())
-                                        .font(.system(size: 10, weight: .medium))
-                                        .foregroundColor(.white)
-                                )
-                            
-                            Text(user.username)
-                                .font(.system(size: 14))
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 4) {
-                    HStack(spacing: 4) {
-                        Image(systemName: post.type.icon)
-                            .foregroundColor(.orange)
-                            .font(.system(size: 16))
-                        
-                        Text("\(post.karmaValue)")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.orange)
-                    }
-                    
-                    if let timeRemaining = post.timeRemaining {
-                        Text(timeRemaining)
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-            
-            // Description
-            Text(post.description)
-                .font(.system(size: 15))
-                .foregroundColor(.secondary)
-                .lineLimit(3)
-            
-            // Location and type
-            HStack {
-                if let locationName = post.locationName {
-                    HStack(spacing: 4) {
-                        Image(systemName: "location.fill")
-                            .foregroundColor(.secondary)
-                            .font(.system(size: 12))
-                        
-                        Text(locationName)
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                    }
-                }
-                
-                Spacer()
-                
-                HStack(spacing: 4) {
-                    Text(post.isRequest ? "REQUEST" : "OFFER")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundColor(post.isRequest ? .red : .green)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background((post.isRequest ? Color.red : Color.green).opacity(0.1))
-                        .cornerRadius(8)
-                }
-            }
-            
-            // Action buttons
-            HStack(spacing: 16) {
-                Button(action: { showingDetail = true }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "eye")
-                        Text("View Details")
-                    }
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.purple)
-                }
-                
-                Spacer()
-                
-                if post.isCurrentUserPost {
-                    Button(action: { }) {
-                        Text("Edit")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.secondary)
-                    }
-                } else {
-                    Button(action: { }) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "message")
-                            Text("Contact")
-                        }
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color.purple)
-                        .cornerRadius(8)
-                    }
-                }
-            }
+        ModernTaskCard(
+            taskType: post.taskType,
+            title: post.title,
+            description: post.description,
+            value: formatValue(for: post),
+            location: post.locationName ?? "Unknown",
+            timeAgo: timeAgoText(for: post),
+            userName: post.user?.username ?? "Anonymous",
+            userAvatar: nil
+        ) {
+            showingDetail = true
         }
-        .padding(16)
-        .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(color: Color.black.opacity(0.1), radius: 8, x: 0, y: 2)
         .sheet(isPresented: $showingDetail) {
             PostDetailView(post: post)
         }
     }
+    
+    private func formatValue(for post: Post) -> String {
+        switch post.taskType {
+        case .cash:
+            return "$\(post.karmaValue)"
+        case .karma:
+            return "\(post.karmaValue)"
+        case .fun:
+            return "Fun!"
+        }
+    }
+    
+    private func timeAgoText(for post: Post) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter.localizedString(for: post.createdAt, relativeTo: Date())
+    }
 }
 
+
 struct EmptyFeedView: View {
+    let onCreatePost: () -> Void
+    
     var body: some View {
         VStack(spacing: 20) {
             Image(systemName: "tray")
                 .font(.system(size: 60))
-                .foregroundColor(.secondary)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
             
             VStack(spacing: 8) {
                 Text("No Posts Yet")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.primary)
+                    .font(DesignSystem.Typography.title1)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                 
                 Text("Be the first to share a post in your community!")
-                    .font(.system(size: 16))
-                    .foregroundColor(.secondary)
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
             }
             
             Button("Create Your First Post") {
-                // TODO: Show create post view
+                onCreatePost()
             }
-            .font(.system(size: 16, weight: .medium))
-            .foregroundColor(.white)
-            .padding(.horizontal, 24)
-            .padding(.vertical, 12)
-            .background(Color.purple)
-            .cornerRadius(12)
+            .buttonStyle(PrimaryButtonStyle())
         }
     }
 }
@@ -284,81 +198,89 @@ struct LoadingView: View {
         VStack(spacing: 16) {
             ProgressView()
                 .scaleEffect(1.2)
+                .tint(DesignSystem.Colors.primaryGreen)
             
             Text("Loading posts...")
-                .font(.system(size: 16))
-                .foregroundColor(.secondary)
+                .font(DesignSystem.Typography.body)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
         }
     }
 }
 
 struct PostDetailView: View {
     let post: Post
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 20) {
-                    // Header
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text(post.title)
-                            .font(.system(size: 28, weight: .bold))
-                            .foregroundColor(.primary)
-                        
-                        if let user = post.user {
-                            HStack(spacing: 12) {
-                                Circle()
-                                    .fill(Color(.systemGray4))
-                                    .frame(width: 40, height: 40)
-                                    .overlay(
-                                        Text(user.username.prefix(1).uppercased())
-                                            .font(.system(size: 18, weight: .medium))
-                                            .foregroundColor(.white)
-                                    )
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(user.username)
-                                        .font(.system(size: 16, weight: .medium))
-                                        .foregroundColor(.primary)
+            ZStack {
+                DesignSystem.Colors.backgroundPrimary
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
+                        // Header
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                            Text(post.title)
+                                .font(DesignSystem.Typography.largeTitle)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                            
+                            if let user = post.user {
+                                HStack(spacing: DesignSystem.Spacing.md) {
+                                    Circle()
+                                        .fill(DesignSystem.Colors.backgroundSecondary)
+                                        .frame(width: 40, height: 40)
+                                        .overlay(
+                                            Text(user.username.prefix(1).uppercased())
+                                                .font(.system(size: 18, weight: .medium))
+                                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                                        )
                                     
-                                    Text("Karma: \(user.karmaBalance)")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.secondary)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(user.username)
+                                            .font(DesignSystem.Typography.bodyMedium)
+                                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                                        
+                                        Text("Karma: \(user.karmaBalance)")
+                                            .font(DesignSystem.Typography.footnote)
+                                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                                    }
+                                    
+                                    Spacer()
                                 }
-                                
-                                Spacer()
                             }
                         }
-                    }
-                    
-                    // Description
-                    Text(post.description)
-                        .font(.system(size: 16))
-                        .foregroundColor(.primary)
-                    
-                    // Details
-                    VStack(alignment: .leading, spacing: 12) {
-                        DetailRow(icon: "star.fill", title: "Karma Value", value: "\(post.karmaValue)")
-                        DetailRow(icon: "clock.fill", title: "Posted", value: post.timeRemaining ?? "Just now")
                         
-                        if let locationName = post.locationName {
-                            DetailRow(icon: "location.fill", title: "Location", value: locationName)
+                        // Description
+                        Text(post.description)
+                            .font(DesignSystem.Typography.body)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        // Details
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                            DetailRow(icon: "star.fill", title: "Karma Value", value: "\(post.karmaValue)")
+                            DetailRow(icon: "clock.fill", title: "Posted", value: post.timeRemaining ?? "Just now")
+                            
+                            if let locationName = post.locationName {
+                                DetailRow(icon: "location.fill", title: "Location", value: locationName)
+                            }
+                            
+                            DetailRow(icon: "tag.fill", title: "Type", value: post.isRequest ? "Request" : "Offer")
                         }
                         
-                        DetailRow(icon: "tag.fill", title: "Type", value: post.isRequest ? "Request" : "Offer")
+                        Spacer()
                     }
-                    
-                    Spacer()
+                    .padding(DesignSystem.Spacing.lg)
                 }
-                .padding()
             }
             .navigationTitle("Post Details")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        // TODO: Dismiss
+                        dismiss()
                     }
+                    .foregroundColor(DesignSystem.Colors.primaryGreen)
                 }
             }
         }
@@ -371,20 +293,20 @@ struct DetailRow: View {
     let value: String
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: DesignSystem.Spacing.md) {
             Image(systemName: icon)
-                .foregroundColor(.purple)
+                .foregroundColor(DesignSystem.Colors.primaryGreen)
                 .frame(width: 20)
             
             Text(title)
-                .font(.system(size: 16, weight: .medium))
-                .foregroundColor(.primary)
+                .font(DesignSystem.Typography.bodyMedium)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
             
             Spacer()
             
             Text(value)
-                .font(.system(size: 16))
-                .foregroundColor(.secondary)
+                .font(DesignSystem.Typography.body)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
         }
     }
 }

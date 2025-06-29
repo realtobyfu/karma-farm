@@ -19,6 +19,7 @@ class CreatePostViewModel: ObservableObject {
         title: String,
         description: String,
         type: PostType,
+        taskType: TaskType = .karma,
         karmaValue: Int,
         isRequest: Bool,
         location: CLLocation?,
@@ -37,6 +38,7 @@ class CreatePostViewModel: ObservableObject {
                 "title": title,
                 "description": description,
                 "type": type.rawValue,
+                "taskType": taskType.rawValue,
                 "karmaValue": karmaValue,
                 "isRequest": isRequest,
                 "locationName": locationName
