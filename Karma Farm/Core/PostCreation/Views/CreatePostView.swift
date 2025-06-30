@@ -20,25 +20,38 @@ struct CreatePostView: View {
     @State private var selectedType: PostType = .general
     @State private var taskType: TaskType = .karma
     @State private var karmaValue = 10
+    @State private var paymentAmount: Double = 20.0
     @State private var isRequest = true
     @State private var useCurrentLocation = true
     @State private var customLocationName = ""
     @State private var expirationDate = Date().addingTimeInterval(86400 * 7) // 7 days from now
     @State private var hasExpiration = true
+    @State private var showContent = false
     
     init(selectedTaskType: TaskType? = nil) {
         self.selectedTaskType = selectedTaskType
+        if let taskType = selectedTaskType {
+            self._taskType = State(initialValue: taskType)
+        }
     }
     
     var body: some View {
         NavigationView {
-            ScrollView {
+            ZStack {
+                // Background
+                DesignSystem.Colors.backgroundPrimary
+                    .ignoresSafeArea()
+                
+                ScrollView {
                 VStack(spacing: 24) {
-                    // Post Type Section
+                    // Post Type Section with animation
                     VStack(alignment: .leading, spacing: 16) {
                         Text("What do you want to post?")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.primary)
+                            .font(DesignSystem.Typography.title1)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .opacity(showContent ? 1 : 0)
+                            .offset(y: showContent ? 0 : 20)
+                            .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1), value: showContent)
                         
                         HStack(spacing: 12) {
                             PostTypeButton(
@@ -64,6 +77,17 @@ struct CreatePostView: View {
                     }
                     
                     // Basic Information
+                    // Task Type Badge
+                    HStack {
+                        Text("Task Type")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.primary)
+                        
+                        Spacer()
+                        
+                        TaskTypeBadge(taskType: taskType, value: taskType.displayName)
+                    }
+                    
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Basic Information")
                             .font(.system(size: 18, weight: .semibold))
@@ -101,30 +125,66 @@ struct CreatePostView: View {
                         }
                     }
                     
-                    // Karma Value
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Karma Value")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.primary)
-                        
-                        VStack(spacing: 12) {
-                            HStack {
-                                Text("How much karma is this worth?")
-                                    .font(.system(size: 14))
-                                    .foregroundColor(.secondary)
-                                
-                                Spacer()
-                                
-                                Text("\(karmaValue) karma")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.orange)
-                            }
+                    // Task Type Value Section
+                    if taskType != .fun {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text(taskType == .karma ? "Karma Value" : "Payment Amount")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.primary)
                             
-                            Slider(value: Binding(
-                                get: { Double(karmaValue) },
-                                set: { karmaValue = Int($0) }
-                            ), in: 5...100, step: 5)
-                            .accentColor(.purple)
+                            if taskType == .karma {
+                                VStack(spacing: 12) {
+                                    HStack {
+                                        Text("How much karma is this worth?")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.secondary)
+                                        
+                                        Spacer()
+                                        
+                                        Text("\(karmaValue) karma")
+                                            .font(.system(size: 16, weight: .semibold))
+                                            .foregroundColor(DesignSystem.Colors.primaryBlue)
+                                    }
+                                    
+                                    Slider(value: Binding(
+                                        get: { Double(karmaValue) },
+                                        set: { karmaValue = Int($0) }
+                                    ), in: 5...100, step: 5)
+                                    .accentColor(DesignSystem.Colors.primaryBlue)
+                                }
+                            } else if taskType == .cash {
+                                VStack(spacing: 12) {
+                                    HStack {
+                                        Text("Payment amount (off-platform)")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.secondary)
+                                        
+                                        Spacer()
+                                        
+                                        Text(String(format: "$%.0f", paymentAmount))
+                                            .font(.system(size: 16, weight: .semibold))
+                                            .foregroundColor(DesignSystem.Colors.primaryOrange)
+                                    }
+                                    
+                                    Slider(value: $paymentAmount, in: 5...200, step: 5)
+                                        .accentColor(DesignSystem.Colors.primaryOrange)
+                                    
+                                    // Cash payment notice
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "info.circle.fill")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(DesignSystem.Colors.primaryOrange)
+                                        
+                                        Text("Cash payments are handled directly between users")
+                                            .font(.system(size: 12))
+                                            .foregroundColor(.secondary)
+                                            .fixedSize(horizontal: false, vertical: true)
+                                    }
+                                    .padding(12)
+                                    .background(DesignSystem.Colors.primaryOrange.opacity(0.1))
+                                    .cornerRadius(8)
+                                }
+                            }
                         }
                     }
                     
@@ -146,7 +206,7 @@ struct CreatePostView: View {
                             if let location = locationManager.userLocation {
                                 HStack {
                                     Image(systemName: "location.fill")
-                                        .foregroundColor(.purple)
+                                        .foregroundColor(DesignSystem.Colors.primaryGreen)
                                     
                                     Text("Current: \(location.coordinate.latitude, specifier: "%.3f"), \(location.coordinate.longitude, specifier: "%.3f")")
                                         .font(.system(size: 12))
@@ -175,6 +235,7 @@ struct CreatePostView: View {
                 }
                 .padding()
             }
+            }
             .navigationTitle("Create Post")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -190,6 +251,7 @@ struct CreatePostView: View {
                     }
                     .disabled(!isFormValid || viewModel.isLoading)
                     .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(DesignSystem.Colors.primaryGreen)
                 }
             }
             .overlay(
@@ -231,7 +293,8 @@ struct CreatePostView: View {
                     description: description,
                     type: selectedType,
                     taskType: taskType,
-                    karmaValue: karmaValue,
+                    karmaValue: taskType == .karma ? karmaValue : 0,
+                    paymentAmount: taskType == .cash ? paymentAmount : nil,
                     isRequest: isRequest,
                     location: location,
                     locationName: locationName,
@@ -289,16 +352,16 @@ struct CategoryChip: View {
         Button(action: onTap) {
             VStack(spacing: 6) {
                 Image(systemName: type.icon)
-                    .foregroundColor(isSelected ? .white : .purple)
+                    .foregroundColor(isSelected ? .white : DesignSystem.Colors.primaryGreen)
                     .font(.system(size: 20))
                 
                 Text(type.displayName)
                     .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(isSelected ? .white : .purple)
+                    .foregroundColor(isSelected ? .white : DesignSystem.Colors.primaryGreen)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .background(isSelected ? Color.purple : Color.purple.opacity(0.1))
+            .background(isSelected ? DesignSystem.Colors.primaryGreen : DesignSystem.Colors.primaryGreen.opacity(0.1))
             .cornerRadius(10)
         }
         .buttonStyle(PlainButtonStyle())

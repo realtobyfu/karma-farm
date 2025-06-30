@@ -61,9 +61,11 @@ struct Post: Codable, Identifiable {
     let userId: String
     let user: User?
     let type: PostType
+    let taskType: TaskType
     let title: String
     let description: String
     let karmaValue: Int
+    let paymentAmount: Double? // For cash tasks
     let isRequest: Bool
     let location: Location?
     let locationName: String?
@@ -102,6 +104,20 @@ struct Post: Codable, Identifiable {
         guard let currentUserId = AuthManager.shared.currentUser?.id else { return false }
         return userId == currentUserId
     }
+    
+    var displayValue: String {
+        switch taskType {
+        case .karma:
+            return "\(karmaValue) karma"
+        case .cash:
+            if let amount = paymentAmount {
+                return String(format: "$%.0f", amount)
+            }
+            return "$0"
+        case .fun:
+            return "Just for fun"
+        }
+    }
 }
 
 struct Location: Codable {
@@ -117,9 +133,11 @@ extension Post {
             userId: "user-1",
             user: User.mockUsers[0],
             type: .skillShare,
+            taskType: .karma,
             title: "Learn to Cook Italian Pasta",
             description: "I'll teach you how to make authentic Italian pasta from scratch! We'll cover different types of pasta, sauces, and cooking techniques. Perfect for beginners.",
             karmaValue: 25,
+            paymentAmount: nil,
             isRequest: false,
             location: Location(latitude: 42.3651, longitude: -71.0540),
             locationName: "North End, Boston",
@@ -133,9 +151,11 @@ extension Post {
             userId: "mock-user-id",
             user: User.mockUser,
             type: .task,
+            taskType: .cash,
             title: "Need Help Moving Furniture",
-            description: "Looking for someone to help me move a couch and some boxes to my new apartment. Should take about 2 hours. I have a truck already.",
-            karmaValue: 30,
+            description: "Looking for someone to help me move a couch and some boxes to my new apartment. Should take about 2 hours. I have a truck already. Cash payment.",
+            karmaValue: 0,
+            paymentAmount: 50.0,
             isRequest: true,
             location: Location(latitude: 42.3601, longitude: -71.0589),
             locationName: "Back Bay, Boston",
@@ -149,9 +169,11 @@ extension Post {
             userId: "user-2",
             user: User.mockUsers[1],
             type: .skillShare,
+            taskType: .karma,
             title: "iOS Development Mentoring",
             description: "Experienced iOS developer offering mentoring sessions. I can help with Swift, SwiftUI, app architecture, and App Store submission process.",
             karmaValue: 40,
+            paymentAmount: nil,
             isRequest: false,
             location: Location(latitude: 42.3581, longitude: -71.0636),
             locationName: "Cambridge, MA",
@@ -165,9 +187,11 @@ extension Post {
             userId: "mock-user-id",
             user: User.mockUser,
             type: .interest,
+            taskType: .fun,
             title: "Looking for Guitar Practice Partner",
             description: "Intermediate guitar player looking for someone to practice with. I play folk and indie rock mostly. Would love to jam together!",
-            karmaValue: 15,
+            karmaValue: 0,
+            paymentAmount: nil,
             isRequest: true,
             location: Location(latitude: 42.3601, longitude: -71.0589),
             locationName: "Back Bay, Boston",
@@ -181,9 +205,11 @@ extension Post {
             userId: "user-1",
             user: User.mockUsers[0],
             type: .task,
+            taskType: .karma,
             title: "Completed: Garden Setup Help",
             description: "Thanks to Alex for helping me set up my herb garden! Great work and very knowledgeable about plants.",
             karmaValue: 20,
+            paymentAmount: nil,
             isRequest: true,
             location: Location(latitude: 42.3651, longitude: -71.0540),
             locationName: "North End, Boston",

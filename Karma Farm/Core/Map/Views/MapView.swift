@@ -52,32 +52,29 @@ struct MapView: View {
                 
                 // Controls overlay
                 VStack {
+                    HStack {
+                        Spacer()
+                        MapLegend()
+                    }
+                    
                     Spacer()
                     
                     HStack {
                         Spacer()
                         
                         VStack(spacing: 12) {
+                            // Map style toggle
+                            MapStyleToggle()
+                            
                             // Recenter button
                             Button(action: recenterOnUser) {
                                 Image(systemName: "location.fill")
                                     .font(.system(size: 20))
                                     .foregroundColor(.white)
                                     .frame(width: 44, height: 44)
-                                    .background(Color.purple)
+                                    .background(DesignSystem.Colors.primaryGradient)
                                     .clipShape(Circle())
-                                    .shadow(radius: 4)
-                            }
-                            
-                            // Create post button
-                            Button(action: { showingCreatePost = true }) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .frame(width: 44, height: 44)
-                                    .background(Color.orange)
-                                    .clipShape(Circle())
-                                    .shadow(radius: 4)
+                                    .shadow(color: DesignSystem.Colors.primaryGreen.opacity(0.3), radius: 4, x: 0, y: 2)
                             }
                         }
                     }
@@ -89,21 +86,45 @@ struct MapView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
-                        Button(action: { viewModel.filterType = .all }) {
-                            Label("All Posts", systemImage: "circle.fill")
+                        Section("Task Types") {
+                            Button(action: { viewModel.filterTaskType = nil }) {
+                                Label("All Types", systemImage: "circle.grid.3x3.fill")
+                            }
+                            
+                            ForEach(TaskType.allCases, id: \.self) { taskType in
+                                Button(action: { viewModel.filterTaskType = taskType }) {
+                                    Label(taskType.displayName, systemImage: taskType.icon)
+                                }
+                            }
                         }
                         
-                        Button(action: { viewModel.filterType = .requests }) {
-                            Label("Requests Only", systemImage: "hand.raised.fill")
-                        }
-                        
-                        Button(action: { viewModel.filterType = .offers }) {
-                            Label("Offers Only", systemImage: "heart.fill")
+                        Section("Post Types") {
+                            Button(action: { viewModel.filterType = .all }) {
+                                Label("All Posts", systemImage: "circle.fill")
+                            }
+                            
+                            Button(action: { viewModel.filterType = .requests }) {
+                                Label("Requests Only", systemImage: "hand.raised.fill")
+                            }
+                            
+                            Button(action: { viewModel.filterType = .offers }) {
+                                Label("Offers Only", systemImage: "heart.fill")
+                            }
                         }
                     } label: {
-                        Image(systemName: "line.horizontal.3.decrease.circle")
-                            .font(.title2)
-                            .foregroundColor(.purple)
+                        ZStack {
+                            Image(systemName: "line.horizontal.3.decrease.circle")
+                                .font(.title2)
+                                .foregroundStyle(DesignSystem.Colors.primaryGradient)
+                            
+                            // Show active filter indicator
+                            if viewModel.filterTaskType != nil || viewModel.filterType != .all {
+                                Circle()
+                                    .fill(DesignSystem.Colors.primaryOrange)
+                                    .frame(width: 8, height: 8)
+                                    .offset(x: 8, y: -8)
+                            }
+                        }
                     }
                 }
             }
@@ -164,28 +185,52 @@ struct UserLocationPin: View {
 struct PostPin: View {
     let post: Post
     let onTap: () -> Void
+    @State private var isAnimating = false
     
     var body: some View {
-        Button(action: onTap) {
+        Button(action: {
+            onTap()
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                isAnimating = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                isAnimating = false
+            }
+        }) {
             VStack(spacing: 4) {
                 ZStack {
+                    // Outer glow effect
                     Circle()
-                        .fill(post.isRequest ? Color.red : Color.green)
-                        .frame(width: 32, height: 32)
+                        .fill(post.taskType.primaryColor.opacity(0.3))
+                        .frame(width: 44, height: 44)
+                        .scaleEffect(isAnimating ? 1.2 : 1.0)
                     
-                    Image(systemName: post.type.icon)
-                        .font(.system(size: 16))
+                    // Main pin with gradient
+                    Circle()
+                        .fill(post.taskType.gradient)
+                        .frame(width: 36, height: 36)
+                        .overlay(
+                            Circle()
+                                .stroke(Color.white, lineWidth: 2)
+                        )
+                        .shadow(color: post.taskType.primaryColor.opacity(0.4), radius: 4, x: 0, y: 2)
+                    
+                    Image(systemName: post.taskType.icon)
+                        .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
                 }
                 
-                Text("\(post.karmaValue)")
-                    .font(.system(size: 10, weight: .bold))
+                // Value badge
+                Text(post.displayValue)
+                    .font(DesignSystem.Typography.captionMedium)
                     .foregroundColor(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.orange)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(post.taskType.gradient)
                     .clipShape(Capsule())
+                    .shadow(color: post.taskType.primaryColor.opacity(0.3), radius: 2, x: 0, y: 1)
             }
+            .scaleEffect(isAnimating ? 1.1 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())
     }
@@ -202,24 +247,33 @@ struct PostDetailSheet: View {
                     // Header
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
+                            // Task type badge
+                            HStack(spacing: 4) {
+                                Image(systemName: post.taskType.icon)
+                                Text(post.taskType.displayName)
+                            }
+                            .font(DesignSystem.Typography.captionMedium)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(post.taskType.gradient)
+                            .clipShape(Capsule())
+                            
+                            // Request/Offer badge
                             Text(post.isRequest ? "REQUEST" : "OFFER")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundColor(post.isRequest ? .red : .green)
+                                .font(DesignSystem.Typography.captionMedium)
+                                .foregroundColor(post.isRequest ? .red : DesignSystem.Colors.primaryGreen)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background((post.isRequest ? Color.red : Color.green).opacity(0.1))
+                                .background((post.isRequest ? Color.red : DesignSystem.Colors.primaryGreen).opacity(0.1))
                                 .cornerRadius(8)
                             
                             Spacer()
                             
-                            HStack(spacing: 4) {
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.orange)
-                                
-                                Text("\(post.karmaValue)")
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.orange)
-                            }
+                            // Value display
+                            Text(post.displayValue)
+                                .font(DesignSystem.Typography.numberMedium)
+                                .foregroundColor(post.taskType.primaryColor)
                         }
                         
                         Text(post.title)
@@ -271,15 +325,16 @@ struct PostDetailSheet: View {
                     if !post.isCurrentUserPost {
                         Button(action: { }) {
                             HStack {
-                                Image(systemName: "message.fill")
-                                Text("Contact \(post.user?.username ?? "User")")
+                                Image(systemName: post.isRequest ? "hand.raised.fill" : "message.fill")
+                                Text(post.isRequest ? "Accept Task" : "Contact \(post.user?.username ?? "User")")
                             }
-                            .font(.system(size: 16, weight: .medium))
+                            .font(DesignSystem.Typography.bodySemibold)
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(Color.purple)
-                            .cornerRadius(12)
+                            .background(post.taskType.gradient)
+                            .cornerRadius(DesignSystem.Radius.medium)
+                            .shadow(color: post.taskType.primaryColor.opacity(0.3), radius: 4, x: 0, y: 2)
                         }
                         .padding(.top)
                     }

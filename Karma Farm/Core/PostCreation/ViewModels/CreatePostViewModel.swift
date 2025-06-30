@@ -21,6 +21,7 @@ class CreatePostViewModel: ObservableObject {
         type: PostType,
         taskType: TaskType = .karma,
         karmaValue: Int,
+        paymentAmount: Double? = nil,
         isRequest: Bool,
         location: CLLocation?,
         locationName: String,
@@ -43,6 +44,10 @@ class CreatePostViewModel: ObservableObject {
                 "isRequest": isRequest,
                 "locationName": locationName
             ]
+            
+            if let paymentAmount = paymentAmount {
+                postData["paymentAmount"] = paymentAmount
+            }
             
             if let location = location {
                 postData["location"] = [

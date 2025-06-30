@@ -22,20 +22,18 @@ struct FeedView: View {
             // Content
             ScrollView {
                 VStack(spacing: DesignSystem.Spacing.md) {
-                    // Header
+                    // Header with animation
                     HStack {
                         Text(greetingText())
                             .font(DesignSystem.Typography.largeTitle)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
+                            .transition(.opacity.combined(with: .scale))
+                            .id(greetingText()) // Force re-animation on text change
                         
                         Spacer()
                         
-                        // Notification bell
-                        Button(action: {}) {
-                            Image(systemName: "bell.fill")
-                                .font(.system(size: 20))
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                        }
+                        // Notification bell with bounce animation
+                        NotificationBellButton()
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
@@ -53,15 +51,18 @@ struct FeedView: View {
                             .frame(maxWidth: .infinity)
                             .padding(.top, 100)
                     } else {
-                        // Task cards
+                        // Task cards with staggered animation
                         VStack(spacing: DesignSystem.Spacing.md) {
-                            ForEach(viewModel.posts) { post in
+                            ForEach(Array(viewModel.posts.enumerated()), id: \.element.id) { index, post in
                                 PostCardView(post: post)
+                                    .slideInAnimation(delay: Double(index) * 0.1)
                             }
                             
                             if viewModel.isLoading {
                                 ProgressView()
                                     .padding()
+                                    .scaleEffect(1.2)
+                                    .tint(DesignSystem.Colors.primaryGreen)
                             }
                         }
                         .padding(.horizontal, 20)
@@ -73,14 +74,20 @@ struct FeedView: View {
                 await viewModel.refresh()
             }
             
-            // Floating Action Button
+            // Animated Floating Action Button
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
-                    FloatingCreateButton { type in
+                    AnimatedFAB { type in
                         selectedTaskType = type
                         showingCreatePost = true
+                        
+                        // Haptic feedback
+                        #if os(iOS)
+                        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                        impactFeedback.impactOccurred()
+                        #endif
                     }
                     .padding(.trailing, 20)
                     .padding(.bottom, 80)
@@ -113,9 +120,19 @@ struct FilterPickerView: View {
                         title: filter.displayName,
                         isSelected: selectedFilter == filter,
                         action: {
-                            selectedFilter = filter
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                selectedFilter = filter
+                            }
+                            
+                            // Haptic feedback
+                            #if os(iOS)
+                            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                            impactFeedback.impactOccurred()
+                            #endif
                         }
                     )
+                    .scaleEffect(selectedFilter == filter ? 1.05 : 1.0)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: selectedFilter)
                 }
             }
             .padding(.horizontal, 20)
@@ -146,14 +163,7 @@ struct PostCardView: View {
     }
     
     private func formatValue(for post: Post) -> String {
-        switch post.taskType {
-        case .cash:
-            return "$\(post.karmaValue)"
-        case .karma:
-            return "\(post.karmaValue)"
-        case .fun:
-            return "Fun!"
-        }
+        return post.displayValue
     }
     
     private func timeAgoText(for post: Post) -> String {
@@ -166,43 +176,64 @@ struct PostCardView: View {
 
 struct EmptyFeedView: View {
     let onCreatePost: () -> Void
+    @State private var animateIcon = false
     
     var body: some View {
         VStack(spacing: 20) {
             Image(systemName: "tray")
                 .font(.system(size: 60))
                 .foregroundColor(DesignSystem.Colors.textSecondary)
+                .rotationEffect(.degrees(animateIcon ? -10 : 10))
+                .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: animateIcon)
+                .onAppear { animateIcon = true }
             
             VStack(spacing: 8) {
                 Text("No Posts Yet")
                     .font(DesignSystem.Typography.title1)
                     .foregroundColor(DesignSystem.Colors.textPrimary)
+                    .transition(.scale.combined(with: .opacity))
                 
                 Text("Be the first to share a post in your community!")
                     .font(DesignSystem.Typography.body)
                     .foregroundColor(DesignSystem.Colors.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
+                    .transition(.slide)
             }
             
             Button("Create Your First Post") {
                 onCreatePost()
             }
             .buttonStyle(PrimaryButtonStyle())
+            .shimmer()
         }
     }
 }
 
 struct LoadingView: View {
+    @State private var isAnimating = false
+    
     var body: some View {
         VStack(spacing: 16) {
-            ProgressView()
-                .scaleEffect(1.2)
-                .tint(DesignSystem.Colors.primaryGreen)
+            ZStack {
+                Circle()
+                    .stroke(DesignSystem.Colors.primaryGreen.opacity(0.3), lineWidth: 4)
+                    .frame(width: 40, height: 40)
+                
+                Circle()
+                    .trim(from: 0, to: 0.7)
+                    .stroke(DesignSystem.Colors.primaryGradient, lineWidth: 4)
+                    .frame(width: 40, height: 40)
+                    .rotationEffect(.degrees(isAnimating ? 360 : 0))
+                    .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: isAnimating)
+            }
+            .onAppear { isAnimating = true }
             
             Text("Loading posts...")
                 .font(DesignSystem.Typography.body)
                 .foregroundColor(DesignSystem.Colors.textSecondary)
+                .opacity(isAnimating ? 1 : 0.5)
+                .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: isAnimating)
         }
     }
 }
@@ -221,9 +252,15 @@ struct PostDetailView: View {
                     VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
                         // Header
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            Text(post.title)
-                                .font(DesignSystem.Typography.largeTitle)
-                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                            HStack {
+                                Text(post.title)
+                                    .font(DesignSystem.Typography.largeTitle)
+                                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                                
+                                Spacer()
+                                
+                                TaskTypeBadge(taskType: post.taskType, value: post.displayValue)
+                            }
                             
                             if let user = post.user {
                                 HStack(spacing: DesignSystem.Spacing.md) {
@@ -258,7 +295,7 @@ struct PostDetailView: View {
                         
                         // Details
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            DetailRow(icon: "star.fill", title: "Karma Value", value: "\(post.karmaValue)")
+                            DetailRow(icon: post.taskType.icon, title: "\(post.taskType.displayName) Value", value: post.displayValue)
                             DetailRow(icon: "clock.fill", title: "Posted", value: post.timeRemaining ?? "Just now")
                             
                             if let locationName = post.locationName {

@@ -35,38 +35,71 @@ struct ContentView: View {
 struct MainTabView: View {
     @State private var selectedTab = 0
     @State private var showingCreatePost = false
+    @State private var previousTab = 0
+    
+    let tabs: [(icon: String, title: String)] = [
+        ("house.fill", "Home"),
+        ("map.fill", "Map"),
+        ("", ""), // Empty for FAB
+        ("bubble.left.fill", "Chat"),
+        ("person.crop.circle.fill", "Profile")
+    ]
     
     var body: some View {
         ZStack {
-            // Content
-            Group {
-                switch selectedTab {
-                case 0:
-                    FeedView()
-                case 1:
+            // Background
+            DesignSystem.Colors.backgroundPrimary
+                .ignoresSafeArea()
+            
+            // Content with transitions
+            ZStack {
+                FeedView()
+                    .opacity(selectedTab == 0 ? 1 : 0)
+                    .scaleEffect(selectedTab == 0 ? 1 : 0.95)
+                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: selectedTab)
+                
+                if selectedTab == 1 {
                     MapView()
-                case 3:
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
+                }
+                
+                if selectedTab == 3 {
                     ChatListView()
-                case 4:
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
+                }
+                
+                if selectedTab == 4 {
                     ProfileView()
-                default:
-                    FeedView()
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity),
+                            removal: .move(edge: .leading).combined(with: .opacity)
+                        ))
                 }
             }
             
-            // Modern Tab Bar
+            // Animated Tab Bar
             VStack {
                 Spacer()
-                ModernTabBar(selectedTab: $selectedTab)
+                AnimatedTabBar(selectedTab: $selectedTab, tabs: tabs.filter { !$0.icon.isEmpty })
             }
-            
-            // Floating Action Button - removed from here as it's in FeedView
+        }
+        .onChange(of: selectedTab) { newValue in
+            if newValue != 2 { // Skip FAB space
+                previousTab = newValue
+            }
         }
     }
 }
 
 struct ChatListView: View {
     @State private var chats = Chat.mockChats
+    @State private var isRefreshing = false
     
     var body: some View {
         NavigationView {
@@ -74,11 +107,27 @@ struct ChatListView: View {
                 DesignSystem.Colors.backgroundPrimary
                     .ignoresSafeArea()
                 
-                List(chats) { chat in
-                    ChatRowView(chat: chat)
-                        .listRowBackground(Color.clear)
+                ScrollView {
+                    VStack(spacing: DesignSystem.Spacing.sm) {
+                        ForEach(Array(chats.enumerated()), id: \.element.id) { index, chat in
+                            ChatRowView(chat: chat)
+                                .slideInAnimation(delay: Double(index) * 0.05)
+                        }
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.md)
+                    .padding(.top, DesignSystem.Spacing.md)
+                    .padding(.bottom, 100)
                 }
-                .listStyle(PlainListStyle())
+                .refreshable {
+                    withAnimation {
+                        isRefreshing = true
+                    }
+                    // Simulate refresh
+                    try? await Task.sleep(nanoseconds: 1_000_000_000)
+                    withAnimation {
+                        isRefreshing = false
+                    }
+                }
                 .navigationTitle("Messages")
                 .navigationBarTitleDisplayMode(.large)
             }
@@ -88,9 +137,11 @@ struct ChatListView: View {
 
 struct ChatRowView: View {
     let chat: Chat
+    @State private var isPressed = false
     
     var body: some View {
         HStack(spacing: DesignSystem.Spacing.md) {
+            // Animated Avatar
             Circle()
                 .fill(DesignSystem.Colors.backgroundSecondary)
                 .frame(width: 50, height: 50)
@@ -99,6 +150,7 @@ struct ChatRowView: View {
                         .font(DesignSystem.Typography.title3)
                         .foregroundColor(DesignSystem.Colors.textSecondary)
                 )
+                .scaleEffect(isPressed ? 0.9 : 1.0)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(chat.user?.username ?? "Unknown")
@@ -127,13 +179,31 @@ struct ChatRowView: View {
                                 .font(DesignSystem.Typography.caption)
                                 .foregroundColor(.white)
                         )
+                        .transition(.scale.combined(with: .opacity))
                 }
             }
         }
-        .padding(.vertical, DesignSystem.Spacing.sm)
+        .padding(DesignSystem.Spacing.md)
         .background(DesignSystem.Colors.surface)
         .cornerRadius(DesignSystem.Radius.medium)
-        .padding(.horizontal, DesignSystem.Spacing.sm)
+        .shadow(color: Color.black.opacity(isPressed ? 0.05 : 0.02), radius: isPressed ? 2 : 5, x: 0, y: isPressed ? 1 : 2)
+        .scaleEffect(isPressed ? 0.98 : 1.0)
+        .onTapGesture {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                isPressed = true
+            }
+            
+            #if os(iOS)
+            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+            impactFeedback.impactOccurred()
+            #endif
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    isPressed = false
+                }
+            }
+        }
     }
 }
 

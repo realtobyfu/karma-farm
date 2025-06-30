@@ -29,6 +29,11 @@ class MapViewModel: ObservableObject {
             applyFilter()
         }
     }
+    @Published var filterTaskType: TaskType? = nil {
+        didSet {
+            applyFilter()
+        }
+    }
     
     func centerOnUserLocation() {
         guard let location = LocationManager.shared.userLocation else { return }
@@ -72,13 +77,21 @@ class MapViewModel: ObservableObject {
     }
     
     private func applyFilter() {
+        var filtered = posts
+        
+        // Apply task type filter
+        if let taskType = filterTaskType {
+            filtered = filtered.filter { $0.taskType == taskType }
+        }
+        
+        // Apply request/offer filter
         switch filterType {
         case .all:
-            nearbyPosts = posts
+            nearbyPosts = filtered
         case .requests:
-            nearbyPosts = posts.filter { $0.isRequest }
+            nearbyPosts = filtered.filter { $0.isRequest }
         case .offers:
-            nearbyPosts = posts.filter { !$0.isRequest }
+            nearbyPosts = filtered.filter { !$0.isRequest }
         }
     }
 }
