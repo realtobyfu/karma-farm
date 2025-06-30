@@ -89,7 +89,7 @@ struct TaskAcceptanceView: View {
             // Posted By
             if let user = post.user {
                 HStack {
-                    AsyncImage(url: URL(string: user.profilePictureUrl ?? "")) { image in
+                    AsyncImage(url: URL(string: user.profilePicture ?? "")) { image  in
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
@@ -101,7 +101,7 @@ struct TaskAcceptanceView: View {
                     .clipShape(Circle())
                     
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(user.name)
+                        Text(user.username)
                             .font(DesignSystem.Typography.bodyMedium)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
                         

@@ -162,20 +162,19 @@ struct AnimatedTabBar: View {
             ForEach(tabs.indices, id: \.self) { index in
                 TabBarItem(
                     icon: tabs[index].icon,
-                    title: tabs[index].title,
                     isSelected: selectedTab == index,
-                    namespace: namespace
-                ) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        selectedTab = index
+                    action: {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                            selectedTab = index
+                        }
+                        
+                        // Haptic feedback
+                        #if os(iOS)
+                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                        impactFeedback.impactOccurred()
+                        #endif
                     }
-                    
-                    // Haptic feedback
-                    #if os(iOS)
-                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                    impactFeedback.impactOccurred()
-                    #endif
-                }
+                )
             }
         }
         .padding(.vertical, 8)
@@ -189,35 +188,7 @@ struct AnimatedTabBar: View {
     }
 }
 
-struct TabBarItem: View {
-    let icon: String
-    let title: String
-    let isSelected: Bool
-    let namespace: Namespace.ID
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 4) {
-                ZStack {
-                    if isSelected {
-                        Circle()
-                            .fill(DesignSystem.Colors.primaryGradient)
-                            .frame(width: 48, height: 32)
-                            .matchedGeometryEffect(id: "selected", in: namespace)
-                    }
-                    
-                    Image(systemName: icon)
-                        .font(.system(size: 22))
-                        .foregroundColor(isSelected ? .white : DesignSystem.Colors.textSecondary)
-                        .scaleEffect(isSelected ? 1.1 : 1.0)
-                }
-                .frame(height: 32)
-            }
-            .frame(maxWidth: .infinity)
-        }
-    }
-}
+// TabBarItem is now defined in ModernUIComponents.swift
 
 // MARK: - Shimmer Effect
 struct ShimmerModifier: ViewModifier {

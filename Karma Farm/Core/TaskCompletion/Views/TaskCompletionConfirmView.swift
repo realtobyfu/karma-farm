@@ -53,7 +53,7 @@ struct TaskCompletionConfirmView: View {
                     // Step Circle
                     ZStack {
                         Circle()
-                            .fill(item.isCompleted ? post.taskType.gradient : Color(UIColor.systemGray5))
+                            .fill(item.isCompleted ? post.taskType.gradient : LinearGradient(colors: [Color(UIColor.systemGray5)], startPoint: .leading, endPoint: .trailing))
                             .frame(width: 32, height: 32)
                         
                         if item.isCompleted {

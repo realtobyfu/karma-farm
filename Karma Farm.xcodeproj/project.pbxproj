@@ -7,6 +7,58 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3E190BDB2E11C56B006F0E22 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3E190BCC2E11C56B006F0E22 /* Preview Assets.xcassets */; };
+		3E190BDC2E11C56B006F0E22 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3E190BD52E11C56B006F0E22 /* GoogleService-Info.plist */; };
+		3E190BDD2E11C56B006F0E22 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3E190BD42E11C56B006F0E22 /* Assets.xcassets */; };
+		3E190BDE2E11C56B006F0E22 /* FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B9C2E11C56B006F0E22 /* FeedView.swift */; };
+		3E190BDF2E11C56B006F0E22 /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BB42E11C56B006F0E22 /* EditProfileViewModel.swift */; };
+		3E190BE02E11C56B006F0E22 /* PhoneAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B872E11C56B006F0E22 /* PhoneAuthView.swift */; };
+		3E190BE12E11C56B006F0E22 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B9F2E11C56B006F0E22 /* LocationManager.swift */; };
+		3E190BE22E11C56B006F0E22 /* TaskCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BBE2E11C56B006F0E22 /* TaskCompletion.swift */; };
+		3E190BE32E11C56B006F0E22 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B892E11C56B006F0E22 /* SignInView.swift */; };
+		3E190BE42E11C56B006F0E22 /* OnboardingContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BAB2E11C56B006F0E22 /* OnboardingContainerView.swift */; };
+		3E190BE52E11C56B006F0E22 /* EmailSignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B862E11C56B006F0E22 /* EmailSignUpView.swift */; };
+		3E190BE62E11C56B006F0E22 /* ModernUIComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B952E11C56B006F0E22 /* ModernUIComponents.swift */; };
+		3E190BE72E11C56B006F0E22 /* MapStyleToggle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BA32E11C56B006F0E22 /* MapStyleToggle.swift */; };
+		3E190BE82E11C56B006F0E22 /* NotificationBell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B972E11C56B006F0E22 /* NotificationBell.swift */; };
+		3E190BE92E11C56B006F0E22 /* Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BD82E11C56B006F0E22 /* Persistence.swift */; };
+		3E190BEA2E11C56B006F0E22 /* TaskRatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BC42E11C56B006F0E22 /* TaskRatingView.swift */; };
+		3E190BEB2E11C56B006F0E22 /* TestingUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BD22E11C56B006F0E22 /* TestingUtils.swift */; };
+		3E190BEC2E11C56B006F0E22 /* TaskCompletionConfirmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BC32E11C56B006F0E22 /* TaskCompletionConfirmView.swift */; };
+		3E190BED2E11C56B006F0E22 /* CreatePostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BB12E11C56B006F0E22 /* CreatePostView.swift */; };
+		3E190BEE2E11C56B006F0E22 /* Karma_Farm.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BD72E11C56B006F0E22 /* Karma_Farm.xcdatamodeld */; };
+		3E190BEF2E11C56B006F0E22 /* PrivateProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B882E11C56B006F0E22 /* PrivateProfileSetupView.swift */; };
+		3E190BF02E11C56B006F0E22 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BAC2E11C56B006F0E22 /* ProfileSetupView.swift */; };
+		3E190BF12E11C56B006F0E22 /* MapViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BA02E11C56B006F0E22 /* MapViewModel.swift */; };
+		3E190BF22E11C56B006F0E22 /* OnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BA72E11C56B006F0E22 /* OnboardingViewModel.swift */; };
+		3E190BF32E11C56B006F0E22 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BBB2E11C56B006F0E22 /* ContentView.swift */; };
+		3E190BF42E11C56B006F0E22 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BCA2E11C56B006F0E22 /* User.swift */; };
+		3E190BF52E11C56B006F0E22 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BA42E11C56B006F0E22 /* MapView.swift */; };
+		3E190BF62E11C56B006F0E22 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BC92E11C56B006F0E22 /* Post.swift */; };
+		3E190BF72E11C56B006F0E22 /* ModernUIDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B962E11C56B006F0E22 /* ModernUIDemo.swift */; };
+		3E190BF82E11C56B006F0E22 /* AuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B822E11C56B006F0E22 /* AuthManager.swift */; };
+		3E190BF92E11C56B006F0E22 /* MapLegend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BA22E11C56B006F0E22 /* MapLegend.swift */; };
+		3E190BFA2E11C56B006F0E22 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BB72E11C56B006F0E22 /* ProfileView.swift */; };
+		3E190BFB2E11C56B006F0E22 /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BB52E11C56B006F0E22 /* ProfileViewModel.swift */; };
+		3E190BFC2E11C56B006F0E22 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BC82E11C56B006F0E22 /* Badge.swift */; };
+		3E190BFD2E11C56B006F0E22 /* TaskCompletionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BC02E11C56B006F0E22 /* TaskCompletionViewModel.swift */; };
+		3E190BFE2E11C56B006F0E22 /* LocationPermissionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BAA2E11C56B006F0E22 /* LocationPermissionView.swift */; };
+		3E190BFF2E11C56B006F0E22 /* CreatePostViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BAF2E11C56B006F0E22 /* CreatePostViewModel.swift */; };
+		3E190C002E11C56B006F0E22 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BD12E11C56B006F0E22 /* Extensions.swift */; };
+		3E190C012E11C56B006F0E22 /* DesignSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B932E11C56B006F0E22 /* DesignSystem.swift */; };
+		3E190C022E11C56B006F0E22 /* PhoneAuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B832E11C56B006F0E22 /* PhoneAuthViewModel.swift */; };
+		3E190C032E11C56B006F0E22 /* FeedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B9A2E11C56B006F0E22 /* FeedViewModel.swift */; };
+		3E190C042E11C56B006F0E22 /* FeedFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B992E11C56B006F0E22 /* FeedFilter.swift */; };
+		3E190C052E11C56B006F0E22 /* BadgeSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BA92E11C56B006F0E22 /* BadgeSetupView.swift */; };
+		3E190C062E11C56B006F0E22 /* ModernTaskCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B942E11C56B006F0E22 /* ModernTaskCard.swift */; };
+		3E190C072E11C56B006F0E22 /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B8A2E11C56B006F0E22 /* WelcomeView.swift */; };
+		3E190C082E11C56B006F0E22 /* AnimatedComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B912E11C56B006F0E22 /* AnimatedComponents.swift */; };
+		3E190C092E11C56B006F0E22 /* CustomTransitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B922E11C56B006F0E22 /* CustomTransitions.swift */; };
+		3E190C0A2E11C56B006F0E22 /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B852E11C56B006F0E22 /* AuthenticationView.swift */; };
+		3E190C0B2E11C56B006F0E22 /* APIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BCF2E11C56B006F0E22 /* APIService.swift */; };
+		3E190C0C2E11C56B006F0E22 /* Karma_FarmApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B7F2E11C56B006F0E22 /* Karma_FarmApp.swift */; };
+		3E190C0D2E11C56B006F0E22 /* TaskAcceptanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190BC22E11C56B006F0E22 /* TaskAcceptanceView.swift */; };
+		3E190C0E2E11C56B006F0E22 /* ChatListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E190B8D2E11C56B006F0E22 /* ChatListViewModel.swift */; };
 		3E55113C2E0601B3004AB827 /* Karma-Farm-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3E55113A2E0601B3004AB827 /* Karma-Farm-Info.plist */; };
 		3E7E708E2E022FC500E5E93F /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 3E7E708D2E022FC500E5E93F /* FirebaseAuth */; };
 		3E7E70BA2E024E7D00E5E93F /* IQKeyboardManagerSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 3E7E70B92E024E7D00E5E93F /* IQKeyboardManagerSwift */; };
@@ -31,6 +83,59 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3E190B7F2E11C56B006F0E22 /* Karma_FarmApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Karma_FarmApp.swift; sourceTree = "<group>"; };
+		3E190B822E11C56B006F0E22 /* AuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthManager.swift; sourceTree = "<group>"; };
+		3E190B832E11C56B006F0E22 /* PhoneAuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneAuthViewModel.swift; sourceTree = "<group>"; };
+		3E190B852E11C56B006F0E22 /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; sourceTree = "<group>"; };
+		3E190B862E11C56B006F0E22 /* EmailSignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailSignUpView.swift; sourceTree = "<group>"; };
+		3E190B872E11C56B006F0E22 /* PhoneAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneAuthView.swift; sourceTree = "<group>"; };
+		3E190B882E11C56B006F0E22 /* PrivateProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateProfileSetupView.swift; sourceTree = "<group>"; };
+		3E190B892E11C56B006F0E22 /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		3E190B8A2E11C56B006F0E22 /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		3E190B8D2E11C56B006F0E22 /* ChatListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListViewModel.swift; sourceTree = "<group>"; };
+		3E190B912E11C56B006F0E22 /* AnimatedComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimatedComponents.swift; sourceTree = "<group>"; };
+		3E190B922E11C56B006F0E22 /* CustomTransitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTransitions.swift; sourceTree = "<group>"; };
+		3E190B932E11C56B006F0E22 /* DesignSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignSystem.swift; sourceTree = "<group>"; };
+		3E190B942E11C56B006F0E22 /* ModernTaskCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernTaskCard.swift; sourceTree = "<group>"; };
+		3E190B952E11C56B006F0E22 /* ModernUIComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernUIComponents.swift; sourceTree = "<group>"; };
+		3E190B962E11C56B006F0E22 /* ModernUIDemo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernUIDemo.swift; sourceTree = "<group>"; };
+		3E190B972E11C56B006F0E22 /* NotificationBell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationBell.swift; sourceTree = "<group>"; };
+		3E190B992E11C56B006F0E22 /* FeedFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedFilter.swift; sourceTree = "<group>"; };
+		3E190B9A2E11C56B006F0E22 /* FeedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewModel.swift; sourceTree = "<group>"; };
+		3E190B9C2E11C56B006F0E22 /* FeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedView.swift; sourceTree = "<group>"; };
+		3E190B9F2E11C56B006F0E22 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		3E190BA02E11C56B006F0E22 /* MapViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapViewModel.swift; sourceTree = "<group>"; };
+		3E190BA22E11C56B006F0E22 /* MapLegend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapLegend.swift; sourceTree = "<group>"; };
+		3E190BA32E11C56B006F0E22 /* MapStyleToggle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapStyleToggle.swift; sourceTree = "<group>"; };
+		3E190BA42E11C56B006F0E22 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		3E190BA72E11C56B006F0E22 /* OnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewModel.swift; sourceTree = "<group>"; };
+		3E190BA92E11C56B006F0E22 /* BadgeSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BadgeSetupView.swift; sourceTree = "<group>"; };
+		3E190BAA2E11C56B006F0E22 /* LocationPermissionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationPermissionView.swift; sourceTree = "<group>"; };
+		3E190BAB2E11C56B006F0E22 /* OnboardingContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingContainerView.swift; sourceTree = "<group>"; };
+		3E190BAC2E11C56B006F0E22 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		3E190BAF2E11C56B006F0E22 /* CreatePostViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePostViewModel.swift; sourceTree = "<group>"; };
+		3E190BB12E11C56B006F0E22 /* CreatePostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePostView.swift; sourceTree = "<group>"; };
+		3E190BB42E11C56B006F0E22 /* EditProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewModel.swift; sourceTree = "<group>"; };
+		3E190BB52E11C56B006F0E22 /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
+		3E190BB72E11C56B006F0E22 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		3E190BBB2E11C56B006F0E22 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		3E190BBE2E11C56B006F0E22 /* TaskCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCompletion.swift; sourceTree = "<group>"; };
+		3E190BC02E11C56B006F0E22 /* TaskCompletionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCompletionViewModel.swift; sourceTree = "<group>"; };
+		3E190BC22E11C56B006F0E22 /* TaskAcceptanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskAcceptanceView.swift; sourceTree = "<group>"; };
+		3E190BC32E11C56B006F0E22 /* TaskCompletionConfirmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskCompletionConfirmView.swift; sourceTree = "<group>"; };
+		3E190BC42E11C56B006F0E22 /* TaskRatingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRatingView.swift; sourceTree = "<group>"; };
+		3E190BC82E11C56B006F0E22 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		3E190BC92E11C56B006F0E22 /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
+		3E190BCA2E11C56B006F0E22 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		3E190BCC2E11C56B006F0E22 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		3E190BCF2E11C56B006F0E22 /* APIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIService.swift; sourceTree = "<group>"; };
+		3E190BD12E11C56B006F0E22 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		3E190BD22E11C56B006F0E22 /* TestingUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestingUtils.swift; sourceTree = "<group>"; };
+		3E190BD42E11C56B006F0E22 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		3E190BD52E11C56B006F0E22 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		3E190BD62E11C56B006F0E22 /* Karma_Farm.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Karma_Farm.entitlements; sourceTree = "<group>"; };
+		3E190BD82E11C56B006F0E22 /* Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Persistence.swift; sourceTree = "<group>"; };
+		3E190BDA2E11C56B006F0E22 /* Karma_Farm.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Karma_Farm.xcdatamodel; sourceTree = "<group>"; };
 		3E55113A2E0601B3004AB827 /* Karma-Farm-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Karma-Farm-Info.plist"; sourceTree = "<group>"; };
 		3E80EF852E02264D007AA9BE /* Karma Farm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Karma Farm.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E80EF9B2E02264F007AA9BE /* Karma FarmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Karma FarmTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -38,11 +143,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		3E80EF872E02264D007AA9BE /* Karma Farm */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "Karma Farm";
-			sourceTree = "<group>";
-		};
 		3E80EF9E2E02264F007AA9BE /* Karma FarmTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "Karma FarmTests";
@@ -83,10 +183,366 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3E190B802E11C56B006F0E22 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B7F2E11C56B006F0E22 /* Karma_FarmApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		3E190B812E11C56B006F0E22 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		3E190B842E11C56B006F0E22 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B822E11C56B006F0E22 /* AuthManager.swift */,
+				3E190B832E11C56B006F0E22 /* PhoneAuthViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		3E190B8B2E11C56B006F0E22 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B852E11C56B006F0E22 /* AuthenticationView.swift */,
+				3E190B862E11C56B006F0E22 /* EmailSignUpView.swift */,
+				3E190B872E11C56B006F0E22 /* PhoneAuthView.swift */,
+				3E190B882E11C56B006F0E22 /* PrivateProfileSetupView.swift */,
+				3E190B892E11C56B006F0E22 /* SignInView.swift */,
+				3E190B8A2E11C56B006F0E22 /* WelcomeView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3E190B8C2E11C56B006F0E22 /* Authentication */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B842E11C56B006F0E22 /* ViewModels */,
+				3E190B8B2E11C56B006F0E22 /* Views */,
+			);
+			path = Authentication;
+			sourceTree = "<group>";
+		};
+		3E190B8E2E11C56B006F0E22 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B8D2E11C56B006F0E22 /* ChatListViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		3E190B8F2E11C56B006F0E22 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3E190B902E11C56B006F0E22 /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B8E2E11C56B006F0E22 /* ViewModels */,
+				3E190B8F2E11C56B006F0E22 /* Views */,
+			);
+			path = Chat;
+			sourceTree = "<group>";
+		};
+		3E190B982E11C56B006F0E22 /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B912E11C56B006F0E22 /* AnimatedComponents.swift */,
+				3E190B922E11C56B006F0E22 /* CustomTransitions.swift */,
+				3E190B932E11C56B006F0E22 /* DesignSystem.swift */,
+				3E190B942E11C56B006F0E22 /* ModernTaskCard.swift */,
+				3E190B952E11C56B006F0E22 /* ModernUIComponents.swift */,
+				3E190B962E11C56B006F0E22 /* ModernUIDemo.swift */,
+				3E190B972E11C56B006F0E22 /* NotificationBell.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		3E190B9B2E11C56B006F0E22 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B992E11C56B006F0E22 /* FeedFilter.swift */,
+				3E190B9A2E11C56B006F0E22 /* FeedViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		3E190B9D2E11C56B006F0E22 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B9C2E11C56B006F0E22 /* FeedView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3E190B9E2E11C56B006F0E22 /* Feed */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B9B2E11C56B006F0E22 /* ViewModels */,
+				3E190B9D2E11C56B006F0E22 /* Views */,
+			);
+			path = Feed;
+			sourceTree = "<group>";
+		};
+		3E190BA12E11C56B006F0E22 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B9F2E11C56B006F0E22 /* LocationManager.swift */,
+				3E190BA02E11C56B006F0E22 /* MapViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		3E190BA52E11C56B006F0E22 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BA22E11C56B006F0E22 /* MapLegend.swift */,
+				3E190BA32E11C56B006F0E22 /* MapStyleToggle.swift */,
+				3E190BA42E11C56B006F0E22 /* MapView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3E190BA62E11C56B006F0E22 /* Map */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BA12E11C56B006F0E22 /* ViewModels */,
+				3E190BA52E11C56B006F0E22 /* Views */,
+			);
+			path = Map;
+			sourceTree = "<group>";
+		};
+		3E190BA82E11C56B006F0E22 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BA72E11C56B006F0E22 /* OnboardingViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		3E190BAD2E11C56B006F0E22 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BA92E11C56B006F0E22 /* BadgeSetupView.swift */,
+				3E190BAA2E11C56B006F0E22 /* LocationPermissionView.swift */,
+				3E190BAB2E11C56B006F0E22 /* OnboardingContainerView.swift */,
+				3E190BAC2E11C56B006F0E22 /* ProfileSetupView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3E190BAE2E11C56B006F0E22 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BA82E11C56B006F0E22 /* ViewModels */,
+				3E190BAD2E11C56B006F0E22 /* Views */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
+		3E190BB02E11C56B006F0E22 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BAF2E11C56B006F0E22 /* CreatePostViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		3E190BB22E11C56B006F0E22 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BB12E11C56B006F0E22 /* CreatePostView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3E190BB32E11C56B006F0E22 /* PostCreation */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BB02E11C56B006F0E22 /* ViewModels */,
+				3E190BB22E11C56B006F0E22 /* Views */,
+			);
+			path = PostCreation;
+			sourceTree = "<group>";
+		};
+		3E190BB62E11C56B006F0E22 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BB42E11C56B006F0E22 /* EditProfileViewModel.swift */,
+				3E190BB52E11C56B006F0E22 /* ProfileViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		3E190BB82E11C56B006F0E22 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BB72E11C56B006F0E22 /* ProfileView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3E190BB92E11C56B006F0E22 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BB62E11C56B006F0E22 /* ViewModels */,
+				3E190BB82E11C56B006F0E22 /* Views */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		3E190BBA2E11C56B006F0E22 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		3E190BBC2E11C56B006F0E22 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BBB2E11C56B006F0E22 /* ContentView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3E190BBD2E11C56B006F0E22 /* Root */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BBA2E11C56B006F0E22 /* ViewModels */,
+				3E190BBC2E11C56B006F0E22 /* Views */,
+			);
+			path = Root;
+			sourceTree = "<group>";
+		};
+		3E190BBF2E11C56B006F0E22 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BBE2E11C56B006F0E22 /* TaskCompletion.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		3E190BC12E11C56B006F0E22 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BC02E11C56B006F0E22 /* TaskCompletionViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		3E190BC52E11C56B006F0E22 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BC22E11C56B006F0E22 /* TaskAcceptanceView.swift */,
+				3E190BC32E11C56B006F0E22 /* TaskCompletionConfirmView.swift */,
+				3E190BC42E11C56B006F0E22 /* TaskRatingView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3E190BC62E11C56B006F0E22 /* TaskCompletion */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BBF2E11C56B006F0E22 /* Models */,
+				3E190BC12E11C56B006F0E22 /* ViewModels */,
+				3E190BC52E11C56B006F0E22 /* Views */,
+			);
+			path = TaskCompletion;
+			sourceTree = "<group>";
+		};
+		3E190BC72E11C56B006F0E22 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B8C2E11C56B006F0E22 /* Authentication */,
+				3E190B902E11C56B006F0E22 /* Chat */,
+				3E190B982E11C56B006F0E22 /* DesignSystem */,
+				3E190B9E2E11C56B006F0E22 /* Feed */,
+				3E190BA62E11C56B006F0E22 /* Map */,
+				3E190BAE2E11C56B006F0E22 /* Onboarding */,
+				3E190BB32E11C56B006F0E22 /* PostCreation */,
+				3E190BB92E11C56B006F0E22 /* Profile */,
+				3E190BBD2E11C56B006F0E22 /* Root */,
+				3E190BC62E11C56B006F0E22 /* TaskCompletion */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		3E190BCB2E11C56B006F0E22 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BC82E11C56B006F0E22 /* Badge.swift */,
+				3E190BC92E11C56B006F0E22 /* Post.swift */,
+				3E190BCA2E11C56B006F0E22 /* User.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		3E190BCD2E11C56B006F0E22 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BCC2E11C56B006F0E22 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		3E190BCE2E11C56B006F0E22 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		3E190BD02E11C56B006F0E22 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BCF2E11C56B006F0E22 /* APIService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		3E190BD32E11C56B006F0E22 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				3E190BD12E11C56B006F0E22 /* Extensions.swift */,
+				3E190BD22E11C56B006F0E22 /* TestingUtils.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		3E190BD92E11C56B006F0E22 /* Karma Farm */ = {
+			isa = PBXGroup;
+			children = (
+				3E190B802E11C56B006F0E22 /* App */,
+				3E190B812E11C56B006F0E22 /* Components */,
+				3E190BC72E11C56B006F0E22 /* Core */,
+				3E190BCB2E11C56B006F0E22 /* Models */,
+				3E190BCD2E11C56B006F0E22 /* Preview Content */,
+				3E190BCE2E11C56B006F0E22 /* Resources */,
+				3E190BD02E11C56B006F0E22 /* Services */,
+				3E190BD32E11C56B006F0E22 /* Utils */,
+				3E190BD42E11C56B006F0E22 /* Assets.xcassets */,
+				3E190BD52E11C56B006F0E22 /* GoogleService-Info.plist */,
+				3E190BD62E11C56B006F0E22 /* Karma_Farm.entitlements */,
+				3E190BD72E11C56B006F0E22 /* Karma_Farm.xcdatamodeld */,
+				3E190BD82E11C56B006F0E22 /* Persistence.swift */,
+			);
+			path = "Karma Farm";
+			sourceTree = "<group>";
+		};
 		3E80EF7C2E02264D007AA9BE = {
 			isa = PBXGroup;
 			children = (
-				3E80EF872E02264D007AA9BE /* Karma Farm */,
+				3E190BD92E11C56B006F0E22 /* Karma Farm */,
 				3E80EF9E2E02264F007AA9BE /* Karma FarmTests */,
 				3E80EFA82E02264F007AA9BE /* Karma FarmUITests */,
 				3E80EF862E02264D007AA9BE /* Products */,
@@ -118,9 +574,6 @@
 			buildRules = (
 			);
 			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				3E80EF872E02264D007AA9BE /* Karma Farm */,
 			);
 			name = "Karma Farm";
 			packageProductDependencies = (
@@ -233,6 +686,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				3E55113C2E0601B3004AB827 /* Karma-Farm-Info.plist in Resources */,
+				3E190BDB2E11C56B006F0E22 /* Preview Assets.xcassets in Resources */,
+				3E190BDC2E11C56B006F0E22 /* GoogleService-Info.plist in Resources */,
+				3E190BDD2E11C56B006F0E22 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -257,6 +713,55 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3E190BDE2E11C56B006F0E22 /* FeedView.swift in Sources */,
+				3E190BDF2E11C56B006F0E22 /* EditProfileViewModel.swift in Sources */,
+				3E190BE02E11C56B006F0E22 /* PhoneAuthView.swift in Sources */,
+				3E190BE12E11C56B006F0E22 /* LocationManager.swift in Sources */,
+				3E190BE22E11C56B006F0E22 /* TaskCompletion.swift in Sources */,
+				3E190BE32E11C56B006F0E22 /* SignInView.swift in Sources */,
+				3E190BE42E11C56B006F0E22 /* OnboardingContainerView.swift in Sources */,
+				3E190BE52E11C56B006F0E22 /* EmailSignUpView.swift in Sources */,
+				3E190BE62E11C56B006F0E22 /* ModernUIComponents.swift in Sources */,
+				3E190BE72E11C56B006F0E22 /* MapStyleToggle.swift in Sources */,
+				3E190BE82E11C56B006F0E22 /* NotificationBell.swift in Sources */,
+				3E190BE92E11C56B006F0E22 /* Persistence.swift in Sources */,
+				3E190BEA2E11C56B006F0E22 /* TaskRatingView.swift in Sources */,
+				3E190BEB2E11C56B006F0E22 /* TestingUtils.swift in Sources */,
+				3E190BEC2E11C56B006F0E22 /* TaskCompletionConfirmView.swift in Sources */,
+				3E190BED2E11C56B006F0E22 /* CreatePostView.swift in Sources */,
+				3E190BEE2E11C56B006F0E22 /* Karma_Farm.xcdatamodeld in Sources */,
+				3E190BEF2E11C56B006F0E22 /* PrivateProfileSetupView.swift in Sources */,
+				3E190BF02E11C56B006F0E22 /* ProfileSetupView.swift in Sources */,
+				3E190BF12E11C56B006F0E22 /* MapViewModel.swift in Sources */,
+				3E190BF22E11C56B006F0E22 /* OnboardingViewModel.swift in Sources */,
+				3E190BF32E11C56B006F0E22 /* ContentView.swift in Sources */,
+				3E190BF42E11C56B006F0E22 /* User.swift in Sources */,
+				3E190BF52E11C56B006F0E22 /* MapView.swift in Sources */,
+				3E190BF62E11C56B006F0E22 /* Post.swift in Sources */,
+				3E190BF72E11C56B006F0E22 /* ModernUIDemo.swift in Sources */,
+				3E190BF82E11C56B006F0E22 /* AuthManager.swift in Sources */,
+				3E190BF92E11C56B006F0E22 /* MapLegend.swift in Sources */,
+				3E190BFA2E11C56B006F0E22 /* ProfileView.swift in Sources */,
+				3E190BFB2E11C56B006F0E22 /* ProfileViewModel.swift in Sources */,
+				3E190BFC2E11C56B006F0E22 /* Badge.swift in Sources */,
+				3E190BFD2E11C56B006F0E22 /* TaskCompletionViewModel.swift in Sources */,
+				3E190BFE2E11C56B006F0E22 /* LocationPermissionView.swift in Sources */,
+				3E190BFF2E11C56B006F0E22 /* CreatePostViewModel.swift in Sources */,
+				3E190C002E11C56B006F0E22 /* Extensions.swift in Sources */,
+				3E190C012E11C56B006F0E22 /* DesignSystem.swift in Sources */,
+				3E190C022E11C56B006F0E22 /* PhoneAuthViewModel.swift in Sources */,
+				3E190C032E11C56B006F0E22 /* FeedViewModel.swift in Sources */,
+				3E190C042E11C56B006F0E22 /* FeedFilter.swift in Sources */,
+				3E190C052E11C56B006F0E22 /* BadgeSetupView.swift in Sources */,
+				3E190C062E11C56B006F0E22 /* ModernTaskCard.swift in Sources */,
+				3E190C072E11C56B006F0E22 /* WelcomeView.swift in Sources */,
+				3E190C082E11C56B006F0E22 /* AnimatedComponents.swift in Sources */,
+				3E190C092E11C56B006F0E22 /* CustomTransitions.swift in Sources */,
+				3E190C0A2E11C56B006F0E22 /* AuthenticationView.swift in Sources */,
+				3E190C0B2E11C56B006F0E22 /* APIService.swift in Sources */,
+				3E190C0C2E11C56B006F0E22 /* Karma_FarmApp.swift in Sources */,
+				3E190C0D2E11C56B006F0E22 /* TaskAcceptanceView.swift in Sources */,
+				3E190C0E2E11C56B006F0E22 /* ChatListViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -659,6 +1164,19 @@
 			productName = Alamofire;
 		};
 /* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		3E190BD72E11C56B006F0E22 /* Karma_Farm.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				3E190BDA2E11C56B006F0E22 /* Karma_Farm.xcdatamodel */,
+			);
+			currentVersion = 3E190BDA2E11C56B006F0E22 /* Karma_Farm.xcdatamodel */;
+			path = Karma_Farm.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 3E80EF7D2E02264D007AA9BE /* Project object */;
 }
