@@ -158,7 +158,7 @@ struct PostCardView: View {
             showingDetail = true
         }
         .sheet(isPresented: $showingDetail) {
-            PostDetailView(post: post)
+            GamifiedPostDetailView(post: post)
         }
     }
     

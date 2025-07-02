@@ -58,7 +58,7 @@ enum PostStatus: String, Codable {
 
 struct Post: Codable, Identifiable {
     let id: String
-    let userId: String
+    let userId: String?
     let user: User?
     let type: PostType
     let taskType: TaskType
@@ -73,6 +73,9 @@ struct Post: Codable, Identifiable {
     let createdAt: Date
     let expiresAt: Date?
     let completedByUserId: String?
+    let isAnonymous: Bool?
+    let anonymousDisplayName: String?
+    let tags: [String]
     
     var coordinate: CLLocationCoordinate2D? {
         guard let location = location else { return nil }
@@ -101,7 +104,8 @@ struct Post: Codable, Identifiable {
     
     var isCurrentUserPost: Bool {
         // Check if this post belongs to the current user
-        guard let currentUserId = AuthManager.shared.currentUser?.id else { return false }
+        guard let userId = userId,
+              let currentUserId = AuthManager.shared.currentUser?.id else { return false }
         return userId == currentUserId
     }
     
@@ -144,7 +148,10 @@ extension Post {
             status: .active,
             createdAt: Date().addingTimeInterval(-86400 * 2),
             expiresAt: Date().addingTimeInterval(86400 * 5),
-            completedByUserId: nil
+            completedByUserId: nil,
+            isAnonymous: false,
+            anonymousDisplayName: nil,
+            tags: ["cooking", "italian", "pasta"]
         ),
         Post(
             id: "post-2",
@@ -162,7 +169,10 @@ extension Post {
             status: .active,
             createdAt: Date().addingTimeInterval(-86400),
             expiresAt: Date().addingTimeInterval(86400 * 3),
-            completedByUserId: nil
+            completedByUserId: nil,
+            isAnonymous: false,
+            anonymousDisplayName: nil,
+            tags: ["moving", "physical", "quick-task"]
         ),
         Post(
             id: "post-3",
@@ -180,12 +190,15 @@ extension Post {
             status: .active,
             createdAt: Date().addingTimeInterval(-86400 * 3),
             expiresAt: Date().addingTimeInterval(86400 * 7),
-            completedByUserId: nil
+            completedByUserId: nil,
+            isAnonymous: false,
+            anonymousDisplayName: nil,
+            tags: ["ios", "swift", "programming", "mentoring"]
         ),
         Post(
             id: "post-4",
-            userId: "mock-user-id",
-            user: User.mockUser,
+            userId: nil,
+            user: nil,
             type: .interest,
             taskType: .fun,
             title: "Looking for Guitar Practice Partner",
@@ -198,7 +211,10 @@ extension Post {
             status: .active,
             createdAt: Date().addingTimeInterval(-86400 * 4),
             expiresAt: Date().addingTimeInterval(86400 * 10),
-            completedByUserId: nil
+            completedByUserId: nil,
+            isAnonymous: true,
+            anonymousDisplayName: "MusicLover42",
+            tags: ["music", "guitar", "practice-buddy"]
         ),
         Post(
             id: "post-5",
@@ -216,7 +232,10 @@ extension Post {
             status: .completed,
             createdAt: Date().addingTimeInterval(-86400 * 10),
             expiresAt: nil,
-            completedByUserId: "user-2"
+            completedByUserId: "user-2",
+            isAnonymous: false,
+            anonymousDisplayName: nil,
+            tags: ["gardening", "outdoor", "plants"]
         )
     ]
     

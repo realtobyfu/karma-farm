@@ -94,11 +94,25 @@ class TaskCompletionViewModel: ObservableObject {
             
             // Transfer karma if it's a karma task
             if post.taskType == .karma {
-                try await transferKarmaAPI(
-                    fromUserId: post.isRequest ? post.userId : post.completedByUserId ?? "",
-                    toUserId: post.isRequest ? post.completedByUserId ?? "" : post.userId,
-                    amount: post.karmaValue
-                )
+                let fromUserId: String
+                let toUserId: String
+                
+                if post.isRequest {
+                    fromUserId = post.userId ?? ""
+                    toUserId = post.completedByUserId ?? ""
+                } else {
+                    fromUserId = post.completedByUserId ?? ""
+                    toUserId = post.userId ?? ""
+                }
+                
+                // Only transfer if both users exist (not anonymous)
+                if !fromUserId.isEmpty && !toUserId.isEmpty {
+                    try await transferKarmaAPI(
+                        fromUserId: fromUserId,
+                        toUserId: toUserId,
+                        amount: post.karmaValue
+                    )
+                }
             }
             
             await showSuccessHapticFeedback()
