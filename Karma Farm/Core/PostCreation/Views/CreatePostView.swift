@@ -57,7 +57,7 @@ struct CreatePostView: View {
                             PostTypeButton(
                                 title: "Request Help",
                                 subtitle: "Ask for assistance",
-                                icon: "hand.raised.fill",
+                                icon: nil,
                                 isSelected: isRequest,
                                 color: .red
                             ) {
@@ -67,7 +67,7 @@ struct CreatePostView: View {
                             PostTypeButton(
                                 title: "Offer Help",
                                 subtitle: "Provide assistance",
-                                icon: "heart.fill",
+                                icon: nil,
                                 isSelected: !isRequest,
                                 color: .green
                             ) {
@@ -312,7 +312,7 @@ struct CreatePostView: View {
 struct PostTypeButton: View {
     let title: String
     let subtitle: String
-    let icon: String
+    let icon: String?
     let isSelected: Bool
     let color: Color
     let onTap: () -> Void
@@ -320,10 +320,11 @@ struct PostTypeButton: View {
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.system(size: 24))
-                    .foregroundColor(isSelected ? .white : color)
-                
+                if let icon = icon {
+                    Image(systemName: icon)
+                        .font(.system(size: 24))
+                        .foregroundColor(isSelected ? .white : color)
+                }
                 VStack(spacing: 2) {
                     Text(title)
                         .font(.system(size: 14, weight: .semibold))
