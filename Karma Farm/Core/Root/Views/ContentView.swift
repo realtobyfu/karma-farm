@@ -45,6 +45,9 @@ struct MainTabView: View {
         ("person.crop.circle.fill", "Profile")
     ]
     
+    // Create a mapping for actual tab indices after filtering
+    let tabIndexMapping: [Int] = [0, 1, 3, 4] // Maps filtered indices to actual indices
+    
     var body: some View {
         ZStack {
             // Background
@@ -86,7 +89,24 @@ struct MainTabView: View {
             // Animated Tab Bar
             VStack {
                 Spacer()
-                AnimatedTabBar(selectedTab: $selectedTab, tabs: tabs.filter { !$0.icon.isEmpty })
+                AnimatedTabBar(
+                    selectedTab: Binding(
+                        get: {
+                            // Convert actual tab index to filtered tab index
+                            if let index = tabIndexMapping.firstIndex(of: selectedTab) {
+                                return index
+                            }
+                            return 0
+                        },
+                        set: { filteredIndex in
+                            // Convert filtered tab index to actual tab index
+                            if filteredIndex < tabIndexMapping.count {
+                                selectedTab = tabIndexMapping[filteredIndex]
+                            }
+                        }
+                    ),
+                    tabs: tabs.filter { !$0.icon.isEmpty }
+                )
             }
         }
         .onChange(of: selectedTab) { newValue in

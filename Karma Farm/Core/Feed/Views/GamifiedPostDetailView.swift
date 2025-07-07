@@ -357,9 +357,9 @@ struct PostDetailsCard: View {
                         .foregroundColor(DesignSystem.Colors.textSecondary)
                     
                     HStack(spacing: 4) {
-                        Image(systemName: post.isRequest ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
-                            .foregroundColor(post.isRequest ? .red : .green)
-                        Text("\(post.isRequest ? "-" : "+")\(post.karmaValue)")
+                        Image(systemName: post.isRequest ? "questionmark.circle.fill" : "gift.circle.fill")
+                            .foregroundColor(post.isRequest ? DesignSystem.Colors.primaryOrange : DesignSystem.Colors.primaryGreen)
+                        Text("\(post.karmaValue) karma")
                             .font(DesignSystem.Typography.bodyMedium)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
                     }
