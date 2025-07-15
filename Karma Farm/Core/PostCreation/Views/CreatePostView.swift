@@ -17,11 +17,13 @@ struct CreatePostView: View {
     
     @State private var title = ""
     @State private var description = ""
-    @State private var selectedType: PostType = .general
+    @State private var selectedType: PostType = .task
+    @State private var selectedCategory: PostCategory = .other
     @State private var taskType: TaskType = .karma
     @State private var karmaValue = 10
     @State private var paymentAmount: Double = 20.0
-    @State private var isRequest = true
+    @State private var karmaInputText = "10"
+    @State private var paymentInputText = "20.00"
     @State private var useCurrentLocation = true
     @State private var customLocationName = ""
     @State private var expirationDate = Date().addingTimeInterval(86400 * 7) // 7 days from now
@@ -44,9 +46,9 @@ struct CreatePostView: View {
                 
                 ScrollView {
                 VStack(spacing: 24) {
-                    // Post Type Section with animation
+                    // Post Type Selection
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("What do you want to post?")
+                        Text("Post Type")
                             .font(DesignSystem.Typography.title1)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
                             .opacity(showContent ? 1 : 0)
@@ -54,24 +56,22 @@ struct CreatePostView: View {
                             .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1), value: showContent)
                         
                         HStack(spacing: 12) {
-                            PostTypeButton(
-                                title: "Request Help",
-                                subtitle: "Ask for assistance",
-                                icon: nil,
-                                isSelected: isRequest,
-                                color: .red
-                            ) {
-                                isRequest = true
-                            }
-                            
-                            PostTypeButton(
-                                title: "Offer Help",
-                                subtitle: "Provide assistance",
-                                icon: nil,
-                                isSelected: !isRequest,
-                                color: .green
-                            ) {
-                                isRequest = false
+                            ForEach(PostType.allCases, id: \.self) { postType in
+                                PostTypeButton(
+                                    title: postType.displayName,
+                                    subtitle: getPostTypeSubtitle(postType),
+                                    icon: nil,
+                                    isSelected: selectedType == postType,
+                                    color: getPostTypeColor(postType)
+                                ) {
+                                    selectedType = postType
+                                    // Update task type based on post type
+                                    if postType == .social {
+                                        taskType = .fun
+                                    }
+                                    // Reset category when changing post type
+                                    selectedCategory = PostCategory.categories(for: postType).first ?? .other
+                                }
                             }
                         }
                     }
@@ -114,19 +114,19 @@ struct CreatePostView: View {
                             GridItem(.flexible()),
                             GridItem(.flexible())
                         ], spacing: 12) {
-                            ForEach(PostType.allCases, id: \.self) { type in
+                            ForEach(PostCategory.categories(for: selectedType), id: \.self) { category in
                                 CategoryChip(
-                                    type: type,
-                                    isSelected: selectedType == type
+                                    category: category,
+                                    isSelected: selectedCategory == category
                                 ) {
-                                    selectedType = type
+                                    selectedCategory = category
                                 }
                             }
                         }
                     }
                     
                     // Task Type Value Section
-                    if taskType != .fun {
+                    if selectedType != .social {
                         VStack(alignment: .leading, spacing: 16) {
                             Text(taskType == .karma ? "Karma Value" : "Payment Amount")
                                 .font(.system(size: 18, weight: .semibold))
@@ -135,22 +135,33 @@ struct CreatePostView: View {
                             if taskType == .karma {
                                 VStack(spacing: 12) {
                                     HStack {
-                                        Text("How much karma is this worth?")
+                                        Text("Enter karma amount")
                                             .font(.system(size: 14))
                                             .foregroundColor(.secondary)
                                         
                                         Spacer()
-                                        
-                                        Text("\(karmaValue) karma")
-                                            .font(.system(size: 16, weight: .semibold))
-                                            .foregroundColor(DesignSystem.Colors.primaryBlue)
                                     }
                                     
-                                    Slider(value: Binding(
-                                        get: { Double(karmaValue) },
-                                        set: { karmaValue = Int($0) }
-                                    ), in: 5...100, step: 5)
-                                    .accentColor(DesignSystem.Colors.primaryBlue)
+                                    HStack {
+                                        TextField("10", text: $karmaInputText)
+                                            .keyboardType(.numberPad)
+                                            .textFieldStyle(CreatePostTextFieldStyle())
+                                            .onChange(of: karmaInputText) { newValue in
+                                                // Allow only numbers
+                                                let filtered = newValue.filter { $0.isNumber }
+                                                if filtered != newValue {
+                                                    karmaInputText = filtered
+                                                }
+                                                if let value = Int(filtered) {
+                                                    karmaValue = max(1, min(1000, value))
+                                                }
+                                            }
+                                        
+                                        Text("karma")
+                                            .font(.system(size: 16, weight: .semibold))
+                                            .foregroundColor(DesignSystem.Colors.primaryBlue)
+                                            .padding(.horizontal, 12)
+                                    }
                                 }
                             } else if taskType == .cash {
                                 VStack(spacing: 12) {
@@ -160,14 +171,35 @@ struct CreatePostView: View {
                                             .foregroundColor(.secondary)
                                         
                                         Spacer()
-                                        
-                                        Text(String(format: "$%.0f", paymentAmount))
-                                            .font(.system(size: 16, weight: .semibold))
-                                            .foregroundColor(DesignSystem.Colors.primaryOrange)
                                     }
                                     
-                                    Slider(value: $paymentAmount, in: 5...200, step: 5)
-                                        .accentColor(DesignSystem.Colors.primaryOrange)
+                                    HStack {
+                                        Text("$")
+                                            .font(.system(size: 16, weight: .semibold))
+                                            .foregroundColor(DesignSystem.Colors.primaryOrange)
+                                            .padding(.leading, 12)
+                                        
+                                        TextField("20.00", text: $paymentInputText)
+                                            .keyboardType(.decimalPad)
+                                            .textFieldStyle(CreatePostTextFieldStyle())
+                                            .onChange(of: paymentInputText) { newValue in
+                                                // Allow numbers and one decimal point
+                                                let components = newValue.components(separatedBy: ".")
+                                                if components.count > 2 {
+                                                    paymentInputText = String(newValue.dropLast())
+                                                } else if components.count == 2 && components[1].count > 2 {
+                                                    paymentInputText = components[0] + "." + String(components[1].prefix(2))
+                                                } else {
+                                                    let filtered = newValue.filter { $0.isNumber || $0 == "." }
+                                                    if filtered != newValue {
+                                                        paymentInputText = filtered
+                                                    }
+                                                    if let value = Double(filtered) {
+                                                        paymentAmount = max(0.01, min(9999.99, value))
+                                                    }
+                                                }
+                                            }
+                                    }
                                     
                                     // Cash payment notice
                                     HStack(spacing: 8) {
@@ -185,6 +217,27 @@ struct CreatePostView: View {
                                     .cornerRadius(8)
                                 }
                             }
+                        }
+                    } else {
+                        // Social activity notice
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Social Activity")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            HStack(spacing: 8) {
+                                Image(systemName: "heart.fill")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(DesignSystem.Colors.primaryPurple)
+                                
+                                Text("This is a social activity with no rewards - just for fun!")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .padding(12)
+                            .background(DesignSystem.Colors.primaryPurple.opacity(0.1))
+                            .cornerRadius(8)
                         }
                     }
                     
@@ -397,6 +450,28 @@ struct LoadingOverlay: View {
                 .background(Color.black.opacity(0.7))
                 .cornerRadius(12)
             )
+    }
+    
+    private func getPostTypeSubtitle(_ type: PostType) -> String {
+        switch type {
+        case .skillShare:
+            return "Share your skills"
+        case .task:
+            return "Request or offer help"
+        case .social:
+            return "Fun activities"
+        }
+    }
+    
+    private func getPostTypeColor(_ type: PostType) -> Color {
+        switch type {
+        case .skillShare:
+            return DesignSystem.Colors.primaryBlue
+        case .task:
+            return DesignSystem.Colors.primaryGreen
+        case .social:
+            return DesignSystem.Colors.primaryPurple
+        }
     }
 }
 

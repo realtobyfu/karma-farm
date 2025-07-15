@@ -1,53 +1,74 @@
 import SwiftUI
+import MapKit
 
 struct GamifiedPostDetailView: View {
     let post: Post
-    @Environment(\.dismiss) private var dismiss
     @State private var isInterested = false
     @State private var isBookmarked = false
     @State private var showKarmaAnimation = false
-    @State private var interestedCount = Int.random(in: 0...15)
-    @State private var viewCount = Int.random(in: 10...100)
-    @State private var upvotes = Int.random(in: 0...25)
-    @State private var hasUpvoted = false
-    @State private var showingChat = false
-    @State private var createdChat: Chat?
+    @State private var interestedCount = 42
+    @State private var showingMap = false
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         NavigationView {
-            ZStack {
-                DesignSystem.Colors.backgroundPrimary
-                    .ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(alignment: .leading, spacing: DesignSystem.Spacing.lg) {
-                        // Enhanced Header with Stats
-                        PostHeaderSection(post: post)
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Hero Header
+                    HeroHeaderView(post: post)
+                        .padding(.bottom, DesignSystem.Spacing.md)
+                    
+                    VStack(spacing: DesignSystem.Spacing.lg) {
+                        // Post Main Content Card
+                        VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                            // Task Type Badge with Animation
+                            AnimatedTaskBadge(
+                                taskType: post.taskType,
+                                value: post.displayValue
+                            )
+                            
+                            // Title and Description
+                            PostContentSection(
+                                title: post.title,
+                                description: post.description
+                            )
+                            
+                            // Location Section
+                            if let locationName = post.locationName {
+                                LocationSection(locationName: locationName) {
+                                    showingMap = true
+                                }
+                            }
+                            
+                            // Expiration Timer
+                            if let timeRemaining = post.timeRemaining {
+                                ExpirationTimer(timeRemaining: timeRemaining)
+                            }
+                        }
+                        .padding(DesignSystem.Spacing.lg)
+                        .background(DesignSystem.Colors.backgroundSecondary)
+                        .cornerRadius(16)
                         
-                        // Gamified User Profile Section
+                        // User Profile Card (Gamified)
                         if let user = post.user {
                             GamifiedUserCard(
                                 user: user,
                                 isAnonymous: post.isAnonymous ?? false,
-                                anonymousName: post.anonymousDisplayName
+                                anonymousDisplayName: post.anonymousDisplayName
                             )
                         }
                         
-                        // Social Proof Indicators
+                        // Social Proof Bar
                         SocialProofBar(
-                            viewCount: viewCount,
+                            viewCount: 128,
                             interestedCount: interestedCount,
-                            upvotes: upvotes,
-                            hasUpvoted: $hasUpvoted
+                            upvotes: 89
                         )
                         
-                        // Description with enhanced typography
-                        PostDescriptionSection(description: post.description)
-                        
-                        // Gamified Details Section
+                        // Post Details Card
                         PostDetailsCard(post: post)
                         
-                        // Interactive Action Buttons
+                        // Action Buttons
                         ActionButtonsSection(
                             post: post,
                             isInterested: $isInterested,
@@ -56,94 +77,114 @@ struct GamifiedPostDetailView: View {
                             interestedCount: $interestedCount,
                             onInterestAction: handleInterestAction
                         )
-                        
-                        Spacer(minLength: 20)
                     }
-                    .padding(DesignSystem.Spacing.lg)
+                    .padding(.horizontal, DesignSystem.Spacing.lg)
+                    .padding(.bottom, 32)
                 }
             }
-            .navigationTitle("Quest Details")
+            .background(DesignSystem.Colors.backgroundPrimary)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .font(.title2)
                     }
-                    .foregroundColor(DesignSystem.Colors.primaryGreen)
                 }
             }
         }
-        .overlay(
-            KarmaAnimationOverlay(show: $showKarmaAnimation, karmaValue: post.karmaValue)
-        )
-        .sheet(item: $createdChat) { chat in
-            ChatDetailView(chat: chat)
+        .sheet(isPresented: $showingMap) {
+            MapView(focusedPost: post)
         }
+        .overlay(
+            KarmaAnimation(show: $showKarmaAnimation)
+        )
     }
     
     private func handleInterestAction() async {
         withAnimation(.spring()) {
             isInterested = true
             interestedCount += 1
-            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            showKarmaAnimation = true
         }
         
-        // Create or get existing chat
-        do {
-            let chat = try await ChatService.shared.createChat(postId: post.id)
-            createdChat = chat
-            showingChat = true
-            // Note: Karma animation will be shown when the task is actually completed,
-            // not just when interest is expressed
-        } catch {
-            print("Failed to create chat: \(error)")
-            // Reset state on error
-            withAnimation {
-                isInterested = false
-                interestedCount -= 1
-            }
-        }
+        // Simulate API call
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
+        
+        // Here you would typically:
+        // 1. Send interest notification to post creator
+        // 2. Create or open chat
+        // 3. Update backend
     }
 }
 
-// MARK: - Header Section
-struct PostHeaderSection: View {
+// MARK: - Hero Header
+struct HeroHeaderView: View {
     let post: Post
+    @State private var gradientOffset: CGFloat = -200
     
     var body: some View {
-        VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(post.title)
-                        .font(DesignSystem.Typography.largeTitle)
-                        .foregroundColor(DesignSystem.Colors.textPrimary)
-                    
-                    HStack(spacing: 4) {
-                        Image(systemName: post.isRequest ? "hands.and.sparkles.fill" : "gift.fill")
-                            .font(.caption)
-                        Text(post.isRequest ? "Request" : "Offer")
-                            .font(DesignSystem.Typography.caption)
-                    }
-                    .foregroundColor(DesignSystem.Colors.textSecondary)
-                }
-                
-                Spacer()
-                
-                AnimatedTaskBadge(taskType: post.taskType, value: post.displayValue)
-            }
-            
-            // Location and Time Pills
-            HStack(spacing: DesignSystem.Spacing.sm) {
-                if let locationName = post.locationName {
-                    InfoPill(icon: "location.fill", text: locationName, color: .blue)
-                }
-                
-                InfoPill(
-                    icon: "clock.fill",
-                    text: post.timeRemaining ?? "Just now",
-                    color: .orange
+        ZStack(alignment: .bottom) {
+            // Animated Background Gradient
+            LinearGradient(
+                colors: [
+                    taskTypeColor(post.taskType),
+                    taskTypeColor(post.taskType).opacity(0.6)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .frame(height: 200)
+            .overlay(
+                LinearGradient(
+                    colors: [Color.clear, Color.white.opacity(0.3), Color.clear],
+                    startPoint: .leading,
+                    endPoint: .trailing
                 )
+                .frame(width: 150)
+                .offset(x: gradientOffset)
+                .blur(radius: 20)
+            )
+            
+            // Task Type Icon
+            Image(systemName: post.type.icon)
+                .font(.system(size: 80))
+                .foregroundColor(.white.opacity(0.2))
+                .offset(x: 100, y: -20)
+                .rotationEffect(.degrees(15))
+            
+            // Status Badge if not active
+            if post.status != .active {
+                HStack {
+                    Image(systemName: post.status == .completed ? "checkmark.circle.fill" : "xmark.circle.fill")
+                    Text(post.status.displayName.uppercased())
+                        .font(DesignSystem.Typography.caption)
+                        .fontWeight(.bold)
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(post.status == .completed ? Color.green : Color.red)
+                .cornerRadius(20)
+                .padding(.bottom, DesignSystem.Spacing.md)
             }
+        }
+        .onAppear {
+            withAnimation(.linear(duration: 3).repeatForever(autoreverses: true)) {
+                gradientOffset = 200
+            }
+        }
+    }
+    
+    private func taskTypeColor(_ type: TaskType) -> Color {
+        switch type {
+        case .karma:
+            return DesignSystem.Colors.primaryBlue
+        case .cash:
+            return DesignSystem.Colors.primaryOrange
+        case .fun:
+            return DesignSystem.Colors.primaryPurple
         }
     }
 }
@@ -152,46 +193,56 @@ struct PostHeaderSection: View {
 struct GamifiedUserCard: View {
     let user: User
     let isAnonymous: Bool
-    let anonymousName: String?
-    @State private var showProfileSheet = false
+    let anonymousDisplayName: String?
     
     private var displayName: String {
-        isAnonymous ? (anonymousName ?? "Anonymous Hero") : user.username
+        isAnonymous ? (anonymousDisplayName ?? "Anonymous Helper") : user.username
     }
     
-    private var karmaLevel: (level: Int, progress: Double, title: String) {
+    // Karma level calculation
+    private var karmaLevel: (level: Int, title: String, progress: Double) {
         let karma = user.karmaBalance
-        switch karma {
-        case 0..<100:
-            return (1, Double(karma) / 100.0, "Novice Helper")
-        case 100..<500:
-            return (2, Double(karma - 100) / 400.0, "Rising Star")
-        case 500..<1000:
-            return (3, Double(karma - 500) / 500.0, "Community Hero")
-        case 1000..<2500:
-            return (4, Double(karma - 1000) / 1500.0, "Karma Master")
-        default:
-            return (5, 1.0, "Legendary Giver")
+        let level = min(karma / 100 + 1, 50) // Max level 50
+        let progressInCurrentLevel = Double((karma % 100)) / 100.0
+        
+        let title: String
+        switch level {
+        case 1...5: title = "Novice Helper"
+        case 6...10: title = "Community Friend"
+        case 11...20: title = "Karma Warrior"
+        case 21...30: title = "Local Hero"
+        case 31...40: title = "Master Helper"
+        case 41...50: title = "Karma Legend"
+        default: title = "Beginner"
         }
+        
+        return (level, title, progressInCurrentLevel)
     }
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack(spacing: DesignSystem.Spacing.md) {
-                // Enhanced Avatar
-                ZStack {
-                    Circle()
-                        .fill(isAnonymous ? Color.gray : DesignSystem.Colors.primaryGreen.opacity(0.1))
-                        .frame(width: 56, height: 56)
-                    
-                    if isAnonymous {
-                        Image(systemName: "person.fill.questionmark")
-                            .font(.title2)
-                            .foregroundColor(.gray)
+            HStack(alignment: .top, spacing: DesignSystem.Spacing.md) {
+                // Profile Picture with Level Badge
+                ZStack(alignment: .bottomTrailing) {
+                    if let profilePictureUrl = user.profilePictureUrl {
+                        AsyncImage(url: URL(string: profilePictureUrl)) { image in
+                            image
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            ProgressView()
+                        }
+                        .frame(width: 60, height: 60)
+                        .clipShape(Circle())
                     } else {
-                        Text(user.username.prefix(1).uppercased())
-                            .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(DesignSystem.Colors.primaryGreen)
+                        Circle()
+                            .fill(DesignSystem.Colors.primaryGreen.opacity(0.2))
+                            .frame(width: 60, height: 60)
+                            .overlay(
+                                Text(displayName.prefix(2).uppercased())
+                                    .font(DesignSystem.Typography.bodySemibold)
+                                    .foregroundColor(DesignSystem.Colors.primaryGreen)
+                            )
                     }
                     
                     // Level Badge
@@ -297,56 +348,47 @@ struct SocialProofBar: View {
     let viewCount: Int
     let interestedCount: Int
     let upvotes: Int
-    @Binding var hasUpvoted: Bool
     
     var body: some View {
-        HStack(spacing: DesignSystem.Spacing.lg) {
-            // Views
-            HStack(spacing: 4) {
-                Image(systemName: "eye.fill")
-                    .font(.caption)
-                Text("\(viewCount)")
-                    .font(DesignSystem.Typography.caption)
-            }
-            .foregroundColor(DesignSystem.Colors.textSecondary)
-            
-            // Interested
-            HStack(spacing: 4) {
-                Image(systemName: "person.2.fill")
-                    .font(.caption)
-                Text("\(interestedCount) interested")
-                    .font(DesignSystem.Typography.caption)
-            }
-            .foregroundColor(DesignSystem.Colors.textSecondary)
-            
-            Spacer()
-            
-            // Upvote Button
-            Button(action: {
-                withAnimation(.spring()) {
-                    hasUpvoted.toggle()
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                }
-            }) {
-                HStack(spacing: 4) {
-                    Image(systemName: hasUpvoted ? "hand.thumbsup.fill" : "hand.thumbsup")
-                        .font(.caption)
-                    Text("\(upvotes + (hasUpvoted ? 1 : 0))")
-                        .font(DesignSystem.Typography.caption)
-                }
-                .foregroundColor(hasUpvoted ? DesignSystem.Colors.primaryGreen : DesignSystem.Colors.textSecondary)
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(hasUpvoted ? DesignSystem.Colors.primaryGreen.opacity(0.1) : Color.gray.opacity(0.1))
-                .cornerRadius(16)
-            }
+        HStack(spacing: 20) {
+            SocialProofItem(icon: "eye.fill", value: "\(viewCount)", label: "views")
+            SocialProofItem(icon: "person.2.fill", value: "\(interestedCount)", label: "interested", highlighted: true)
+            SocialProofItem(icon: "hand.thumbsup.fill", value: "\(upvotes)", label: "upvotes")
         }
-        .padding(.vertical, DesignSystem.Spacing.sm)
+        .padding(.vertical, 12)
+        .padding(.horizontal, 20)
+        .background(DesignSystem.Colors.backgroundSecondary)
+        .cornerRadius(30)
     }
 }
 
-// MARK: - Description Section
-struct PostDescriptionSection: View {
+struct SocialProofItem: View {
+    let icon: String
+    let value: String
+    let label: String
+    var highlighted: Bool = false
+    
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: icon)
+                .font(.caption)
+                .foregroundColor(highlighted ? DesignSystem.Colors.primaryGreen : DesignSystem.Colors.textSecondary)
+            
+            VStack(spacing: 0) {
+                Text(value)
+                    .font(DesignSystem.Typography.bodySemibold)
+                    .foregroundColor(highlighted ? DesignSystem.Colors.primaryGreen : DesignSystem.Colors.textPrimary)
+                Text(label)
+                    .font(.system(size: 10))
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+            }
+        }
+    }
+}
+
+// MARK: - Post Content Section
+struct PostContentSection: View {
+    let title: String
     let description: String
     @State private var isExpanded = false
     
@@ -387,9 +429,9 @@ struct PostDetailsCard: View {
                         .foregroundColor(DesignSystem.Colors.textSecondary)
                     
                     HStack(spacing: 4) {
-                        Image(systemName: post.isRequest ? "hands.and.sparkles.fill" : "gift.circle.fill")
-                            .foregroundColor(post.isRequest ? DesignSystem.Colors.primaryOrange : DesignSystem.Colors.primaryGreen)
-                        Text("\(post.karmaValue) karma")
+                        Image(systemName: getKarmaIcon(for: post))
+                            .foregroundColor(getKarmaColor(for: post))
+                        Text(post.displayValue)
                             .font(DesignSystem.Typography.bodyMedium)
                             .foregroundColor(DesignSystem.Colors.textPrimary)
                     }
@@ -397,8 +439,10 @@ struct PostDetailsCard: View {
                 
                 Spacer()
                 
-                // Difficulty Badge
-                DifficultyBadge(karma: post.karmaValue)
+                // Difficulty Badge (only for karma posts)
+                if let karmaValue = post.karmaValue {
+                    DifficultyBadge(karma: karmaValue)
+                }
             }
             .padding(DesignSystem.Spacing.md)
             
@@ -497,39 +541,148 @@ struct AnimatedTaskBadge: View {
             Image(systemName: taskType.icon)
                 .font(.system(size: 14, weight: .semibold))
                 .rotationEffect(.degrees(isAnimating ? 360 : 0))
+                .animation(.linear(duration: 2).repeatForever(autoreverses: false), value: isAnimating)
+            
             Text(value)
-                .font(.system(size: 14, weight: .semibold))
+                .font(DesignSystem.Typography.bodySemibold)
         }
         .foregroundColor(.white)
         .padding(.horizontal, 16)
         .padding(.vertical, 8)
-        .background(taskType.gradient)
+        .background(
+            LinearGradient(
+                colors: [taskType.color, taskType.color.opacity(0.8)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+        )
         .cornerRadius(20)
-        .shadow(color: taskType.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
+        .shadow(color: taskType.color.opacity(0.3), radius: 8, x: 0, y: 4)
         .onAppear {
-            withAnimation(.linear(duration: 2).repeatForever(autoreverses: false)) {
-                isAnimating = true
-            }
+            isAnimating = true
         }
     }
 }
 
-struct InfoPill: View {
-    let icon: String
-    let text: String
-    let color: Color
+struct LocationSection: View {
+    let locationName: String
+    let onTap: () -> Void
     
     var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: icon)
-                .font(.caption2)
-            Text(text)
-                .font(DesignSystem.Typography.caption)
+        Button(action: onTap) {
+            HStack(spacing: 12) {
+                Image(systemName: "mappin.circle.fill")
+                    .font(.title2)
+                    .foregroundColor(DesignSystem.Colors.primaryGreen)
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Location")
+                        .font(DesignSystem.Typography.caption)
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                    
+                    Text(locationName)
+                        .font(DesignSystem.Typography.body)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "map.fill")
+                    .font(.caption)
+                    .foregroundColor(DesignSystem.Colors.primaryGreen)
+            }
+            .padding()
+            .background(DesignSystem.Colors.primaryGreen.opacity(0.05))
+            .cornerRadius(12)
         }
-        .foregroundColor(color)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 4)
-        .background(color.opacity(0.1))
+    }
+}
+
+struct ExpirationTimer: View {
+    let timeRemaining: String
+    @State private var isUrgent = false
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "clock.fill")
+                .font(.caption)
+                .foregroundColor(isUrgent ? .red : DesignSystem.Colors.primaryOrange)
+            
+            Text("Expires in")
+                .font(DesignSystem.Typography.caption)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
+            
+            Text(timeRemaining)
+                .font(DesignSystem.Typography.bodySemibold)
+                .foregroundColor(isUrgent ? .red : DesignSystem.Colors.primaryOrange)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background((isUrgent ? Color.red : DesignSystem.Colors.primaryOrange).opacity(0.1))
+        .cornerRadius(20)
+        .onAppear {
+            isUrgent = timeRemaining.contains("h") && !timeRemaining.contains("d")
+        }
+    }
+}
+
+struct DifficultyBadge: View {
+    let karma: Int
+    
+    private var difficulty: (text: String, color: Color) {
+        switch karma {
+        case 0...20:
+            return ("Easy", .green)
+        case 21...50:
+            return ("Medium", .orange)
+        case 51...100:
+            return ("Hard", .red)
+        default:
+            return ("Expert", .purple)
+        }
+    }
+    
+    var body: some View {
+        Text(difficulty.text)
+            .font(DesignSystem.Typography.caption)
+            .fontWeight(.bold)
+            .foregroundColor(.white)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 4)
+            .background(difficulty.color)
+            .cornerRadius(12)
+    }
+}
+
+struct SkillTag: View {
+    let text: String
+    
+    var body: some View {
+        Text("#\(text)")
+            .font(DesignSystem.Typography.caption)
+            .foregroundColor(DesignSystem.Colors.primaryBlue)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(DesignSystem.Colors.primaryBlue.opacity(0.1))
+            .cornerRadius(15)
+    }
+}
+
+struct BadgeChip: View {
+    let badge: BadgeType
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Image(systemName: badge.icon)
+                .font(.system(size: 20))
+                .foregroundColor(badge.color)
+            
+            Text(badge.displayName)
+                .font(.system(size: 10))
+                .foregroundColor(DesignSystem.Colors.textSecondary)
+        }
+        .frame(width: 60, height: 60)
+        .background(badge.color.opacity(0.1))
         .cornerRadius(12)
     }
 }
@@ -544,121 +697,57 @@ struct StatBadge: View {
             Text(value)
                 .font(DesignSystem.Typography.bodySemibold)
                 .foregroundColor(color)
+            
             Text(label)
                 .font(.system(size: 10))
                 .foregroundColor(DesignSystem.Colors.textSecondary)
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(color.opacity(0.1))
-        .cornerRadius(8)
     }
 }
 
-struct BadgeChip: View {
-    let badge: String
-    
-    private var badgeInfo: (icon: String, color: Color) {
-        switch badge.lowercased() {
-        case "verified": return ("checkmark.seal.fill", .blue)
-        case "college": return ("graduationcap.fill", .purple)
-        case "professional": return ("briefcase.fill", .orange)
-        case "trusted": return ("shield.fill", .green)
-        default: return ("star.fill", .yellow)
-        }
-    }
-    
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: badgeInfo.icon)
-                .font(.system(size: 10))
-            Text(badge)
-                .font(.system(size: 11))
-        }
-        .foregroundColor(badgeInfo.color)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 4)
-        .background(badgeInfo.color.opacity(0.1))
-        .cornerRadius(12)
-    }
-}
-
-struct DifficultyBadge: View {
-    let karma: Int
-    
-    private var difficulty: (text: String, color: Color) {
-        switch karma {
-        case 0..<10: return ("Easy", .green)
-        case 10..<25: return ("Medium", .orange)
-        case 25..<50: return ("Hard", .red)
-        default: return ("Epic", .purple)
-        }
-    }
-    
-    var body: some View {
-        Text(difficulty.text)
-            .font(DesignSystem.Typography.caption)
-            .foregroundColor(difficulty.color)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 4)
-            .background(difficulty.color.opacity(0.1))
-            .cornerRadius(8)
-    }
-}
-
-struct SkillTag: View {
-    let text: String
-    
-    var body: some View {
-        Text(text)
-            .font(DesignSystem.Typography.caption)
-            .foregroundColor(DesignSystem.Colors.primaryGreen)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(DesignSystem.Colors.primaryGreen.opacity(0.1))
-            .cornerRadius(16)
-    }
-}
-
-// MARK: - Karma Animation Overlay
-struct KarmaAnimationOverlay: View {
+// MARK: - Karma Animation
+struct KarmaAnimation: View {
     @Binding var show: Bool
-    let karmaValue: Int
     @State private var scale: CGFloat = 0.5
     @State private var opacity: Double = 0
     @State private var offset: CGFloat = 0
     
     var body: some View {
-        if show {
-            VStack {
-                Spacer()
-                
-                HStack(spacing: 8) {
-                    Image(systemName: "star.fill")
-                        .font(.title)
-                        .foregroundColor(.yellow)
+        ZStack {
+            if show {
+                VStack {
+                    Spacer()
                     
-                    Text("+\(karmaValue)")
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(DesignSystem.Colors.primaryGreen)
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 30))
+                            .foregroundColor(.yellow)
+                        
+                        Text("+5")
+                            .font(.system(size: 36, weight: .bold))
+                            .foregroundColor(DesignSystem.Colors.primaryGreen)
+                        
+                        Text("karma")
+                            .font(.system(size: 24, weight: .semibold))
+                            .foregroundColor(DesignSystem.Colors.primaryGreen)
+                    }
+                    .scaleEffect(scale)
+                    .opacity(opacity)
+                    .offset(y: offset)
                     
-                    Text("Karma")
-                        .font(.title2)
-                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                    Spacer()
+                    Spacer()
                 }
-                .scaleEffect(scale)
-                .opacity(opacity)
-                .offset(y: offset)
-                
-                Spacer()
             }
-            .onAppear {
-                withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+        }
+        .onChange(of: show) { newValue in
+            if newValue {
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) {
                     scale = 1.2
                     opacity = 1
                 }
                 
-                withAnimation(.easeOut(duration: 0.8).delay(0.5)) {
+                withAnimation(.easeOut(duration: 1).delay(0.5)) {
                     offset = -100
                     opacity = 0
                 }
@@ -670,5 +759,28 @@ struct KarmaAnimationOverlay: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Helper Functions
+private func getKarmaIcon(for post: Post) -> String {
+    switch post.taskType {
+    case .karma:
+        return "star.fill"
+    case .cash:
+        return "dollarsign.circle.fill"
+    case .fun:
+        return "heart.fill"
+    }
+}
+
+private func getKarmaColor(for post: Post) -> Color {
+    switch post.taskType {
+    case .karma:
+        return DesignSystem.Colors.primaryBlue
+    case .cash:
+        return DesignSystem.Colors.primaryOrange
+    case .fun:
+        return DesignSystem.Colors.primaryPurple
     }
 }

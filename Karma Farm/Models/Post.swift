@@ -3,41 +3,94 @@ import CoreLocation
 import FirebaseAuth
 
 enum PostType: String, Codable, CaseIterable {
-    case general = "general"
     case skillShare = "skill_share"
     case task = "task"
-    case interest = "interest"
-    case transportation = "transportation"
-    case food = "food"
-    case technology = "technology"
-    case education = "education"
-    case events = "events"
+    case social = "social" // Social activities, no reward
     
     var displayName: String {
         switch self {
-        case .general: return "General"
         case .skillShare: return "Skill Share"
         case .task: return "Task"
-        case .interest: return "Interest"
-        case .transportation: return "Transportation"
-        case .food: return "Food"
-        case .technology: return "Technology"
-        case .education: return "Education"
-        case .events: return "Events"
+        case .social: return "Social Activity"
         }
     }
     
     var icon: String {
         switch self {
-        case .general: return "star.fill"
         case .skillShare: return "lightbulb.fill"
         case .task: return "checkmark.circle.fill"
-        case .interest: return "heart.fill"
-        case .transportation: return "car.fill"
-        case .food: return "fork.knife"
-        case .technology: return "laptopcomputer"
+        case .social: return "heart.fill"
+        }
+    }
+}
+
+enum PostCategory: String, Codable, CaseIterable {
+    // Skill Share Categories
+    case education = "education"
+    case technology = "technology"
+    case creative = "creative"
+    case language = "language"
+    
+    // Task Categories
+    case transportation = "transportation"
+    case shopping = "shopping"
+    case homeServices = "home_services"
+    case petCare = "pet_care"
+    
+    // Social Categories
+    case sports = "sports"
+    case food = "food"
+    case events = "events"
+    case hobbies = "hobbies"
+    
+    // General
+    case other = "other"
+    
+    var displayName: String {
+        switch self {
+        case .education: return "Education"
+        case .technology: return "Technology"
+        case .creative: return "Creative"
+        case .language: return "Language"
+        case .transportation: return "Transportation"
+        case .shopping: return "Shopping"
+        case .homeServices: return "Home Services"
+        case .petCare: return "Pet Care"
+        case .sports: return "Sports"
+        case .food: return "Food"
+        case .events: return "Events"
+        case .hobbies: return "Hobbies"
+        case .other: return "Other"
+        }
+    }
+    
+    var icon: String {
+        switch self {
         case .education: return "book.fill"
+        case .technology: return "laptopcomputer"
+        case .creative: return "paintbrush.fill"
+        case .language: return "globe"
+        case .transportation: return "car.fill"
+        case .shopping: return "cart.fill"
+        case .homeServices: return "house.fill"
+        case .petCare: return "pawprint.fill"
+        case .sports: return "sportscourt.fill"
+        case .food: return "fork.knife"
         case .events: return "calendar"
+        case .hobbies: return "star.fill"
+        case .other: return "ellipsis.circle.fill"
+        }
+    }
+    
+    // Helper to get appropriate categories for each post type
+    static func categories(for postType: PostType) -> [PostCategory] {
+        switch postType {
+        case .skillShare:
+            return [.education, .technology, .creative, .language, .other]
+        case .task:
+            return [.transportation, .shopping, .homeServices, .petCare, .other]
+        case .social:
+            return [.sports, .food, .events, .hobbies, .other]
         }
     }
 }
@@ -61,12 +114,12 @@ struct Post: Codable, Identifiable {
     let userId: String?
     let user: User?
     let type: PostType
+    let category: PostCategory
     let taskType: TaskType
     let title: String
     let description: String
-    let karmaValue: Int
+    let karmaValue: Int? // Only for karma-based posts
     let paymentAmount: Double? // For cash tasks
-    let isRequest: Bool
     let location: Location?
     let locationName: String?
     let status: PostStatus
@@ -112,10 +165,13 @@ struct Post: Codable, Identifiable {
     var displayValue: String {
         switch taskType {
         case .karma:
-            return "\(karmaValue) karma"
+            if let karmaValue = karmaValue {
+                return "\(karmaValue) karma"
+            }
+            return "0 karma"
         case .cash:
             if let amount = paymentAmount {
-                return String(format: "$%.0f", amount)
+                return String(format: "$%.2f", amount)
             }
             return "$0"
         case .fun:
@@ -137,12 +193,12 @@ extension Post {
             userId: "user-1",
             user: User.mockUsers[0],
             type: .skillShare,
+            category: .creative,
             taskType: .karma,
             title: "Learn to Cook Italian Pasta",
             description: "I'll teach you how to make authentic Italian pasta from scratch! We'll cover different types of pasta, sauces, and cooking techniques. Perfect for beginners.",
             karmaValue: 25,
             paymentAmount: nil,
-            isRequest: false,
             location: Location(latitude: 42.3651, longitude: -71.0540),
             locationName: "North End, Boston",
             status: .active,
@@ -158,12 +214,12 @@ extension Post {
             userId: "mock-user-id",
             user: User.mockUser,
             type: .task,
+            category: .homeServices,
             taskType: .cash,
             title: "Need Help Moving Furniture",
             description: "Looking for someone to help me move a couch and some boxes to my new apartment. Should take about 2 hours. I have a truck already. Cash payment.",
-            karmaValue: 0,
+            karmaValue: nil,
             paymentAmount: 50.0,
-            isRequest: true,
             location: Location(latitude: 42.3601, longitude: -71.0589),
             locationName: "Back Bay, Boston",
             status: .active,
@@ -179,12 +235,12 @@ extension Post {
             userId: "user-2",
             user: User.mockUsers[1],
             type: .skillShare,
+            category: .technology,
             taskType: .karma,
             title: "iOS Development Mentoring",
             description: "Experienced iOS developer offering mentoring sessions. I can help with Swift, SwiftUI, app architecture, and App Store submission process.",
             karmaValue: 40,
             paymentAmount: nil,
-            isRequest: false,
             location: Location(latitude: 42.3581, longitude: -71.0636),
             locationName: "Cambridge, MA",
             status: .active,
@@ -199,13 +255,13 @@ extension Post {
             id: "post-4",
             userId: nil,
             user: nil,
-            type: .interest,
+            type: .social,
+            category: .hobbies,
             taskType: .fun,
             title: "Looking for Guitar Practice Partner",
             description: "Intermediate guitar player looking for someone to practice with. I play folk and indie rock mostly. Would love to jam together!",
-            karmaValue: 0,
+            karmaValue: nil,
             paymentAmount: nil,
-            isRequest: true,
             location: Location(latitude: 42.3601, longitude: -71.0589),
             locationName: "Back Bay, Boston",
             status: .active,
@@ -221,12 +277,12 @@ extension Post {
             userId: "user-1",
             user: User.mockUsers[0],
             type: .task,
+            category: .homeServices,
             taskType: .karma,
             title: "Completed: Garden Setup Help",
             description: "Thanks to Alex for helping me set up my herb garden! Great work and very knowledgeable about plants.",
             karmaValue: 20,
             paymentAmount: nil,
-            isRequest: true,
             location: Location(latitude: 42.3651, longitude: -71.0540),
             locationName: "North End, Boston",
             status: .completed,

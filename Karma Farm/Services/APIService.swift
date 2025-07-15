@@ -40,10 +40,11 @@ struct ProfileUpdateRequest: Codable {
 
 struct CreatePostRequest: Codable {
     let type: PostType
+    let category: PostCategory
     let title: String
     let description: String
-    let karmaValue: Int
-    let isRequest: Bool
+    let karmaValue: Int?
+    let paymentAmount: Double?
     let location: Location?
     let locationName: String?
     let expiresAt: Date?
