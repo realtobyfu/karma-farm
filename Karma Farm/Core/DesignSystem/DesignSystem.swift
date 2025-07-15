@@ -45,6 +45,7 @@ struct DesignSystem {
         // Text Colors
         static let textPrimary = Color(hex: "1F2937")
         static let textSecondary = Color(hex: "6B7280")
+        static let textTertiary = Color(hex: "9CA3AF")
         
         // Gradients
         static let karmaGradient = LinearGradient(

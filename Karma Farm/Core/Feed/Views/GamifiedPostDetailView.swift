@@ -10,6 +10,8 @@ struct GamifiedPostDetailView: View {
     @State private var viewCount = Int.random(in: 10...100)
     @State private var upvotes = Int.random(in: 0...25)
     @State private var hasUpvoted = false
+    @State private var showingChat = false
+    @State private var createdChat: Chat?
     
     var body: some View {
         NavigationView {
@@ -51,7 +53,8 @@ struct GamifiedPostDetailView: View {
                             isInterested: $isInterested,
                             isBookmarked: $isBookmarked,
                             showKarmaAnimation: $showKarmaAnimation,
-                            interestedCount: $interestedCount
+                            interestedCount: $interestedCount,
+                            onInterestAction: handleInterestAction
                         )
                         
                         Spacer(minLength: 20)
@@ -73,6 +76,33 @@ struct GamifiedPostDetailView: View {
         .overlay(
             KarmaAnimationOverlay(show: $showKarmaAnimation, karmaValue: post.karmaValue)
         )
+        .sheet(item: $createdChat) { chat in
+            ChatDetailView(chat: chat)
+        }
+    }
+    
+    private func handleInterestAction() async {
+        withAnimation(.spring()) {
+            isInterested = true
+            interestedCount += 1
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
+        
+        // Create or get existing chat
+        do {
+            let chat = try await ChatService.shared.createChat(postId: post.id)
+            createdChat = chat
+            showingChat = true
+            // Note: Karma animation will be shown when the task is actually completed,
+            // not just when interest is expressed
+        } catch {
+            print("Failed to create chat: \(error)")
+            // Reset state on error
+            withAnimation {
+                isInterested = false
+                interestedCount -= 1
+            }
+        }
     }
 }
 
@@ -89,7 +119,7 @@ struct PostHeaderSection: View {
                         .foregroundColor(DesignSystem.Colors.textPrimary)
                     
                     HStack(spacing: 4) {
-                        Image(systemName: post.isRequest ? "questionmark.circle.fill" : "gift.fill")
+                        Image(systemName: post.isRequest ? "hands.and.sparkles.fill" : "gift.fill")
                             .font(.caption)
                         Text(post.isRequest ? "Request" : "Offer")
                             .font(DesignSystem.Typography.caption)
@@ -357,7 +387,7 @@ struct PostDetailsCard: View {
                         .foregroundColor(DesignSystem.Colors.textSecondary)
                     
                     HStack(spacing: 4) {
-                        Image(systemName: post.isRequest ? "questionmark.circle.fill" : "gift.circle.fill")
+                        Image(systemName: post.isRequest ? "hands.and.sparkles.fill" : "gift.circle.fill")
                             .foregroundColor(post.isRequest ? DesignSystem.Colors.primaryOrange : DesignSystem.Colors.primaryGreen)
                         Text("\(post.karmaValue) karma")
                             .font(DesignSystem.Typography.bodyMedium)
@@ -404,21 +434,19 @@ struct ActionButtonsSection: View {
     @Binding var isBookmarked: Bool
     @Binding var showKarmaAnimation: Bool
     @Binding var interestedCount: Int
+    let onInterestAction: () async -> Void
     
     var body: some View {
         HStack(spacing: DesignSystem.Spacing.md) {
             // Primary Action Button
             Button(action: {
-                withAnimation(.spring()) {
-                    isInterested = true
-                    interestedCount += 1
-                    showKarmaAnimation = true
-                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                Task {
+                    await onInterestAction()
                 }
             }) {
                 HStack {
-                    Image(systemName: isInterested ? "checkmark.circle.fill" : "hand.raised.fill")
-                    Text(isInterested ? "Interested!" : "I'm Interested")
+                    Image(systemName: isInterested ? "message.fill" : "hand.raised.fill")
+                    Text(isInterested ? "Chat Started" : "I'm Interested")
                 }
                 .font(DesignSystem.Typography.bodyMedium)
                 .foregroundColor(.white)

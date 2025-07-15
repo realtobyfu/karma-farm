@@ -1,38 +1,42 @@
-//
-//  ChatListViewModel.swift
-//  Karma Farm
-//
-//  Created by Tobias Fu on 6/17/25.
-//
-
 import Foundation
 import SwiftUI
-import FirebaseAuth
+import Combine
 
 @MainActor
 class ChatListViewModel: ObservableObject {
     @Published var chats: [Chat] = []
+    @Published var isLoading = false
+    @Published var errorMessage: String?
+    @Published var unreadCount: Int = 0
+    
+    private let chatService = ChatService.shared
+    private var cancellables = Set<AnyCancellable>()
     
     init() {
-        Task {
-            await fetchChats()
-        }
+        observeUnreadCount()
     }
     
-    func fetchChats() async {
+    private func observeUnreadCount() {
+        chatService.$unreadCount
+            .receive(on: DispatchQueue.main)
+            .assign(to: &$unreadCount)
+    }
+    
+    func loadChats() async {
+        isLoading = true
+        errorMessage = nil
+        
         do {
-            // Get current user's auth token
-            guard let user = AuthManager.shared.firebaseUser else {
-                print("No authenticated user")
-                return
-            }
-            let token = try await user.getIDToken()
-            let chats = try await APIService.shared.fetchChats(token)
-            self.chats = chats
+            chats = try await chatService.getUserChats()
         } catch {
-            print("Failed to fetch chats: \(error)")
-            // Use mock data for now
-            self.chats = Chat.mockChats
+            errorMessage = "Failed to load chats: \(error.localizedDescription)"
+            print("Error loading chats: \(error)")
         }
+        
+        isLoading = false
+    }
+    
+    func createChat(for postId: String) async throws -> Chat {
+        return try await chatService.createChat(postId: postId)
     }
 }

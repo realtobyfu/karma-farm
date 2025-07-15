@@ -31,7 +31,30 @@ struct ModernTaskCard: View {
     let timeAgo: String
     let userName: String
     let userAvatar: String?
+    let isPrivateProfile: Bool
     let onTap: () -> Void
+    
+    init(taskType: TaskType,
+         title: String,
+         description: String,
+         value: String,
+         location: String,
+         timeAgo: String,
+         userName: String,
+         userAvatar: String? = nil,
+         isPrivateProfile: Bool = false,
+         onTap: @escaping () -> Void) {
+        self.taskType = taskType
+        self.title = title
+        self.description = description
+        self.value = value
+        self.location = location
+        self.timeAgo = timeAgo
+        self.userName = userName
+        self.userAvatar = userAvatar
+        self.isPrivateProfile = isPrivateProfile
+        self.onTap = onTap
+    }
     
     @State private var isPressed = false
     
@@ -50,9 +73,17 @@ struct ModernTaskCard: View {
                     )
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(userName)
-                        .font(DesignSystem.Typography.bodyMedium)
-                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                    HStack(spacing: 4) {
+                        Text(userName)
+                            .font(DesignSystem.Typography.bodyMedium)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
+                        
+                        if isPrivateProfile {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 12))
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                        }
+                    }
                     
                     Text(timeAgo)
                         .font(DesignSystem.Typography.caption)

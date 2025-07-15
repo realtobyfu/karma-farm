@@ -33,13 +33,15 @@ struct User: Codable, Identifiable {
     let createdAt: Date
     let updatedAt: Date
     var isDiscoverable: Bool
+    var isPrivateProfile: Bool
+    var privacySettings: PrivacySettings?
     
     var isCurrentUser: Bool {
         return firebaseUid == Auth.auth().currentUser?.uid
     }
     
     enum CodingKeys: String, CodingKey {
-        case id, firebaseUid, username, profilePicture, karmaBalance, email, phoneNumber, isEmailVerified, isPhoneVerified, bio, skills, interests, privateProfile, lastLocation, badges, createdAt, updatedAt, isDiscoverable
+        case id, firebaseUid, username, profilePicture, karmaBalance, email, phoneNumber, isEmailVerified, isPhoneVerified, bio, skills, interests, privateProfile, lastLocation, badges, createdAt, updatedAt, isDiscoverable, isPrivateProfile, privacySettings
     }
 }
 
@@ -48,6 +50,24 @@ struct PrivateProfile: Codable {
     var gender: String?
     var realName: String?
     var privatePicture: String?
+}
+
+struct PrivacySettings: Codable {
+    var showKarmaBalance: Bool
+    var showPosts: Bool
+    var showBadges: Bool
+    var showProfilePhoto: Bool
+    var allowDirectMessages: Bool
+    var connectionsOnly: Bool
+    
+    static let defaultSettings = PrivacySettings(
+        showKarmaBalance: true,
+        showPosts: true,
+        showBadges: true,
+        showProfilePhoto: true,
+        allowDirectMessages: true,
+        connectionsOnly: false
+    )
 }
 
 // MARK: - Mock Data for Testing and Previews
@@ -70,7 +90,9 @@ extension User {
         badges: [Badge.mockCollegeBadge, Badge.mockVerifiedBadge],
         createdAt: Date().addingTimeInterval(-86400 * 30), // 30 days ago
         updatedAt: Date().addingTimeInterval(-86400 * 2), // 2 days ago
-        isDiscoverable: true
+        isDiscoverable: true,
+        isPrivateProfile: false,
+        privacySettings: PrivacySettings.defaultSettings
     )
     
     static let mockUsers: [User] = [
@@ -92,7 +114,9 @@ extension User {
             badges: [Badge.mockVerifiedBadge],
             createdAt: Date().addingTimeInterval(-86400 * 60),
             updatedAt: Date().addingTimeInterval(-86400),
-            isDiscoverable: true
+            isDiscoverable: true,
+            isPrivateProfile: true,
+            privacySettings: PrivacySettings.defaultSettings
         ),
         User(
             id: "user-2",
@@ -112,7 +136,9 @@ extension User {
             badges: [Badge.mockCollegeBadge],
             createdAt: Date().addingTimeInterval(-86400 * 45),
             updatedAt: Date().addingTimeInterval(-86400 * 3),
-            isDiscoverable: true
+            isDiscoverable: true,
+            isPrivateProfile: false,
+            privacySettings: PrivacySettings.defaultSettings
         )
     ]
 }
@@ -142,75 +168,9 @@ extension UserStats {
     )
 }
 
-/* Other Structs */
-struct Chat: Codable, Identifiable {
-    let id: String
-    let participants: [String]
-    var lastMessage: Message?
-    var unreadCount: Int
-    let createdAt: Date
-    var user: User? // Other participant
-    
-    enum CodingKeys: String, CodingKey {
-        case id, participants, lastMessage, unreadCount, createdAt, user
-    }
-}
+/* Chat-related structs removed - using definitions from Chat.swift */
 
-struct Message: Codable, Identifiable {
-    let id: String
-    let chatId: String
-    let senderId: String
-    let content: String
-    let createdAt: Date
-    var isRead: Bool
-    
-    enum CodingKeys: String, CodingKey {
-        case id, chatId, senderId, content, createdAt, isRead
-    }
-}
-
-// MARK: - Mock Data for Chat
-extension Chat {
-    static let mockChats: [Chat] = [
-        Chat(
-            id: "chat-1",
-            participants: ["mock-user-id", "user-1"],
-            lastMessage: Message.mockMessages[0],
-            unreadCount: 2,
-            createdAt: Date().addingTimeInterval(-86400 * 5),
-            user: User.mockUsers[0]
-        ),
-        Chat(
-            id: "chat-2",
-            participants: ["mock-user-id", "user-2"],
-            lastMessage: Message.mockMessages[1],
-            unreadCount: 0,
-            createdAt: Date().addingTimeInterval(-86400 * 3),
-            user: User.mockUsers[1]
-        )
-    ]
-}
-
-extension Message {
-    static let mockMessages: [Message] = [
-        Message(
-            id: "msg-1",
-            chatId: "chat-1",
-            senderId: "user-1",
-            content: "Hey! Are you still available to help with cooking today?",
-            createdAt: Date().addingTimeInterval(-3600 * 2),
-            isRead: false
-        ),
-        Message(
-            id: "msg-2",
-            chatId: "chat-2",
-            senderId: "mock-user-id",
-            content: "Thanks for the programming help yesterday!",
-            createdAt: Date().addingTimeInterval(-86400),
-            isRead: true
-        )
-    ]
-}
+// Mock data for Chat and Message moved to TestingUtils.swift
 
 struct KarmaTransaction: Codable, Identifiable {
     let id: String

@@ -12,6 +12,7 @@ struct FeedView: View {
     @State private var selectedFilter: FeedFilter = .all
     @State private var showingCreatePost = false
     @State private var selectedTaskType: TaskType?
+    @State private var showingSearch = false
     
     var body: some View {
         ZStack {
@@ -32,8 +33,20 @@ struct FeedView: View {
                         
                         Spacer()
                         
-                        // Notification bell with bounce animation
-                        NotificationBellButton()
+                        HStack(spacing: DesignSystem.Spacing.sm) {
+                            // Search button
+                            Button(action: { showingSearch = true }) {
+                                Image(systemName: "magnifyingglass")
+                                    .font(.title2)
+                                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                                    .frame(width: 44, height: 44)
+                                    .background(DesignSystem.Colors.backgroundSecondary)
+                                    .clipShape(Circle())
+                            }
+                            
+                            // Notification bell with bounce animation
+                            NotificationBellButton()
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 20)
@@ -97,6 +110,9 @@ struct FeedView: View {
         .sheet(isPresented: $showingCreatePost) {
             CreatePostView(selectedTaskType: selectedTaskType)
         }
+        .sheet(isPresented: $showingSearch) {
+            SearchView()
+        }
         .onChange(of: selectedFilter) { newFilter in
             viewModel.filterChanged(to: newFilter)
         }
@@ -153,7 +169,8 @@ struct PostCardView: View {
             location: post.locationName ?? "Unknown",
             timeAgo: timeAgoText(for: post),
             userName: post.user?.username ?? "Anonymous",
-            userAvatar: nil
+            userAvatar: nil,
+            isPrivateProfile: post.user?.isPrivateProfile ?? false
         ) {
             showingDetail = true
         }

@@ -117,115 +117,6 @@ struct MainTabView: View {
     }
 }
 
-struct ChatListView: View {
-    @State private var chats = Chat.mockChats
-    @State private var isRefreshing = false
-    
-    var body: some View {
-        NavigationView {
-            ZStack {
-                DesignSystem.Colors.backgroundPrimary
-                    .ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(spacing: DesignSystem.Spacing.sm) {
-                        ForEach(Array(chats.enumerated()), id: \.element.id) { index, chat in
-                            ChatRowView(chat: chat)
-                                .slideInAnimation(delay: Double(index) * 0.05)
-                        }
-                    }
-                    .padding(.horizontal, DesignSystem.Spacing.md)
-                    .padding(.top, DesignSystem.Spacing.md)
-                    .padding(.bottom, 100)
-                }
-                .refreshable {
-                    withAnimation {
-                        isRefreshing = true
-                    }
-                    // Simulate refresh
-                    try? await Task.sleep(nanoseconds: 1_000_000_000)
-                    withAnimation {
-                        isRefreshing = false
-                    }
-                }
-                .navigationTitle("Messages")
-                .navigationBarTitleDisplayMode(.large)
-            }
-        }
-    }
-}
-
-struct ChatRowView: View {
-    let chat: Chat
-    @State private var isPressed = false
-    
-    var body: some View {
-        HStack(spacing: DesignSystem.Spacing.md) {
-            // Animated Avatar
-            Circle()
-                .fill(DesignSystem.Colors.backgroundSecondary)
-                .frame(width: 50, height: 50)
-                .overlay(
-                    Text(chat.user?.username.prefix(1).uppercased() ?? "?")
-                        .font(DesignSystem.Typography.title3)
-                        .foregroundColor(DesignSystem.Colors.textSecondary)
-                )
-                .scaleEffect(isPressed ? 0.9 : 1.0)
-            
-            VStack(alignment: .leading, spacing: 4) {
-                Text(chat.user?.username ?? "Unknown")
-                    .font(DesignSystem.Typography.bodyMedium)
-                    .foregroundColor(DesignSystem.Colors.textPrimary)
-                
-                Text(chat.lastMessage?.content ?? "No messages")
-                    .font(DesignSystem.Typography.footnote)
-                    .foregroundColor(DesignSystem.Colors.textSecondary)
-                    .lineLimit(1)
-            }
-            
-            Spacer()
-            
-            VStack(alignment: .trailing, spacing: 4) {
-                Text("2h")
-                    .font(DesignSystem.Typography.caption)
-                    .foregroundColor(DesignSystem.Colors.textSecondary)
-                
-                if chat.unreadCount > 0 {
-                    Circle()
-                        .fill(DesignSystem.Colors.primaryGreen)
-                        .frame(width: 20, height: 20)
-                        .overlay(
-                            Text("\(chat.unreadCount)")
-                                .font(DesignSystem.Typography.caption)
-                                .foregroundColor(.white)
-                        )
-                        .transition(.scale.combined(with: .opacity))
-                }
-            }
-        }
-        .padding(DesignSystem.Spacing.md)
-        .background(DesignSystem.Colors.surface)
-        .cornerRadius(DesignSystem.Radius.medium)
-        .shadow(color: Color.black.opacity(isPressed ? 0.05 : 0.02), radius: isPressed ? 2 : 5, x: 0, y: isPressed ? 1 : 2)
-        .scaleEffect(isPressed ? 0.98 : 1.0)
-        .onTapGesture {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                isPressed = true
-            }
-            
-            #if os(iOS)
-            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-            impactFeedback.impactOccurred()
-            #endif
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                    isPressed = false
-                }
-            }
-        }
-    }
-}
 
 #Preview("Unauthenticated") {
     ContentView()
@@ -241,9 +132,6 @@ struct ChatRowView: View {
     FeedView()
 }
 
-#Preview("Chat List") {
-    ChatListView()
-}
 
 #Preview("Profile") {
     ProfileView()

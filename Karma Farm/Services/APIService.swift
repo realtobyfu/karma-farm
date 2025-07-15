@@ -49,6 +49,18 @@ struct CreatePostRequest: Codable {
     let expiresAt: Date?
 }
 
+struct EmptyResponse: Codable {}
+
+struct PrivacySettingsResponse: Codable {
+    let isPrivateProfile: Bool
+    let settings: PrivacySettings
+}
+
+struct PrivacySettingsUpdateRequest: Codable {
+    let isPrivateProfile: Bool
+    let privacySettings: PrivacySettings
+}
+
 // MARK: - APIService
 class APIService {
     static let shared = APIService()
@@ -124,6 +136,44 @@ class APIService {
                 }
             }
         }
+    }
+    
+    // MARK: - Public API Call Method
+    func request<T: Codable>(
+        endpoint: String,
+        method: HTTPMethod = .get,
+        body: Codable? = nil,
+        parameters: [String: Any]? = nil,
+        responseType: T.Type
+    ) async throws -> T {
+        // Get the current user's ID token
+        guard let idToken = try? await Auth.auth().currentUser?.getIDToken() else {
+            throw APIError.notAuthenticated
+        }
+        
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        // Convert body to parameters if provided
+        var finalParameters = parameters
+        if let body = body {
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            if let data = try? encoder.encode(body),
+               let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                finalParameters = json
+            }
+        }
+        
+        return try await performRequest(
+            endpoint: endpoint,
+            method: method,
+            parameters: finalParameters,
+            headers: headers,
+            responseType: responseType
+        )
     }
     
     // MARK: - Authentication Methods
@@ -242,6 +292,46 @@ class APIService {
     
     func updateProfile(_ idToken: String, profileData: [String: Any]) async throws {
         try await setupProfile(idToken, profileData: profileData)
+    }
+    
+    // MARK: - Privacy Settings
+    func getPrivacySettings() async throws -> PrivacySettingsResponse {
+        guard let idToken = try? await Auth.auth().currentUser?.getIDToken() else {
+            throw APIError.notAuthenticated
+        }
+        
+        var headers = HTTPHeaders()
+        headers.add(name: "Authorization", value: "Bearer \(idToken)")
+        
+        return try await performRequest(
+            endpoint: "/privacy/settings",
+            method: .get,
+            headers: headers,
+            responseType: PrivacySettingsResponse.self
+        )
+    }
+    
+    func updatePrivacySettings(_ settings: PrivacySettingsUpdateRequest) async throws {
+        guard let idToken = try? await Auth.auth().currentUser?.getIDToken() else {
+            throw APIError.notAuthenticated
+        }
+        
+        var headers = HTTPHeaders()
+        headers.add(name: "Authorization", value: "Bearer \(idToken)")
+        headers.add(name: "Content-Type", value: "application/json")
+        
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let jsonData = try encoder.encode(settings)
+        let parameters = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] ?? [:]
+        
+        let _: EmptyResponse = try await performRequest(
+            endpoint: "/privacy/settings",
+            method: .put,
+            parameters: parameters,
+            headers: headers,
+            responseType: EmptyResponse.self
+        )
     }
     
     // MARK: - Network Status

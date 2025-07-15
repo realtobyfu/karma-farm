@@ -440,29 +440,6 @@ struct EditProfileView: View {
     }
 }
 
-struct SettingsView: View {
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                Text("Settings")
-                    .font(.title)
-                
-                Text("App settings will be implemented here")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-            }
-            .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
-        }
-    }
-}
 
 #Preview {
     ProfileView()
