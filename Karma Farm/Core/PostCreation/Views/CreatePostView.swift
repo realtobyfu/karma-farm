@@ -39,42 +39,49 @@ struct CreatePostView: View {
     
     var body: some View {
         NavigationView {
-            ZStack {
-                // Background
-                DesignSystem.Colors.backgroundPrimary
-                    .ignoresSafeArea()
-                
-                ScrollView {
-                VStack(spacing: 24) {
-                    // Post Type Selection
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Post Type")
-                            .font(DesignSystem.Typography.title1)
-                            .foregroundColor(DesignSystem.Colors.textPrimary)
-                            .opacity(showContent ? 1 : 0)
-                            .offset(y: showContent ? 0 : 20)
-                            .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1), value: showContent)
-                        
-                        HStack(spacing: 12) {
-                            ForEach(PostType.allCases, id: \.self) { postType in
-                                PostTypeButton(
-                                    title: postType.displayName,
-                                    subtitle: getPostTypeSubtitle(postType),
-                                    icon: nil,
-                                    isSelected: selectedType == postType,
-                                    color: getPostTypeColor(postType)
-                                ) {
-                                    selectedType = postType
-                                    // Update task type based on post type
-                                    if postType == .social {
-                                        taskType = .fun
-                                    }
-                                    // Reset category when changing post type
-                                    selectedCategory = PostCategory.categories(for: postType).first ?? .other
-                                }
-                            }
-                        }
-                    }
+            content
+        }
+    }
+    
+    private var content: some View {
+        ZStack {
+            backgroundView
+            scrollContent
+        }
+        .navigationTitle("Create Post")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            toolbarContent
+        }
+        .overlay(loadingOverlay)
+        .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
+            Button("OK") {
+                viewModel.errorMessage = nil
+            }
+        } message: {
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+            }
+        }
+        .onAppear {
+            if let selectedTaskType = selectedTaskType {
+                taskType = selectedTaskType
+            }
+            withAnimation {
+                showContent = true
+            }
+        }
+    }
+    
+    private var backgroundView: some View {
+        DesignSystem.Colors.backgroundPrimary
+            .ignoresSafeArea()
+    }
+    
+    private var scrollContent: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                    postTypeSection
                     
                     // Basic Information
                     // Task Type Badge
@@ -115,11 +122,20 @@ struct CreatePostView: View {
                             GridItem(.flexible())
                         ], spacing: 12) {
                             ForEach(PostCategory.categories(for: selectedType), id: \.self) { category in
-                                CategoryChip(
-                                    category: category,
-                                    isSelected: selectedCategory == category
-                                ) {
-                                    selectedCategory = category
+                                Button(action: { selectedCategory = category }) {
+                                    Text(category.rawValue.capitalized)
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(selectedCategory == category ? .white : DesignSystem.Colors.primaryGreen)
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 8)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 20)
+                                                .fill(selectedCategory == category ? DesignSystem.Colors.primaryGreen : Color.clear)
+                                                .overlay(
+                                                    RoundedRectangle(cornerRadius: 20)
+                                                        .stroke(DesignSystem.Colors.primaryGreen, lineWidth: 1.5)
+                                                )
+                                        )
                                 }
                             }
                         }
@@ -288,48 +304,7 @@ struct CreatePostView: View {
                 }
                 .padding()
             }
-            }
-            .navigationTitle("Create Post")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Post") {
-                        createPost()
-                    }
-                    .disabled(!isFormValid || viewModel.isLoading)
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(DesignSystem.Colors.primaryGreen)
-                }
-            }
-            .overlay(
-                Group {
-                    if viewModel.isLoading {
-                        LoadingOverlay()
-                    }
-                }
-            )
-            .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
-                Button("OK") {
-                    viewModel.errorMessage = nil
-                }
-            } message: {
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                }
-            }
-            .onAppear {
-                if let selectedTaskType = selectedTaskType {
-                    taskType = selectedTaskType
-                }
-            }
         }
-    }
     
     private var isFormValid: Bool {
         !title.isEmpty && !description.isEmpty && (!useCurrentLocation ? !customLocationName.isEmpty : true)
@@ -345,10 +320,10 @@ struct CreatePostView: View {
                     title: title,
                     description: description,
                     type: selectedType,
+                    category: selectedCategory,
                     taskType: taskType,
                     karmaValue: taskType == .karma ? karmaValue : 0,
                     paymentAmount: taskType == .cash ? paymentAmount : nil,
-                    isRequest: isRequest,
                     location: location,
                     locationName: locationName,
                     expiresAt: hasExpiration ? expirationDate : nil
@@ -358,6 +333,85 @@ struct CreatePostView: View {
             } catch {
                 // Error is handled in view model
             }
+        }
+    }
+    
+    private var postTypeSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Post Type")
+                .font(DesignSystem.Typography.title1)
+                .foregroundColor(DesignSystem.Colors.textPrimary)
+                .opacity(showContent ? 1 : 0)
+                .offset(y: showContent ? 0 : 20)
+                .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1), value: showContent)
+            
+            HStack(spacing: 12) {
+                ForEach(PostType.allCases, id: \.self) { postType in
+                    PostTypeButton(
+                        title: postType.displayName,
+                        subtitle: getPostTypeSubtitle(postType),
+                        icon: nil,
+                        isSelected: selectedType == postType,
+                        color: getPostTypeColor(postType)
+                    ) {
+                        selectedType = postType
+                        // Update task type based on post type
+                        if postType == .social {
+                            taskType = .fun
+                        }
+                        // Reset category when changing post type
+                        selectedCategory = PostCategory.categories(for: postType).first ?? .other
+                    }
+                }
+            }
+        }
+    }
+    
+    @ToolbarContentBuilder
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarLeading) {
+            Button("Cancel") {
+                dismiss()
+            }
+        }
+        
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button("Post") {
+                createPost()
+            }
+            .disabled(!isFormValid || viewModel.isLoading)
+            .font(.system(size: 16, weight: .medium))
+            .foregroundColor(DesignSystem.Colors.primaryGreen)
+        }
+    }
+    
+    private var loadingOverlay: some View {
+        Group {
+            if viewModel.isLoading {
+                LoadingOverlay()
+            }
+        }
+    }
+    
+    private func getPostTypeSubtitle(_ type: PostType) -> String {
+        switch type {
+        case .skillShare:
+            return "Share your skills"
+        case .task:
+            return "Request or offer help"
+        case .social:
+            return "Fun activities"
+        }
+    }
+    
+    private func getPostTypeColor(_ type: PostType) -> Color {
+        switch type {
+        case .skillShare:
+            return DesignSystem.Colors.primaryBlue
+        case .task:
+            return DesignSystem.Colors.primaryGreen
+        case .social:
+            return DesignSystem.Colors.primaryPurple
         }
     }
 }
@@ -450,28 +504,6 @@ struct LoadingOverlay: View {
                 .background(Color.black.opacity(0.7))
                 .cornerRadius(12)
             )
-    }
-    
-    private func getPostTypeSubtitle(_ type: PostType) -> String {
-        switch type {
-        case .skillShare:
-            return "Share your skills"
-        case .task:
-            return "Request or offer help"
-        case .social:
-            return "Fun activities"
-        }
-    }
-    
-    private func getPostTypeColor(_ type: PostType) -> Color {
-        switch type {
-        case .skillShare:
-            return DesignSystem.Colors.primaryBlue
-        case .task:
-            return DesignSystem.Colors.primaryGreen
-        case .social:
-            return DesignSystem.Colors.primaryPurple
-        }
     }
 }
 

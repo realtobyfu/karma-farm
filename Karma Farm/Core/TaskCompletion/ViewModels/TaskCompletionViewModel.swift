@@ -105,12 +105,12 @@ class TaskCompletionViewModel: ObservableObject {
                     toUserId = post.userId ?? ""
                 }
                 
-                // Only transfer if both users exist (not anonymous)
-                if !fromUserId.isEmpty && !toUserId.isEmpty {
+                // Only transfer if both users exist (not anonymous) and karma value exists
+                if !fromUserId.isEmpty && !toUserId.isEmpty, let karmaValue = post.karmaValue {
                     try await transferKarmaAPI(
                         fromUserId: fromUserId,
                         toUserId: toUserId,
-                        amount: post.karmaValue
+                        amount: karmaValue
                     )
                 }
             }

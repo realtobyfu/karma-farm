@@ -178,6 +178,12 @@ struct Post: Codable, Identifiable {
             return "Just for fun"
         }
     }
+    
+    var isRequest: Bool {
+        // A post is a request if it's a task type (someone needs help)
+        // Skill shares and social posts are offers
+        return type == .task
+    }
 }
 
 struct Location: Codable {

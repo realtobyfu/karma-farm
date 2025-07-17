@@ -11,8 +11,7 @@ struct GamifiedPostDetailView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        NavigationView {
-            ScrollView {
+        ScrollView(.vertical, showsIndicators: true) {
                 VStack(spacing: 0) {
                     // Hero Header
                     HeroHeaderView(post: post)
@@ -84,18 +83,17 @@ struct GamifiedPostDetailView: View {
             }
             .background(DesignSystem.Colors.backgroundPrimary)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(DesignSystem.Colors.textSecondary)
-                            .font(.title2)
-                    }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button(action: { dismiss() }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                        .font(.title2)
                 }
             }
         }
         .sheet(isPresented: $showingMap) {
-            MapView(focusedPost: post)
+            MapView()
         }
         .overlay(
             KarmaAnimation(show: $showKarmaAnimation)
@@ -224,8 +222,8 @@ struct GamifiedUserCard: View {
             HStack(alignment: .top, spacing: DesignSystem.Spacing.md) {
                 // Profile Picture with Level Badge
                 ZStack(alignment: .bottomTrailing) {
-                    if let profilePictureUrl = user.profilePictureUrl {
-                        AsyncImage(url: URL(string: profilePictureUrl)) { image in
+                    if let profilePicture = user.profilePicture {
+                        AsyncImage(url: URL(string: profilePicture)) { image in
                             image
                                 .resizable()
                                 .aspectRatio(contentMode: .fill)
@@ -319,7 +317,7 @@ struct GamifiedUserCard: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: DesignSystem.Spacing.sm) {
                         ForEach(user.badges.prefix(5), id: \.id) { badge in
-                            BadgeChip(badge: badge.type)
+                            BadgeChip(badge: badge)
                         }
                         
                         if user.badges.count > 5 {
@@ -551,13 +549,13 @@ struct AnimatedTaskBadge: View {
         .padding(.vertical, 8)
         .background(
             LinearGradient(
-                colors: [taskType.color, taskType.color.opacity(0.8)],
+                colors: [taskType.primaryColor, taskType.primaryColor.opacity(0.8)],
                 startPoint: .leading,
                 endPoint: .trailing
             )
         )
         .cornerRadius(20)
-        .shadow(color: taskType.color.opacity(0.3), radius: 8, x: 0, y: 4)
+        .shadow(color: taskType.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
         .onAppear {
             isAnimating = true
         }
@@ -669,7 +667,7 @@ struct SkillTag: View {
 }
 
 struct BadgeChip: View {
-    let badge: BadgeType
+    let badge: Badge
     
     var body: some View {
         VStack(spacing: 4) {
@@ -677,9 +675,11 @@ struct BadgeChip: View {
                 .font(.system(size: 20))
                 .foregroundColor(badge.color)
             
-            Text(badge.displayName)
+            Text(badge.title)
                 .font(.system(size: 10))
                 .foregroundColor(DesignSystem.Colors.textSecondary)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
         }
         .frame(width: 60, height: 60)
         .background(badge.color.opacity(0.1))

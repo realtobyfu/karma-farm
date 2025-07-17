@@ -159,4 +159,5 @@ enum TaskType: String, Codable, CaseIterable {
         case .fun: return "Social activities, no reward"
         }
     }
+    
 }

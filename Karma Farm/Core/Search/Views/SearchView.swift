@@ -199,7 +199,7 @@ struct SearchResultsView: View {
     @ViewBuilder
     private func createTaskCard(for post: Post) -> some View {
         let taskType = getTaskType(for: post.type)
-        let value = String(post.karmaValue)
+        let value = post.displayValue
         let location = post.locationName ?? "Unknown"
         let timeAgo = formatTimeAgo(post.createdAt)
         let userName = post.user?.username ?? "Anonymous"
@@ -227,7 +227,7 @@ struct SearchResultsView: View {
             return .karma
         case .task:
             return .cash
-        case .interest:
+        case .social:
             return .fun
         default:
             return .fun
