@@ -11,7 +11,7 @@ struct FeedView: View {
     @StateObject private var viewModel = FeedViewModel()
     @State private var selectedFilter: FeedFilter = .all
     @State private var showingCreatePost = false
-    @State private var selectedTaskType: TaskType?
+    @State private var selectedRewardType: RewardType?
     @State private var showingSearch = false
     
     var body: some View {
@@ -93,7 +93,7 @@ struct FeedView: View {
                 HStack {
                     Spacer()
                     AnimatedFAB { type in
-                        selectedTaskType = type
+                        selectedRewardType = type
                         showingCreatePost = true
                         
                         // Haptic feedback
@@ -108,7 +108,7 @@ struct FeedView: View {
             }
         }
         .sheet(isPresented: $showingCreatePost) {
-            CreatePostView(selectedTaskType: selectedTaskType)
+            CreatePostView(selectedRewardType: selectedRewardType)
         }
         .sheet(isPresented: $showingSearch) {
             SearchView()
@@ -162,7 +162,7 @@ struct PostCardView: View {
     
     var body: some View {
         ModernTaskCard(
-            taskType: post.taskType,
+            rewardType: post.rewardType,
             title: post.title,
             description: post.description,
             value: formatValue(for: post),
@@ -276,7 +276,7 @@ struct PostDetailView: View {
                                 
                                 Spacer()
                                 
-                                TaskTypeBadge(taskType: post.taskType, value: post.displayValue)
+                                RewardTypeBadge(rewardType: post.rewardType, value: post.displayValue)
                             }
                             
                             if let user = post.user {
@@ -312,7 +312,7 @@ struct PostDetailView: View {
                         
                         // Details
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            DetailRow(icon: post.taskType.icon, title: "\(post.taskType.displayName) Value", value: post.displayValue)
+                            DetailRow(icon: post.rewardType.icon, title: "\(post.rewardType.displayName) Value", value: post.displayValue)
                             DetailRow(icon: "clock.fill", title: "Posted", value: post.timeRemaining ?? "Just now")
                             
                             if let locationName = post.locationName {

@@ -53,7 +53,7 @@ struct TaskCompletionConfirmView: View {
                     // Step Circle
                     ZStack {
                         Circle()
-                            .fill(item.isCompleted ? post.taskType.gradient : LinearGradient(colors: [Color(UIColor.systemGray5)], startPoint: .leading, endPoint: .trailing))
+                            .fill(item.isCompleted ? post.rewardType.gradient : LinearGradient(colors: [Color(UIColor.systemGray5)], startPoint: .leading, endPoint: .trailing))
                             .frame(width: 32, height: 32)
                         
                         if item.isCompleted {
@@ -63,14 +63,14 @@ struct TaskCompletionConfirmView: View {
                         } else {
                             Text("\(item.stepNumber)")
                                 .font(.caption.bold())
-                                .foregroundColor(item.isCurrent ? post.taskType.primaryColor : DesignSystem.Colors.textSecondary)
+                                .foregroundColor(item.isCurrent ? post.rewardType.primaryColor : DesignSystem.Colors.textSecondary)
                         }
                     }
                     
                     // Connector Line
                     if item.stepNumber < progressSteps.count {
                         Rectangle()
-                            .fill(item.isCompleted ? post.taskType.primaryColor : Color(UIColor.systemGray5))
+                            .fill(item.isCompleted ? post.rewardType.primaryColor : Color(UIColor.systemGray5))
                             .frame(height: 2)
                             .frame(maxWidth: .infinity)
                     }
@@ -99,7 +99,7 @@ struct TaskCompletionConfirmView: View {
             // Status Icon
             Image(systemName: viewModel.completionStatus.icon)
                 .font(.system(size: 48))
-                .foregroundStyle(post.taskType.gradient)
+                .foregroundStyle(post.rewardType.gradient)
             
             // Status Title
             Text(viewModel.completionStatus.displayName)
@@ -120,7 +120,7 @@ struct TaskCompletionConfirmView: View {
                 
                 Text(post.displayValue)
                     .font(DesignSystem.Typography.numberMedium)
-                    .foregroundColor(post.taskType.primaryColor)
+                    .foregroundColor(post.rewardType.primaryColor)
             }
             .padding()
             .background(DesignSystem.Colors.backgroundSecondary)
@@ -169,7 +169,7 @@ struct TaskCompletionConfirmView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(post.taskType.gradient)
+                        .background(post.rewardType.gradient)
                         .cornerRadius(DesignSystem.Radius.medium)
                     }
                     .disabled(viewModel.isLoading)

@@ -46,16 +46,16 @@ struct TaskAcceptanceView: View {
     
     private var taskHeader: some View {
         VStack(spacing: DesignSystem.Spacing.md) {
-            // Task Type Badge
+            // Reward Type Badge
             HStack {
-                Image(systemName: post.taskType.icon)
-                Text(post.taskType.displayName)
+                Image(systemName: post.rewardType.icon)
+                Text(post.rewardType.displayName)
                     .font(DesignSystem.Typography.captionMedium)
             }
             .foregroundColor(.white)
             .padding(.horizontal, DesignSystem.Spacing.md)
             .padding(.vertical, DesignSystem.Spacing.sm)
-            .background(post.taskType.gradient)
+            .background(post.rewardType.gradient)
             .clipShape(Capsule())
             
             // Task Title
@@ -67,7 +67,7 @@ struct TaskAcceptanceView: View {
             // Task Value
             Text(post.displayValue)
                 .font(DesignSystem.Typography.numberLarge)
-                .foregroundColor(post.taskType.primaryColor)
+                .foregroundColor(post.rewardType.primaryColor)
         }
     }
     
@@ -141,7 +141,7 @@ struct TaskAcceptanceView: View {
                 .foregroundColor(DesignSystem.Colors.textPrimary)
             
             // Proposed Completion Date
-            if post.taskType != .fun {
+            if post.rewardType != .fun {
                 VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
                     Text("When can you complete this?")
                         .font(DesignSystem.Typography.footnote)
@@ -204,7 +204,7 @@ struct TaskAcceptanceView: View {
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .padding()
-            .background(post.taskType.gradient)
+            .background(post.rewardType.gradient)
             .cornerRadius(DesignSystem.Radius.medium)
         }
         .disabled(viewModel.isLoading)

@@ -115,7 +115,7 @@ struct Post: Codable, Identifiable {
     let user: User?
     let type: PostType
     let category: PostCategory
-    let taskType: TaskType
+    let rewardType: RewardType
     let title: String
     let description: String
     let karmaValue: Int? // Only for karma-based posts
@@ -163,7 +163,7 @@ struct Post: Codable, Identifiable {
     }
     
     var displayValue: String {
-        switch taskType {
+        switch rewardType {
         case .karma:
             if let karmaValue = karmaValue {
                 return "\(karmaValue) karma"
@@ -200,7 +200,7 @@ extension Post {
             user: User.mockUsers[0],
             type: .skillShare,
             category: .creative,
-            taskType: .karma,
+            rewardType: .karma,
             title: "Learn to Cook Italian Pasta",
             description: "I'll teach you how to make authentic Italian pasta from scratch! We'll cover different types of pasta, sauces, and cooking techniques. Perfect for beginners.",
             karmaValue: 25,
@@ -221,7 +221,7 @@ extension Post {
             user: User.mockUser,
             type: .task,
             category: .homeServices,
-            taskType: .cash,
+            rewardType: .cash,
             title: "Need Help Moving Furniture",
             description: "Looking for someone to help me move a couch and some boxes to my new apartment. Should take about 2 hours. I have a truck already. Cash payment.",
             karmaValue: nil,
@@ -242,7 +242,7 @@ extension Post {
             user: User.mockUsers[1],
             type: .skillShare,
             category: .technology,
-            taskType: .karma,
+            rewardType: .karma,
             title: "iOS Development Mentoring",
             description: "Experienced iOS developer offering mentoring sessions. I can help with Swift, SwiftUI, app architecture, and App Store submission process.",
             karmaValue: 40,
@@ -263,7 +263,7 @@ extension Post {
             user: nil,
             type: .social,
             category: .hobbies,
-            taskType: .fun,
+            rewardType: .fun,
             title: "Looking for Guitar Practice Partner",
             description: "Intermediate guitar player looking for someone to practice with. I play folk and indie rock mostly. Would love to jam together!",
             karmaValue: nil,
@@ -284,7 +284,7 @@ extension Post {
             user: User.mockUsers[0],
             type: .task,
             category: .homeServices,
-            taskType: .karma,
+            rewardType: .karma,
             title: "Completed: Garden Setup Help",
             description: "Thanks to Alex for helping me set up my herb garden! Great work and very knowledgeable about plants.",
             karmaValue: 20,

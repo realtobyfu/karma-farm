@@ -93,7 +93,7 @@ class TaskCompletionViewModel: ObservableObject {
             try await submitRatingAPI(postId: post.id, rating: rating)
             
             // Transfer karma if it's a karma task
-            if post.taskType == .karma {
+            if post.rewardType == .karma {
                 let fromUserId: String
                 let toUserId: String
                 

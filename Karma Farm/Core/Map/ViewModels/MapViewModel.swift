@@ -29,7 +29,7 @@ class MapViewModel: ObservableObject {
             applyFilter()
         }
     }
-    @Published var filterTaskType: TaskType? = nil {
+    @Published var filterRewardType: RewardType? = nil {
         didSet {
             applyFilter()
         }
@@ -80,8 +80,8 @@ class MapViewModel: ObservableObject {
         var filtered = posts
         
         // Apply task type filter
-        if let taskType = filterTaskType {
-            filtered = filtered.filter { $0.taskType == taskType }
+        if let rewardType = filterRewardType {
+            filtered = filtered.filter { $0.rewardType == rewardType }
         }
         
         // Apply request/offer filter

@@ -1,13 +1,13 @@
 import SwiftUI
 
-// MARK: - Task Type Badge
-struct TaskTypeBadge: View {
-    let taskType: TaskType
+// MARK: - Reward Type Badge
+struct RewardTypeBadge: View {
+    let rewardType: RewardType
     let value: String
     
     var body: some View {
         HStack(spacing: 4) {
-            Image(systemName: taskType.icon)
+            Image(systemName: rewardType.icon)
                 .font(.system(size: 14, weight: .semibold))
             
             Text(value)
@@ -16,14 +16,14 @@ struct TaskTypeBadge: View {
         .foregroundColor(.white)
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
-        .background(taskType.gradient)
+        .background(rewardType.gradient)
         .cornerRadius(DesignSystem.Radius.extraLarge)
     }
 }
 
 // MARK: - Modern Task Card
 struct ModernTaskCard: View {
-    let taskType: TaskType
+    let rewardType: RewardType
     let title: String
     let description: String
     let value: String
@@ -34,7 +34,7 @@ struct ModernTaskCard: View {
     let isPrivateProfile: Bool
     let onTap: () -> Void
     
-    init(taskType: TaskType,
+    init(rewardType: RewardType,
          title: String,
          description: String,
          value: String,
@@ -44,7 +44,7 @@ struct ModernTaskCard: View {
          userAvatar: String? = nil,
          isPrivateProfile: Bool = false,
          onTap: @escaping () -> Void) {
-        self.taskType = taskType
+        self.rewardType = rewardType
         self.title = title
         self.description = description
         self.value = value
@@ -92,8 +92,8 @@ struct ModernTaskCard: View {
                 
                 Spacer()
                 
-                // Task Type Badge
-                TaskTypeBadge(taskType: taskType, value: value)
+                // Reward Type Badge
+                RewardTypeBadge(rewardType: rewardType, value: value)
             }
             .padding(DesignSystem.Spacing.md)
             
@@ -122,7 +122,7 @@ struct ModernTaskCard: View {
                 Button(action: onTap) {
                     Text("View Details")
                         .font(DesignSystem.Typography.bodyMedium)
-                        .foregroundColor(taskType.primaryColor)
+                        .foregroundColor(rewardType.primaryColor)
                 }
             }
             .padding(DesignSystem.Spacing.md)
@@ -145,9 +145,9 @@ struct ModernTaskCard: View {
     }
 }
 
-// MARK: - Task Type Option
-struct TaskTypeOption: View {
-    let type: TaskType
+// MARK: - Reward Type Option
+struct RewardTypeOption: View {
+    let type: RewardType
     let action: () -> Void
     
     var body: some View {
@@ -176,8 +176,8 @@ struct TaskTypeOption: View {
 // MARK: - Floating Action Button
 struct FloatingCreateButton: View {
     @State private var isExpanded = false
-    @State private var selectedType: TaskType?
-    let onSelectType: (TaskType) -> Void
+    @State private var selectedType: RewardType?
+    let onSelectType: (RewardType) -> Void
     
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -193,10 +193,10 @@ struct FloatingCreateButton: View {
             }
             
             VStack(alignment: .trailing, spacing: DesignSystem.Spacing.md) {
-                // Task type options
+                // Reward type options
                 if isExpanded {
-                    ForEach(TaskType.allCases, id: \.self) { type in
-                        TaskTypeOption(type: type) {
+                    ForEach(RewardType.allCases, id: \.self) { type in
+                        RewardTypeOption(type: type) {
                             selectedType = type
                             withAnimation(.spring()) {
                                 isExpanded = false
@@ -333,10 +333,10 @@ struct FilterChip: View {
 
 // MARK: - Modern Button Styles
 struct PrimaryButtonStyle: ButtonStyle {
-    let taskType: TaskType?
+    let rewardType: RewardType?
     
-    init(taskType: TaskType? = nil) {
-        self.taskType = taskType
+    init(rewardType: RewardType? = nil) {
+        self.rewardType = rewardType
     }
     
     func makeBody(configuration: Configuration) -> some View {
@@ -346,7 +346,7 @@ struct PrimaryButtonStyle: ButtonStyle {
             .padding(.horizontal, DesignSystem.Spacing.lg)
             .padding(.vertical, DesignSystem.Spacing.md)
             .background(
-                taskType?.gradient ?? DesignSystem.Colors.primaryGradient
+                rewardType?.gradient ?? DesignSystem.Colors.primaryGradient
             )
             .cornerRadius(DesignSystem.Radius.medium)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)

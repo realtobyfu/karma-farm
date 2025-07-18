@@ -114,8 +114,8 @@ struct DesignSystem {
     }
 }
 
-// MARK: - TaskType Enum
-enum TaskType: String, Codable, CaseIterable {
+// MARK: - RewardType Enum
+enum RewardType: String, Codable, CaseIterable {
     case karma = "karma"
     case cash = "cash"
     case fun = "fun"

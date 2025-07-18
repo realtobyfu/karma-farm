@@ -86,14 +86,14 @@ struct MapView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
-                        Section("Task Types") {
-                            Button(action: { viewModel.filterTaskType = nil }) {
+                        Section("Reward Types") {
+                            Button(action: { viewModel.filterRewardType = nil }) {
                                 Label("All Types", systemImage: "circle.grid.3x3.fill")
                             }
                             
-                            ForEach(TaskType.allCases, id: \.self) { taskType in
-                                Button(action: { viewModel.filterTaskType = taskType }) {
-                                    Label(taskType.displayName, systemImage: taskType.icon)
+                            ForEach(RewardType.allCases, id: \.self) { rewardType in
+                                Button(action: { viewModel.filterRewardType = rewardType }) {
+                                    Label(rewardType.displayName, systemImage: rewardType.icon)
                                 }
                             }
                         }
@@ -118,7 +118,7 @@ struct MapView: View {
                                 .foregroundStyle(DesignSystem.Colors.primaryGradient)
                             
                             // Show active filter indicator
-                            if viewModel.filterTaskType != nil || viewModel.filterType != .all {
+                            if viewModel.filterRewardType != nil || viewModel.filterType != .all {
                                 Circle()
                                     .fill(DesignSystem.Colors.primaryOrange)
                                     .frame(width: 8, height: 8)
@@ -201,21 +201,21 @@ struct PostPin: View {
                 ZStack {
                     // Outer glow effect
                     Circle()
-                        .fill(post.taskType.primaryColor.opacity(0.3))
+                        .fill(post.rewardType.primaryColor.opacity(0.3))
                         .frame(width: 44, height: 44)
                         .scaleEffect(isAnimating ? 1.2 : 1.0)
                     
                     // Main pin with gradient
                     Circle()
-                        .fill(post.taskType.gradient)
+                        .fill(post.rewardType.gradient)
                         .frame(width: 36, height: 36)
                         .overlay(
                             Circle()
                                 .stroke(Color.white, lineWidth: 2)
                         )
-                        .shadow(color: post.taskType.primaryColor.opacity(0.4), radius: 4, x: 0, y: 2)
+                        .shadow(color: post.rewardType.primaryColor.opacity(0.4), radius: 4, x: 0, y: 2)
                     
-                    Image(systemName: post.taskType.icon)
+                    Image(systemName: post.rewardType.icon)
                         .font(.system(size: 18, weight: .bold))
                         .foregroundColor(.white)
                 }
@@ -226,9 +226,9 @@ struct PostPin: View {
                     .foregroundColor(.white)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 3)
-                    .background(post.taskType.gradient)
+                    .background(post.rewardType.gradient)
                     .clipShape(Capsule())
-                    .shadow(color: post.taskType.primaryColor.opacity(0.3), radius: 2, x: 0, y: 1)
+                    .shadow(color: post.rewardType.primaryColor.opacity(0.3), radius: 2, x: 0, y: 1)
             }
             .scaleEffect(isAnimating ? 1.1 : 1.0)
         }
@@ -247,16 +247,16 @@ struct PostDetailSheet: View {
                     // Header
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
-                            // Task type badge
+                            // Reward type badge
                             HStack(spacing: 4) {
-                                Image(systemName: post.taskType.icon)
-                                Text(post.taskType.displayName)
+                                Image(systemName: post.rewardType.icon)
+                                Text(post.rewardType.displayName)
                             }
                             .font(DesignSystem.Typography.captionMedium)
                             .foregroundColor(.white)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(post.taskType.gradient)
+                            .background(post.rewardType.gradient)
                             .clipShape(Capsule())
                             
                             // Request/Offer badge
@@ -273,7 +273,7 @@ struct PostDetailSheet: View {
                             // Value display
                             Text(post.displayValue)
                                 .font(DesignSystem.Typography.numberMedium)
-                                .foregroundColor(post.taskType.primaryColor)
+                                .foregroundColor(post.rewardType.primaryColor)
                         }
                         
                         Text(post.title)
@@ -332,9 +332,9 @@ struct PostDetailSheet: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(post.taskType.gradient)
+                            .background(post.rewardType.gradient)
                             .cornerRadius(DesignSystem.Radius.medium)
-                            .shadow(color: post.taskType.primaryColor.opacity(0.3), radius: 4, x: 0, y: 2)
+                            .shadow(color: post.rewardType.primaryColor.opacity(0.3), radius: 4, x: 0, y: 2)
                         }
                         .padding(.top)
                     }

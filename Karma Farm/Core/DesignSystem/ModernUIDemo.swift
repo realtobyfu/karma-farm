@@ -50,7 +50,7 @@ struct ModernUIDemo: View {
                     VStack(spacing: 16) {
                         // Karma task
                         ModernTaskCard(
-                            taskType: .karma,
+                            rewardType: .karma,
                             title: "Help me move furniture",
                             description: "Need 2 people to help move some furniture to my new apartment. Should take about 2 hours.",
                             value: "25",
@@ -64,7 +64,7 @@ struct ModernUIDemo: View {
                         
                         // Cash task
                         ModernTaskCard(
-                            taskType: .cash,
+                            rewardType: .cash,
                             title: "iOS App Development",
                             description: "Looking for developer to build a simple app for my small business. Experience with SwiftUI preferred.",
                             value: "$150",
@@ -78,7 +78,7 @@ struct ModernUIDemo: View {
                         
                         // Fun task
                         ModernTaskCard(
-                            taskType: .fun,
+                            rewardType: .fun,
                             title: "Basketball Pickup Game",
                             description: "Join us for friendly basketball this weekend! All skill levels welcome. We play every Saturday morning.",
                             value: "Fun!",
@@ -93,13 +93,13 @@ struct ModernUIDemo: View {
                         // Buttons demo
                         VStack(spacing: DesignSystem.Spacing.md) {
                             Button("Primary Karma Button") {}
-                                .buttonStyle(PrimaryButtonStyle(taskType: .karma))
+                                .buttonStyle(PrimaryButtonStyle(rewardType: .karma))
                             
                             Button("Primary Cash Button") {}
-                                .buttonStyle(PrimaryButtonStyle(taskType: .cash))
+                                .buttonStyle(PrimaryButtonStyle(rewardType: .cash))
                             
                             Button("Primary Fun Button") {}
-                                .buttonStyle(PrimaryButtonStyle(taskType: .fun))
+                                .buttonStyle(PrimaryButtonStyle(rewardType: .fun))
                             
                             Button("Secondary Button") {}
                                 .buttonStyle(SecondaryButtonStyle())
@@ -117,7 +117,7 @@ struct ModernUIDemo: View {
                 HStack {
                     Spacer()
                     FloatingCreateButton { type in
-                        print("Selected task type: \(type)")
+                        print("Selected reward type: \(type)")
                     }
                     .padding(.trailing, 20)
                     .padding(.bottom, 80)

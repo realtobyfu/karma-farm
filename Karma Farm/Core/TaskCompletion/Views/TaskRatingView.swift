@@ -49,7 +49,7 @@ struct TaskRatingView: View {
         VStack(spacing: DesignSystem.Spacing.md) {
             ZStack {
                 Circle()
-                    .fill(post.taskType.gradient)
+                    .fill(post.rewardType.gradient)
                     .frame(width: 100, height: 100)
                     .scaleEffect(animateStars ? 1 : 0)
                     .animation(.spring(response: 0.6, dampingFraction: 0.8), value: animateStars)
@@ -67,13 +67,13 @@ struct TaskRatingView: View {
                 .opacity(animateStars ? 1 : 0)
                 .animation(.easeIn(duration: 0.4).delay(0.3), value: animateStars)
             
-            if post.taskType == .karma {
+            if post.rewardType == .karma {
                 HStack {
                     Image(systemName: "star.fill")
                     Text("+\(post.karmaValue) karma earned")
                 }
                 .font(DesignSystem.Typography.bodyMedium)
-                .foregroundColor(post.taskType.primaryColor)
+                .foregroundColor(post.rewardType.primaryColor)
                 .opacity(animateStars ? 1 : 0)
                 .animation(.easeIn(duration: 0.4).delay(0.4), value: animateStars)
             }
@@ -135,7 +135,7 @@ struct TaskRatingView: View {
                     TagButton(
                         tag: tag,
                         isSelected: viewModel.selectedTags.contains(tag),
-                        taskType: post.taskType
+                        rewardType: post.rewardType
                     ) {
                         if viewModel.selectedTags.contains(tag) {
                             viewModel.selectedTags.remove(tag)
@@ -188,7 +188,7 @@ struct TaskRatingView: View {
             .foregroundColor(.white)
             .frame(maxWidth: .infinity)
             .padding()
-            .background(post.taskType.gradient)
+            .background(post.rewardType.gradient)
             .cornerRadius(DesignSystem.Radius.medium)
         }
         .disabled(viewModel.isLoading)
@@ -199,7 +199,7 @@ struct TaskRatingView: View {
 struct TagButton: View {
     let tag: HelpfulnessTag
     let isSelected: Bool
-    let taskType: TaskType
+    let rewardType: RewardType
     let action: () -> Void
     
     var body: some View {
@@ -214,7 +214,7 @@ struct TagButton: View {
             .padding(.horizontal, DesignSystem.Spacing.md)
             .padding(.vertical, DesignSystem.Spacing.sm)
             .background(
-                isSelected ? taskType.gradient : LinearGradient(colors: [Color(UIColor.systemGray5)], startPoint: .leading, endPoint: .trailing)
+                isSelected ? rewardType.gradient : LinearGradient(colors: [Color(UIColor.systemGray5)], startPoint: .leading, endPoint: .trailing)
             )
             .cornerRadius(DesignSystem.Radius.pill)
             .overlay(

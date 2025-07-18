@@ -20,9 +20,9 @@ struct GamifiedPostDetailView: View {
                     VStack(spacing: DesignSystem.Spacing.lg) {
                         // Post Main Content Card
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            // Task Type Badge with Animation
+                            // Reward Type Badge with Animation
                             AnimatedTaskBadge(
-                                taskType: post.taskType,
+                                rewardType: post.rewardType,
                                 value: post.displayValue
                             )
                             
@@ -127,13 +127,13 @@ struct HeroHeaderView: View {
             // Animated Background Gradient
             LinearGradient(
                 colors: [
-                    taskTypeColor(post.taskType),
-                    taskTypeColor(post.taskType).opacity(0.6)
+                    rewardTypeColor(post.rewardType),
+                    rewardTypeColor(post.rewardType).opacity(0.6)
                 ],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .frame(height: 200)
+            .frame(height: 120)
             .overlay(
                 LinearGradient(
                     colors: [Color.clear, Color.white.opacity(0.3), Color.clear],
@@ -145,11 +145,11 @@ struct HeroHeaderView: View {
                 .blur(radius: 20)
             )
             
-            // Task Type Icon
+            // Post Type Icon
             Image(systemName: post.type.icon)
-                .font(.system(size: 80))
+                .font(.system(size: 60))
                 .foregroundColor(.white.opacity(0.2))
-                .offset(x: 100, y: -20)
+                .offset(x: 80, y: -10)
                 .rotationEffect(.degrees(15))
             
             // Status Badge if not active
@@ -175,7 +175,7 @@ struct HeroHeaderView: View {
         }
     }
     
-    private func taskTypeColor(_ type: TaskType) -> Color {
+    private func rewardTypeColor(_ type: RewardType) -> Color {
         switch type {
         case .karma:
             return DesignSystem.Colors.primaryBlue
@@ -530,13 +530,13 @@ struct ActionButtonsSection: View {
 
 // MARK: - Helper Components
 struct AnimatedTaskBadge: View {
-    let taskType: TaskType
+    let rewardType: RewardType
     let value: String
     @State private var isAnimating = false
     
     var body: some View {
         HStack(spacing: 6) {
-            Image(systemName: taskType.icon)
+            Image(systemName: rewardType.icon)
                 .font(.system(size: 14, weight: .semibold))
                 .rotationEffect(.degrees(isAnimating ? 360 : 0))
                 .animation(.linear(duration: 2).repeatForever(autoreverses: false), value: isAnimating)
@@ -549,13 +549,13 @@ struct AnimatedTaskBadge: View {
         .padding(.vertical, 8)
         .background(
             LinearGradient(
-                colors: [taskType.primaryColor, taskType.primaryColor.opacity(0.8)],
+                colors: [rewardType.primaryColor, rewardType.primaryColor.opacity(0.8)],
                 startPoint: .leading,
                 endPoint: .trailing
             )
         )
         .cornerRadius(20)
-        .shadow(color: taskType.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
+        .shadow(color: rewardType.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
         .onAppear {
             isAnimating = true
         }
@@ -764,7 +764,7 @@ struct KarmaAnimation: View {
 
 // MARK: - Helper Functions
 private func getKarmaIcon(for post: Post) -> String {
-    switch post.taskType {
+    switch post.rewardType {
     case .karma:
         return "star.fill"
     case .cash:
@@ -775,7 +775,7 @@ private func getKarmaIcon(for post: Post) -> String {
 }
 
 private func getKarmaColor(for post: Post) -> Color {
-    switch post.taskType {
+    switch post.rewardType {
     case .karma:
         return DesignSystem.Colors.primaryBlue
     case .cash:

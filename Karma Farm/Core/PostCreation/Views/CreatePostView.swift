@@ -13,13 +13,13 @@ struct CreatePostView: View {
     @StateObject private var locationManager = LocationManager.shared
     @Environment(\.dismiss) private var dismiss
     
-    let selectedTaskType: TaskType?
+    let selectedRewardType: RewardType?
     
     @State private var title = ""
     @State private var description = ""
     @State private var selectedType: PostType = .task
     @State private var selectedCategory: PostCategory = .other
-    @State private var taskType: TaskType = .karma
+    @State private var rewardType: RewardType = .karma
     @State private var karmaValue = 10
     @State private var paymentAmount: Double = 20.0
     @State private var karmaInputText = "10"
@@ -30,10 +30,10 @@ struct CreatePostView: View {
     @State private var hasExpiration = true
     @State private var showContent = false
     
-    init(selectedTaskType: TaskType? = nil) {
-        self.selectedTaskType = selectedTaskType
-        if let taskType = selectedTaskType {
-            self._taskType = State(initialValue: taskType)
+    init(selectedRewardType: RewardType? = nil) {
+        self.selectedRewardType = selectedRewardType
+        if let rewardType = selectedRewardType {
+            self._rewardType = State(initialValue: rewardType)
         }
     }
     
@@ -64,8 +64,8 @@ struct CreatePostView: View {
             }
         }
         .onAppear {
-            if let selectedTaskType = selectedTaskType {
-                taskType = selectedTaskType
+            if let selectedRewardType = selectedRewardType {
+                rewardType = selectedRewardType
             }
             withAnimation {
                 showContent = true
@@ -83,17 +83,12 @@ struct CreatePostView: View {
             VStack(spacing: 24) {
                     postTypeSection
                     
-                    // Basic Information
-                    // Task Type Badge
-                    HStack {
-                        Text("Task Type")
-                            .font(.system(size: 18, weight: .semibold))
-                            .foregroundColor(.primary)
-                        
-                        Spacer()
-                        
-                        TaskTypeBadge(taskType: taskType, value: taskType.displayName)
+                    // Reward Type Selection
+                    if selectedType != .social {
+                        rewardTypeSection
                     }
+                    
+                    // Basic Information
                     
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Basic Information")
@@ -141,14 +136,14 @@ struct CreatePostView: View {
                         }
                     }
                     
-                    // Task Type Value Section
+                    // Reward Value Section
                     if selectedType != .social {
                         VStack(alignment: .leading, spacing: 16) {
-                            Text(taskType == .karma ? "Karma Value" : "Payment Amount")
+                            Text(rewardType == .karma ? "Karma Value" : "Payment Amount")
                                 .font(.system(size: 18, weight: .semibold))
                                 .foregroundColor(.primary)
                             
-                            if taskType == .karma {
+                            if rewardType == .karma {
                                 VStack(spacing: 12) {
                                     HStack {
                                         Text("Enter karma amount")
@@ -179,7 +174,7 @@ struct CreatePostView: View {
                                             .padding(.horizontal, 12)
                                     }
                                 }
-                            } else if taskType == .cash {
+                            } else if rewardType == .cash {
                                 VStack(spacing: 12) {
                                     HStack {
                                         Text("Payment amount (off-platform)")
@@ -321,9 +316,9 @@ struct CreatePostView: View {
                     description: description,
                     type: selectedType,
                     category: selectedCategory,
-                    taskType: taskType,
-                    karmaValue: taskType == .karma ? karmaValue : 0,
-                    paymentAmount: taskType == .cash ? paymentAmount : nil,
+                    rewardType: selectedType == .social ? .fun : rewardType,
+                    karmaValue: (selectedType != .social && rewardType == .karma) ? karmaValue : 0,
+                    paymentAmount: (selectedType != .social && rewardType == .cash) ? paymentAmount : nil,
                     location: location,
                     locationName: locationName,
                     expiresAt: hasExpiration ? expirationDate : nil
@@ -338,33 +333,75 @@ struct CreatePostView: View {
     
     private var postTypeSection: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Post Type")
-                .font(DesignSystem.Typography.title1)
-                .foregroundColor(DesignSystem.Colors.textPrimary)
-                .opacity(showContent ? 1 : 0)
-                .offset(y: showContent ? 0 : 20)
-                .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1), value: showContent)
+            VStack(alignment: .leading, spacing: 4) {
+                
+                Text("Choose the type of activity")
+                    .font(DesignSystem.Typography.body)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
+            }
+            .opacity(showContent ? 1 : 0)
+            .offset(y: showContent ? 0 : 20)
+            .animation(.spring(response: 0.5, dampingFraction: 0.8).delay(0.1), value: showContent)
             
             HStack(spacing: 12) {
                 ForEach(PostType.allCases, id: \.self) { postType in
                     PostTypeButton(
                         title: postType.displayName,
-                        subtitle: getPostTypeSubtitle(postType),
                         icon: nil,
                         isSelected: selectedType == postType,
                         color: getPostTypeColor(postType)
                     ) {
-                        selectedType = postType
-                        // Update task type based on post type
-                        if postType == .social {
-                            taskType = .fun
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            selectedType = postType
+                            // Update reward type based on post type
+                            if postType == .social {
+                                rewardType = .fun
+                            } else if rewardType == .fun && postType != .social {
+                                // Reset to karma if moving away from social
+                                rewardType = .karma
+                            }
+                            // Reset category when changing post type
+                            selectedCategory = PostCategory.categories(for: postType).first ?? .other
                         }
-                        // Reset category when changing post type
-                        selectedCategory = PostCategory.categories(for: postType).first ?? .other
+                        
+                        // Haptic feedback
+                        let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                        impactFeedback.impactOccurred()
                     }
                 }
             }
         }
+    }
+    
+    private var rewardTypeSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("How will this be rewarded?")
+                    .font(DesignSystem.Typography.title3)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                }
+            
+            HStack(spacing: 12) {
+                // Karma option
+                RewardOptionButton(
+                    type: .karma,
+                    isSelected: rewardType == .karma,
+                    title: "Karma Points",
+                ) {
+                    rewardType = .karma
+                }
+                
+                // Cash option
+                RewardOptionButton(
+                    type: .cash,
+                    isSelected: rewardType == .cash,
+                    title: "Cash Payment",
+                ) {
+                    rewardType = .cash
+                }
+            }
+        }
+        .transition(.opacity.combined(with: .move(edge: .top)))
     }
     
     @ToolbarContentBuilder
@@ -393,16 +430,6 @@ struct CreatePostView: View {
         }
     }
     
-    private func getPostTypeSubtitle(_ type: PostType) -> String {
-        switch type {
-        case .skillShare:
-            return "Share your skills"
-        case .task:
-            return "Request or offer help"
-        case .social:
-            return "Fun activities"
-        }
-    }
     
     private func getPostTypeColor(_ type: PostType) -> Color {
         switch type {
@@ -418,11 +445,12 @@ struct CreatePostView: View {
 
 struct PostTypeButton: View {
     let title: String
-    let subtitle: String
     let icon: String?
     let isSelected: Bool
     let color: Color
     let onTap: () -> Void
+    
+    @State private var isPressed = false
     
     var body: some View {
         Button(action: onTap) {
@@ -436,18 +464,19 @@ struct PostTypeButton: View {
                     Text(title)
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(isSelected ? .white : .primary)
-                    
-                    Text(subtitle)
-                        .font(.system(size: 12))
-                        .foregroundColor(isSelected ? .white : .secondary)
                 }
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 16)
             .background(isSelected ? color : Color(.systemGray6))
             .cornerRadius(12)
+            .scaleEffect(isPressed ? 0.95 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: isPressed)
         }
         .buttonStyle(PlainButtonStyle())
+        .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
+            isPressed = pressing
+        }, perform: {})
     }
 }
 
@@ -504,6 +533,56 @@ struct LoadingOverlay: View {
                 .background(Color.black.opacity(0.7))
                 .cornerRadius(12)
             )
+    }
+}
+
+struct RewardOptionButton: View {
+    let type: RewardType
+    let isSelected: Bool
+    let title: String
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: type.icon)
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(isSelected ? .white : type.primaryColor)
+                    
+                    Spacer()
+                    
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(DesignSystem.Typography.bodyMedium)
+                        .foregroundColor(isSelected ? .white : DesignSystem.Colors.textPrimary)
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity)
+            .background(
+                Group {
+                    if isSelected {
+                        type.gradient
+                    } else {
+                        Color(.systemGray6)
+                    }
+                }
+            )
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected ? Color.clear : Color(.systemGray4), lineWidth: 1)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

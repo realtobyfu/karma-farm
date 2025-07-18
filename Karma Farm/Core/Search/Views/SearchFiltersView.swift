@@ -12,9 +12,9 @@ struct SearchFiltersView: View {
                     // Post Type
                     FilterSection(title: "Post Type") {
                         Picker("Type", selection: $filters.postType) {
-                            Text("All").tag(nil as TaskType?)
-                            ForEach(TaskType.allCases, id: \.self) { type in
-                                Text(type.displayName).tag(type as TaskType?)
+                            Text("All").tag(nil as RewardType?)
+                            ForEach(RewardType.allCases, id: \.self) { type in
+                                Text(type.displayName).tag(type as RewardType?)
                             }
                         }
                         .pickerStyle(SegmentedPickerStyle())
@@ -138,7 +138,7 @@ struct FilterSection<Content: View>: View {
 
 // MARK: - Search Models
 struct SearchFilters {
-    var postType: TaskType?
+    var postType: RewardType?
     var isRequest: Bool?
     var radiusKm: Double = 10
     var minKarma: Int?

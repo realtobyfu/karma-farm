@@ -20,7 +20,7 @@ class CreatePostViewModel: ObservableObject {
         description: String,
         type: PostType,
         category: PostCategory,
-        taskType: TaskType = .karma,
+        rewardType: RewardType = .karma,
         karmaValue: Int? = nil,
         paymentAmount: Double? = nil,
         location: CLLocation?,
@@ -40,7 +40,7 @@ class CreatePostViewModel: ObservableObject {
                 "description": description,
                 "type": type.rawValue,
                 "category": category.rawValue,
-                "taskType": taskType.rawValue,
+                "rewardType": rewardType.rawValue,
                 "locationName": locationName
             ]
             

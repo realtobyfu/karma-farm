@@ -198,7 +198,7 @@ struct SearchResultsView: View {
     
     @ViewBuilder
     private func createTaskCard(for post: Post) -> some View {
-        let taskType = getTaskType(for: post.type)
+        let rewardType = getRewardType(for: post.type)
         let value = post.displayValue
         let location = post.locationName ?? "Unknown"
         let timeAgo = formatTimeAgo(post.createdAt)
@@ -207,7 +207,7 @@ struct SearchResultsView: View {
         let isPrivate = post.user?.isPrivateProfile ?? false
         
         ModernTaskCard(
-            taskType: taskType,
+            rewardType: rewardType,
             title: post.title,
             description: post.description,
             value: value,
@@ -221,7 +221,7 @@ struct SearchResultsView: View {
         }
     }
     
-    private func getTaskType(for postType: PostType) -> TaskType {
+    private func getRewardType(for postType: PostType) -> RewardType {
         switch postType {
         case .skillShare:
             return .karma

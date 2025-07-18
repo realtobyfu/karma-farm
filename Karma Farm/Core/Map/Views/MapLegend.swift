@@ -7,21 +7,21 @@ struct MapLegend: View {
         VStack(alignment: .trailing, spacing: 0) {
             if isExpanded {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Task Types")
+                    Text("Reward Types")
                         .font(DesignSystem.Typography.bodySemibold)
                         .foregroundColor(DesignSystem.Colors.textPrimary)
                     
-                    ForEach(TaskType.allCases, id: \.self) { taskType in
+                    ForEach(RewardType.allCases, id: \.self) { rewardType in
                         HStack(spacing: 8) {
                             Circle()
-                                .fill(taskType.gradient)
+                                .fill(rewardType.gradient)
                                 .frame(width: 16, height: 16)
                                 .overlay(
                                     Circle()
                                         .stroke(Color.white, lineWidth: 1)
                                 )
                             
-                            Text(taskType.displayName)
+                            Text(rewardType.displayName)
                                 .font(DesignSystem.Typography.footnote)
                                 .foregroundColor(DesignSystem.Colors.textSecondary)
                             

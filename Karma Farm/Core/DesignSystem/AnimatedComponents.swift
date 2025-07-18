@@ -4,8 +4,8 @@ import SwiftUI
 struct AnimatedFAB: View {
     @State private var isExpanded = false
     @State private var showOptions = false
-    let taskTypes: [TaskType] = TaskType.allCases
-    let onTaskTypeSelected: (TaskType) -> Void
+    let rewardTypes: [RewardType] = RewardType.allCases
+    let onRewardTypeSelected: (RewardType) -> Void
     
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
@@ -19,12 +19,12 @@ struct AnimatedFAB: View {
                     .transition(.opacity)
             }
             
-            // Task type options
+            // Reward type options
             if showOptions {
                 VStack(alignment: .trailing, spacing: 16) {
-                    ForEach(taskTypes.indices, id: \.self) { index in
+                    ForEach(rewardTypes.indices, id: \.self) { index in
                         HStack(spacing: 12) {
-                            Text(taskTypes[index].description)
+                            Text(rewardTypes[index].description)
                                 .font(DesignSystem.Typography.bodyMedium)
                                 .foregroundColor(DesignSystem.Colors.textPrimary)
                                 .padding(.horizontal, 16)
@@ -34,16 +34,16 @@ struct AnimatedFAB: View {
                                 .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
                             
                             Button(action: {
-                                onTaskTypeSelected(taskTypes[index])
+                                onRewardTypeSelected(rewardTypes[index])
                                 collapse()
                             }) {
-                                Image(systemName: taskTypes[index].icon)
+                                Image(systemName: rewardTypes[index].icon)
                                     .font(.system(size: 20, weight: .bold))
                                     .foregroundColor(.white)
                                     .frame(width: 56, height: 56)
-                                    .background(taskTypes[index].gradient)
+                                    .background(rewardTypes[index].gradient)
                                     .clipShape(Circle())
-                                    .shadow(color: taskTypes[index].primaryColor.opacity(0.4), radius: 8, x: 0, y: 4)
+                                    .shadow(color: rewardTypes[index].primaryColor.opacity(0.4), radius: 8, x: 0, y: 4)
                             }
                             .scaleEffect(showOptions ? 1 : 0.5)
                             .opacity(showOptions ? 1 : 0)
