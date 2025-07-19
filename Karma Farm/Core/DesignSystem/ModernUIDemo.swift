@@ -51,9 +51,10 @@ struct ModernUIDemo: View {
                         // Karma task
                         ModernTaskCard(
                             rewardType: .karma,
+                            postType: .task,
                             title: "Help me move furniture",
                             description: "Need 2 people to help move some furniture to my new apartment. Should take about 2 hours.",
-                            value: "25",
+                            value: "25 karma",
                             location: "Cambridge, MA",
                             timeAgo: "2h ago",
                             userName: "John Doe",
@@ -65,6 +66,7 @@ struct ModernUIDemo: View {
                         // Cash task
                         ModernTaskCard(
                             rewardType: .cash,
+                            postType: .skillShare,
                             title: "iOS App Development",
                             description: "Looking for developer to build a simple app for my small business. Experience with SwiftUI preferred.",
                             value: "$150",
@@ -79,9 +81,10 @@ struct ModernUIDemo: View {
                         // Fun task
                         ModernTaskCard(
                             rewardType: .fun,
+                            postType: .social,
                             title: "Basketball Pickup Game",
                             description: "Join us for friendly basketball this weekend! All skill levels welcome. We play every Saturday morning.",
-                            value: "Fun!",
+                            value: "Just for fun",
                             location: "MIT Courts",
                             timeAgo: "1d ago",
                             userName: "Mike Johnson",

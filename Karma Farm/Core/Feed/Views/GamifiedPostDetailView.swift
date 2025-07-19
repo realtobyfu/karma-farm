@@ -18,6 +18,25 @@ struct GamifiedPostDetailView: View {
                         .padding(.bottom, DesignSystem.Spacing.md)
                     
                     VStack(spacing: DesignSystem.Spacing.lg) {
+                        // Post Type Indicator
+                        HStack {
+                            HStack(spacing: 6) {
+                                Text(post.type.postTypeIcon)
+                                    .font(.system(size: 20))
+                                Text(post.type.postTypeLabel)
+                                    .font(DesignSystem.Typography.title3)
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(post.type.postTypeColor)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(post.type.postTypeColor.opacity(0.1))
+                            .cornerRadius(20)
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal, DesignSystem.Spacing.lg)
+                        
                         // Post Main Content Card
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
                             // Reward Type Badge with Animation
@@ -271,31 +290,15 @@ struct GamifiedUserCard: View {
                         }
                     }
                     
-                    // Karma Display with Progress
+                    // Karma Display - Simplified
                     if !isAnonymous {
-                        HStack(spacing: 8) {
-                            HStack(spacing: 4) {
-                                Image(systemName: "star.fill")
-                                    .font(.caption)
-                                    .foregroundColor(.yellow)
-                                Text("\(user.karmaBalance)")
-                                    .font(DesignSystem.Typography.bodySemibold)
-                                    .foregroundColor(DesignSystem.Colors.textPrimary)
-                            }
-                            
-                            // Progress Bar
-                            GeometryReader { geometry in
-                                ZStack(alignment: .leading) {
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(Color.gray.opacity(0.2))
-                                        .frame(height: 4)
-                                    
-                                    RoundedRectangle(cornerRadius: 2)
-                                        .fill(DesignSystem.Colors.primaryGreen)
-                                        .frame(width: geometry.size.width * karmaLevel.progress, height: 4)
-                                }
-                            }
-                            .frame(width: 60, height: 4)
+                        HStack(spacing: 4) {
+                            Image(systemName: "star.fill")
+                                .font(.caption)
+                                .foregroundColor(.yellow)
+                            Text("\(user.karmaBalance) karma")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
                         }
                     }
                 }
@@ -312,27 +315,25 @@ struct GamifiedUserCard: View {
             }
             .padding(DesignSystem.Spacing.md)
             
-            // Achievement Badges
+            // Achievement Badges - Limited to top 3
             if !isAnonymous && !user.badges.isEmpty {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: DesignSystem.Spacing.sm) {
-                        ForEach(user.badges.prefix(5), id: \.id) { badge in
-                            BadgeChip(badge: badge)
-                        }
-                        
-                        if user.badges.count > 5 {
-                            Text("+\(user.badges.count - 5)")
-                                .font(DesignSystem.Typography.caption)
-                                .foregroundColor(DesignSystem.Colors.textSecondary)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.gray.opacity(0.1))
-                                .cornerRadius(12)
-                        }
+                HStack(spacing: DesignSystem.Spacing.sm) {
+                    ForEach(user.badges.prefix(3), id: \.id) { badge in
+                        BadgeChip(badge: badge)
                     }
-                    .padding(.horizontal, DesignSystem.Spacing.md)
-                    .padding(.bottom, DesignSystem.Spacing.md)
+                    
+                    if user.badges.count > 3 {
+                        Text("+\(user.badges.count - 3)")
+                            .font(DesignSystem.Typography.caption)
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.gray.opacity(0.1))
+                            .cornerRadius(12)
+                    }
                 }
+                .padding(.horizontal, DesignSystem.Spacing.md)
+                .padding(.bottom, DesignSystem.Spacing.md)
             }
         }
         .background(DesignSystem.Colors.backgroundSecondary)
@@ -392,7 +393,7 @@ struct PostContentSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-            Text("Quest Details")
+            Text("Details")
                 .font(DesignSystem.Typography.bodyMedium)
                 .foregroundColor(DesignSystem.Colors.textSecondary)
             

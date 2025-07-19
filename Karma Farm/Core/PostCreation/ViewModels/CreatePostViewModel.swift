@@ -40,7 +40,6 @@ class CreatePostViewModel: ObservableObject {
                 "description": description,
                 "type": type.rawValue,
                 "category": category.rawValue,
-                "rewardType": rewardType.rawValue,
                 "locationName": locationName
             ]
             
@@ -53,10 +52,8 @@ class CreatePostViewModel: ObservableObject {
             }
             
             if let location = location {
-                postData["location"] = [
-                    "latitude": location.coordinate.latitude,
-                    "longitude": location.coordinate.longitude
-                ]
+                postData["latitude"] = location.coordinate.latitude
+                postData["longitude"] = location.coordinate.longitude
             }
             
             if let expiresAt = expiresAt {

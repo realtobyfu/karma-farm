@@ -1,5 +1,41 @@
 import SwiftUI
 
+// MARK: - PostType Extensions
+extension PostType {
+    var postTypeLabel: String {
+        switch self {
+        case .task:
+            return "Needs Help"
+        case .skillShare:
+            return "Offering"
+        case .social:
+            return "Social"
+        }
+    }
+    
+    var postTypeIcon: String {
+        switch self {
+        case .task:
+            return "🙋"
+        case .skillShare:
+            return "💡"
+        case .social:
+            return "🎉"
+        }
+    }
+    
+    var postTypeColor: Color {
+        switch self {
+        case .task:
+            return DesignSystem.Colors.primaryOrange
+        case .skillShare:
+            return DesignSystem.Colors.primaryBlue
+        case .social:
+            return DesignSystem.Colors.primaryPurple
+        }
+    }
+}
+
 // MARK: - Reward Type Badge
 struct RewardTypeBadge: View {
     let rewardType: RewardType
@@ -24,6 +60,7 @@ struct RewardTypeBadge: View {
 // MARK: - Modern Task Card
 struct ModernTaskCard: View {
     let rewardType: RewardType
+    let postType: PostType
     let title: String
     let description: String
     let value: String
@@ -35,6 +72,7 @@ struct ModernTaskCard: View {
     let onTap: () -> Void
     
     init(rewardType: RewardType,
+         postType: PostType,
          title: String,
          description: String,
          value: String,
@@ -45,6 +83,7 @@ struct ModernTaskCard: View {
          isPrivateProfile: Bool = false,
          onTap: @escaping () -> Void) {
         self.rewardType = rewardType
+        self.postType = postType
         self.title = title
         self.description = description
         self.value = value
@@ -91,6 +130,20 @@ struct ModernTaskCard: View {
                 }
                 
                 Spacer()
+                
+                // Post Type Indicator
+                HStack(spacing: 4) {
+                    Text(postType.postTypeIcon)
+                        .font(.system(size: 12))
+                    Text(postType.postTypeLabel)
+                        .font(DesignSystem.Typography.caption)
+                        .fontWeight(.medium)
+                }
+                .foregroundColor(postType.postTypeColor)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(postType.postTypeColor.opacity(0.1))
+                .cornerRadius(12)
                 
                 // Reward Type Badge
                 RewardTypeBadge(rewardType: rewardType, value: value)

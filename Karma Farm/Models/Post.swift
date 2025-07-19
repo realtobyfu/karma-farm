@@ -1,6 +1,7 @@
 import Foundation
 import CoreLocation
 import FirebaseAuth
+import SwiftUI
 
 enum PostType: String, Codable, CaseIterable {
     case skillShare = "skill_share"
@@ -183,6 +184,10 @@ struct Post: Codable, Identifiable {
         // A post is a request if it's a task type (someone needs help)
         // Skill shares and social posts are offers
         return type == .task
+    }
+    
+    var postTypeEmoji: String {
+        return type.postTypeIcon + " " + type.postTypeLabel
     }
 }
 

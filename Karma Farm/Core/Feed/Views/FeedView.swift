@@ -163,6 +163,7 @@ struct PostCardView: View {
     var body: some View {
         ModernTaskCard(
             rewardType: post.rewardType,
+            postType: post.type,
             title: post.title,
             description: post.description,
             value: formatValue(for: post),
