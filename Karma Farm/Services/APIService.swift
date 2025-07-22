@@ -62,6 +62,55 @@ struct PrivacySettingsUpdateRequest: Codable {
     let privacySettings: PrivacySettings
 }
 
+struct CollegeEmailVerificationResponse: Codable {
+    let success: Bool
+    let message: String
+    let data: VerificationData?
+}
+
+struct VerificationData: Codable {
+    let verificationCode: String
+}
+
+struct UploadResponse: Codable {
+    let success: Bool
+    let data: UploadData?
+}
+
+struct UploadData: Codable {
+    let url: String
+    let filename: String
+    let size: Int
+    let mimetype: String
+}
+
+// MARK: - APIError
+enum APIError: LocalizedError {
+    case notAuthenticated
+    case invalidData
+    case uploadFailed
+    case networkError(String)
+    case decodingError(String)
+    case unknown
+    
+    var errorDescription: String? {
+        switch self {
+        case .notAuthenticated:
+            return "User is not authenticated"
+        case .invalidData:
+            return "Invalid data provided"
+        case .uploadFailed:
+            return "Failed to upload file"
+        case .networkError(let message):
+            return "Network error: \(message)"
+        case .decodingError(let message):
+            return "Decoding error: \(message)"
+        case .unknown:
+            return "An unknown error occurred"
+        }
+    }
+}
+
 // MARK: - APIService
 class APIService {
     static let shared = APIService()
@@ -295,6 +344,45 @@ class APIService {
         try await setupProfile(idToken, profileData: profileData)
     }
     
+    // MARK: - College Email Verification
+    func verifyCollegeEmail(_ idToken: String, email: String) async throws -> CollegeEmailVerificationResponse {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        let parameters: [String: Any] = [
+            "email": email
+        ]
+        
+        return try await performRequest(
+            endpoint: "/users/verify-college-email",
+            method: .post,
+            parameters: parameters,
+            headers: headers,
+            responseType: CollegeEmailVerificationResponse.self
+        )
+    }
+    
+    func confirmCollegeEmail(_ idToken: String, verificationCode: String) async throws -> User {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        let parameters: [String: Any] = [
+            "verificationCode": verificationCode
+        ]
+        
+        return try await performRequest(
+            endpoint: "/users/confirm-college-email",
+            method: .post,
+            parameters: parameters,
+            headers: headers,
+            responseType: User.self
+        )
+    }
+    
     // MARK: - Privacy Settings
     func getPrivacySettings() async throws -> PrivacySettingsResponse {
         guard let idToken = try? await Auth.auth().currentUser?.getIDToken() else {
@@ -332,6 +420,264 @@ class APIService {
             parameters: parameters,
             headers: headers,
             responseType: EmptyResponse.self
+        )
+    }
+    
+    // MARK: - Image Upload
+    func uploadProfileImage(_ idToken: String, image: UIImage) async throws -> String {
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            throw APIError.invalidData
+        }
+        
+        let url = "\(APIConfig.baseURL)/upload/profile-image"
+        
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)"
+        ]
+        
+        return try await withCheckedThrowingContinuation { continuation in
+            AF.upload(
+                multipartFormData: { multipartFormData in
+                    multipartFormData.append(
+                        imageData,
+                        withName: "image",
+                        fileName: "profile.jpg",
+                        mimeType: "image/jpeg"
+                    )
+                },
+                to: url,
+                headers: headers
+            )
+            .responseDecodable(of: UploadResponse.self) { response in
+                switch response.result {
+                case .success(let uploadResponse):
+                    if uploadResponse.success, let imageUrl = uploadResponse.data?.url {
+                        continuation.resume(returning: imageUrl)
+                    } else {
+                        continuation.resume(throwing: APIError.uploadFailed)
+                    }
+                case .failure(let error):
+                    #if DEBUG
+                    print("❌ Upload error: \(error)")
+                    #endif
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    // MARK: - Task Completion
+    func acceptPost(_ idToken: String, postId: String) async throws -> Post {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        return try await performRequest(
+            endpoint: "/posts/\(postId)/accept",
+            method: .post,
+            headers: headers,
+            responseType: Post.self
+        )
+    }
+    
+    func completePost(_ idToken: String, postId: String) async throws -> Post {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        return try await performRequest(
+            endpoint: "/posts/\(postId)/complete",
+            method: .post,
+            headers: headers,
+            responseType: Post.self
+        )
+    }
+    
+    func rateCompletedTask(_ idToken: String, postId: String, rating: Int, review: String?) async throws -> Post {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        let parameters: [String: Any] = [
+            "rating": rating,
+            "review": review ?? ""
+        ]
+        
+        return try await performRequest(
+            endpoint: "/posts/\(postId)/rate",
+            method: .post,
+            parameters: parameters,
+            headers: headers,
+            responseType: Post.self
+        )
+    }
+    
+    // MARK: - Karma Transactions
+    func getKarmaTransactions(_ idToken: String, limit: Int = 100) async throws -> [KarmaTransaction] {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        let parameters: [String: Any] = [
+            "limit": limit
+        ]
+        
+        return try await performRequest(
+            endpoint: "/karma/transactions",
+            method: .get,
+            parameters: parameters,
+            headers: headers,
+            responseType: [KarmaTransaction].self
+        )
+    }
+    
+    // MARK: - Connections
+    func sendConnectionRequest(_ idToken: String, request: ConnectionRequest) async throws -> Connection {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        let parameters: [String: Any] = [
+            "toUserId": request.toUserId,
+            "message": request.message ?? ""
+        ]
+        
+        return try await performRequest(
+            endpoint: "/connections/request",
+            method: .post,
+            parameters: parameters,
+            headers: headers,
+            responseType: Connection.self
+        )
+    }
+    
+    func acceptConnectionRequest(_ idToken: String, connectionId: String) async throws -> Connection {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        return try await performRequest(
+            endpoint: "/connections/\(connectionId)/accept",
+            method: .put,
+            headers: headers,
+            responseType: Connection.self
+        )
+    }
+    
+    func declineConnectionRequest(_ idToken: String, connectionId: String) async throws -> Connection {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        return try await performRequest(
+            endpoint: "/connections/\(connectionId)/decline",
+            method: .put,
+            headers: headers,
+            responseType: Connection.self
+        )
+    }
+    
+    func removeConnection(_ idToken: String, connectionId: String) async throws {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        try await performRequestEmptyResponse(
+            endpoint: "/connections/\(connectionId)",
+            method: .delete,
+            headers: headers
+        )
+    }
+    
+    func getConnections(_ idToken: String, status: ConnectionStatus? = nil) async throws -> [Connection] {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        var parameters: [String: Any] = [:]
+        if let status = status {
+            parameters["status"] = status.rawValue
+        }
+        
+        return try await performRequest(
+            endpoint: "/connections",
+            method: .get,
+            parameters: parameters,
+            headers: headers,
+            responseType: [Connection].self
+        )
+    }
+    
+    func getPendingConnectionRequests(_ idToken: String) async throws -> [Connection] {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        return try await performRequest(
+            endpoint: "/connections/pending",
+            method: .get,
+            headers: headers,
+            responseType: [Connection].self
+        )
+    }
+    
+    func checkConnection(_ idToken: String, userId: String) async throws -> ConnectionCheckResponse {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        return try await performRequest(
+            endpoint: "/connections/check/\(userId)",
+            method: .get,
+            headers: headers,
+            responseType: ConnectionCheckResponse.self
+        )
+    }
+    
+    // MARK: - User Profiles
+    func getUserProfile(_ idToken: String, userId: String) async throws -> User {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        struct UserProfileResponse: Codable {
+            let success: Bool
+            let data: User
+        }
+        
+        let response = try await performRequest(
+            endpoint: "/users/profile/\(userId)",
+            method: .get,
+            headers: headers,
+            responseType: UserProfileResponse.self
+        )
+        
+        return response.data
+    }
+    
+    func getCurrentUserProfile(_ idToken: String) async throws -> User {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        return try await performRequest(
+            endpoint: "/users/me",
+            method: .get,
+            headers: headers,
+            responseType: User.self
         )
     }
     

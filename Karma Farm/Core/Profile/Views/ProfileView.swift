@@ -12,6 +12,7 @@ struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
     @State private var showingEditProfile = false
     @State private var showingSettings = false
+    @State private var showingKarmaHistory = false
     
     var body: some View {
         NavigationView {
@@ -78,6 +79,9 @@ struct ProfileView: View {
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
             }
+            .sheet(isPresented: $showingKarmaHistory) {
+                KarmaHistoryView()
+            }
         }
         .onAppear {
             viewModel.loadUserStats()
@@ -133,18 +137,26 @@ struct ProfileHeaderView: View {
                 }
                 
                 // Karma Balance
-                HStack(spacing: 4) {
-                    Image(systemName: "star.fill")
-                        .foregroundColor(.orange)
-                    
-                    Text("\(user.karmaBalance) Karma")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.orange)
+                Button {
+                    showingKarmaHistory = true
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "star.fill")
+                            .foregroundColor(.orange)
+                        
+                        Text("\(user.karmaBalance) Karma")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(.orange)
+                        
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.orange)
+                            .font(.system(size: 14))
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.orange.opacity(0.1))
+                    .cornerRadius(20)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color.orange.opacity(0.1))
-                .cornerRadius(20)
             }
         }
     }

@@ -17,6 +17,7 @@ class TaskCompletionViewModel: ObservableObject {
     
     init(post: Post) {
         self.post = post
+        updateCompletionStatus()
     }
     
     // MARK: - Accept Task
@@ -25,9 +26,13 @@ class TaskCompletionViewModel: ObservableObject {
         error = nil
         
         do {
+            guard let idToken = await AuthManager.shared.getIDToken() else {
+                throw NSError(domain: "auth", code: 401, userInfo: [NSLocalizedDescriptionKey: "Not authenticated"])
+            }
+            
             // API call to accept task
-            try await acceptTaskAPI(postId: post.id)
-            completionStatus = .inProgress
+            post = try await apiService.acceptPost(idToken, postId: post.id)
+            updateCompletionStatus()
             
             // Show success feedback
             await showSuccessHapticFeedback()
@@ -44,9 +49,13 @@ class TaskCompletionViewModel: ObservableObject {
         error = nil
         
         do {
+            guard let idToken = await AuthManager.shared.getIDToken() else {
+                throw NSError(domain: "auth", code: 401, userInfo: [NSLocalizedDescriptionKey: "Not authenticated"])
+            }
+            
             // API call to mark task as completed
-            try await markTaskCompletedAPI(postId: post.id, notes: notes)
-            completionStatus = .awaitingConfirmation
+            post = try await apiService.completePost(idToken, postId: post.id)
+            updateCompletionStatus()
             
             await showSuccessHapticFeedback()
         } catch {
@@ -62,8 +71,8 @@ class TaskCompletionViewModel: ObservableObject {
         error = nil
         
         do {
-            // API call to confirm completion
-            try await confirmTaskCompletionAPI(postId: post.id)
+            // Task completion is confirmed automatically when marked as completed
+            // Just update the status and show rating view
             completionStatus = .confirmed
             showRatingView = true
             
@@ -81,39 +90,18 @@ class TaskCompletionViewModel: ObservableObject {
         error = nil
         
         do {
-            let rating = TaskRating(
-                id: UUID().uuidString,
-                rating: selectedRating,
-                review: reviewText.isEmpty ? nil : reviewText,
-                helpfulnessTags: Array(selectedTags),
-                createdAt: Date()
-            )
+            guard let idToken = await AuthManager.shared.getIDToken() else {
+                throw NSError(domain: "auth", code: 401, userInfo: [NSLocalizedDescriptionKey: "Not authenticated"])
+            }
             
             // API call to submit rating
-            try await submitRatingAPI(postId: post.id, rating: rating)
-            
-            // Transfer karma if it's a karma task
-            if post.rewardType == .karma {
-                let fromUserId: String
-                let toUserId: String
-                
-                if post.isRequest {
-                    fromUserId = post.userId ?? ""
-                    toUserId = post.completedByUserId ?? ""
-                } else {
-                    fromUserId = post.completedByUserId ?? ""
-                    toUserId = post.userId ?? ""
-                }
-                
-                // Only transfer if both users exist (not anonymous) and karma value exists
-                if !fromUserId.isEmpty && !toUserId.isEmpty, let karmaValue = post.karmaValue {
-                    try await transferKarmaAPI(
-                        fromUserId: fromUserId,
-                        toUserId: toUserId,
-                        amount: karmaValue
-                    )
-                }
-            }
+            // The backend handles karma transfer automatically
+            post = try await apiService.rateCompletedTask(
+                idToken,
+                postId: post.id,
+                rating: selectedRating,
+                review: reviewText.isEmpty ? nil : reviewText
+            )
             
             await showSuccessHapticFeedback()
             showRatingView = false
@@ -124,29 +112,28 @@ class TaskCompletionViewModel: ObservableObject {
         isLoading = false
     }
     
-    // MARK: - API Calls (Mock implementations)
-    private func acceptTaskAPI(postId: String) async throws {
-        // In real implementation, this would call the backend
-        try await Task.sleep(nanoseconds: 1_000_000_000) // 1 second delay
-    }
-    
-    private func markTaskCompletedAPI(postId: String, notes: String?) async throws {
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-    }
-    
-    private func confirmTaskCompletionAPI(postId: String) async throws {
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-    }
-    
-    private func submitRatingAPI(postId: String, rating: TaskRating) async throws {
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-    }
-    
-    private func transferKarmaAPI(fromUserId: String, toUserId: String, amount: Int) async throws {
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-    }
     
     // MARK: - Helpers
+    private func updateCompletionStatus() {
+        // Update completion status based on post data
+        switch post.status {
+        case .active:
+            if post.acceptedByUserId != nil {
+                completionStatus = .inProgress
+            } else {
+                completionStatus = .pending
+            }
+        case .completed:
+            if post.ratedByUserId != nil {
+                completionStatus = .confirmed
+            } else {
+                completionStatus = .awaitingConfirmation
+            }
+        case .cancelled:
+            completionStatus = .pending
+        }
+    }
+    
     private func showSuccessHapticFeedback() async {
         #if os(iOS)
         let impactFeedback = UIImpactFeedbackGenerator(style: .medium)

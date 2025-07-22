@@ -75,11 +75,51 @@ class OnboardingViewModel: ObservableObject {
                 throw OnboardingError.noAuthToken
             }
             
-            // TODO: Implement actual email verification API call
-            // For now, simulate the verification process
-            try await Task.sleep(nanoseconds: 1_500_000_000)
+            // Call the API to send verification email
+            let response = try await APIService.shared.verifyCollegeEmail(idToken, email: collegeEmail)
             
-            emailVerificationSent = true
+            if response.success {
+                emailVerificationSent = true
+                
+                // Store the verification code temporarily for development
+                // In production, this would be sent via email
+                if let verificationCode = response.data?.verificationCode {
+                    #if DEBUG
+                    print("📧 Verification code (DEBUG ONLY): \(verificationCode)")
+                    // Store in UserDefaults for testing purposes
+                    UserDefaults.standard.set(verificationCode, forKey: "debug_college_verification_code")
+                    #endif
+                }
+            } else {
+                throw OnboardingError.emailVerificationFailed
+            }
+            
+            isVerifyingEmail = false
+        } catch {
+            isVerifyingEmail = false
+            errorMessage = error.localizedDescription
+            throw error
+        }
+    }
+    
+    func confirmCollegeEmail(verificationCode: String) async throws {
+        isVerifyingEmail = true
+        errorMessage = nil
+        
+        do {
+            guard let idToken = try await Auth.auth().currentUser?.getIDToken() else {
+                throw OnboardingError.noAuthToken
+            }
+            
+            // Call the API to confirm the verification code
+            let updatedUser = try await APIService.shared.confirmCollegeEmail(idToken, verificationCode: verificationCode)
+            
+            // Update the AuthManager with the new user data
+            await MainActor.run {
+                AuthManager.shared.currentUser = updatedUser
+            }
+            
+            isCollegeStudent = true
             isVerifyingEmail = false
         } catch {
             isVerifyingEmail = false
@@ -89,10 +129,23 @@ class OnboardingViewModel: ObservableObject {
     }
     
     private func uploadProfileImage(_ image: UIImage) async throws -> String {
-        // TODO: Implement image upload to backend/cloud storage
-        // For now, return a placeholder URL
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-        return "https://placeholder.com/profile-image"
+        guard let idToken = try await Auth.auth().currentUser?.getIDToken() else {
+            throw OnboardingError.noAuthToken
+        }
+        
+        do {
+            let imageUrl = try await APIService.shared.uploadProfileImage(idToken, image: image)
+            
+            // Convert relative URL to absolute URL if needed
+            if imageUrl.hasPrefix("/") {
+                return "\(APIConfig.baseURL)\(imageUrl)"
+            }
+            
+            return imageUrl
+        } catch {
+            print("Image upload error: \(error)")
+            throw OnboardingError.imageUploadFailed
+        }
     }
     
     var isValidCollegeEmail: Bool {
@@ -119,6 +172,7 @@ enum OnboardingError: LocalizedError {
     case invalidCollegeEmail
     case imageUploadFailed
     case profileUpdateFailed
+    case emailVerificationFailed
     
     var errorDescription: String? {
         switch self {
@@ -130,6 +184,8 @@ enum OnboardingError: LocalizedError {
             return "Failed to upload profile image"
         case .profileUpdateFailed:
             return "Failed to update profile"
+        case .emailVerificationFailed:
+            return "Failed to send verification email"
         }
     }
 }

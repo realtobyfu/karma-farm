@@ -11,6 +11,8 @@ struct BadgeSetupView: View {
     @StateObject private var viewModel = OnboardingViewModel()
     @Binding var canProceed: Bool
     let onContinue: () -> Void
+    @State private var verificationCode = ""
+    @State private var showVerificationInput = false
     
     var body: some View {
         ScrollView {
@@ -86,16 +88,59 @@ struct BadgeSetupView: View {
                                     }
                                 )
                             } else {
-                                HStack {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundColor(.green)
-                                    Text("Verification email sent!")
-                                        .font(.system(size: 14))
-                                        .foregroundColor(.secondary)
+                                VStack(spacing: 12) {
+                                    HStack {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                        Text("Verification email sent!")
+                                            .font(.system(size: 14))
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .padding()
+                                    .background(Color.green.opacity(0.1))
+                                    .cornerRadius(8)
+                                    
+                                    if !showVerificationInput {
+                                        Button("Enter Verification Code") {
+                                            showVerificationInput = true
+                                        }
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.blue)
+                                    } else {
+                                        VStack(spacing: 8) {
+                                            TextField("Verification Code", text: $verificationCode)
+                                                .textFieldStyle(BadgeTextFieldStyle())
+                                                .autocapitalization(.allCharacters)
+                                                .autocorrectionDisabled()
+                                            
+                                            Button("Confirm") {
+                                                Task {
+                                                    do {
+                                                        try await viewModel.confirmCollegeEmail(verificationCode: verificationCode)
+                                                        canProceed = true
+                                                    } catch {
+                                                        print("Confirmation error: \(error)")
+                                                    }
+                                                }
+                                            }
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundColor(.white)
+                                            .frame(maxWidth: .infinity)
+                                            .frame(height: 40)
+                                            .background(!verificationCode.isEmpty ? Color.blue : Color.gray)
+                                            .cornerRadius(8)
+                                            .disabled(verificationCode.isEmpty || viewModel.isVerifyingEmail)
+                                            
+                                            #if DEBUG
+                                            if let debugCode = UserDefaults.standard.string(forKey: "debug_college_verification_code") {
+                                                Text("Debug Code: \(debugCode)")
+                                                    .font(.caption)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            #endif
+                                        }
+                                    }
                                 }
-                                .padding()
-                                .background(Color.green.opacity(0.1))
-                                .cornerRadius(8)
                             }
                         }
                         .padding()
