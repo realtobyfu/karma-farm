@@ -213,7 +213,9 @@ class AuthManager: ObservableObject {
         
         let (data, _) = try await URLSession.shared.data(for: request)
         
-        let response = try JSONDecoder().decode(AuthResponse.self, from: data)
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let response = try decoder.decode(AuthResponse.self, from: data)
         
         await MainActor.run {
             if response.isNewUser {
@@ -242,7 +244,9 @@ class AuthManager: ObservableObject {
         
         let (data, _) = try await URLSession.shared.data(for: request)
         
-        let user = try JSONDecoder().decode(User.self, from: data)
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let user = try decoder.decode(User.self, from: data)
         
         await MainActor.run {
             self.currentUser = user
@@ -297,7 +301,9 @@ class AuthManager: ObservableObject {
                 request.httpMethod = "GET"
                 request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
                 let (data, _) = try await URLSession.shared.data(for: request)
-                let fetchedUser = try JSONDecoder().decode(User.self, from: data)
+                let decoder = JSONDecoder()
+                decoder.keyDecodingStrategy = .convertFromSnakeCase
+                let fetchedUser = try decoder.decode(User.self, from: data)
                 DispatchQueue.main.async {
                     self.currentUser = fetchedUser
                 }

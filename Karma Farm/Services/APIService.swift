@@ -150,6 +150,8 @@ class APIService {
         return try await withCheckedThrowingContinuation { continuation in
             // Use ISO8601 decoder with fractional seconds for Date fields
             let decoder = JSONDecoder()
+            // Convert snake_case keys from backend to camelCase
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
             let isoFormatter = ISO8601DateFormatter()
             isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
             decoder.dateDecodingStrategy = .custom { decoder in
@@ -211,6 +213,7 @@ class APIService {
         var finalParameters = parameters
         if let body = body {
             let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
             encoder.dateEncodingStrategy = .iso8601
             if let data = try? encoder.encode(body),
                let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
@@ -422,6 +425,7 @@ class APIService {
         headers.add(name: "Content-Type", value: "application/json")
         
         let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
         encoder.dateEncodingStrategy = .iso8601
         let jsonData = try encoder.encode(settings)
         let parameters = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] ?? [:]
@@ -448,6 +452,10 @@ class APIService {
         ]
         
         return try await withCheckedThrowingContinuation { continuation in
+            // Create decoder with snake_case conversion
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            
             AF.upload(
                 multipartFormData: { multipartFormData in
                     multipartFormData.append(
@@ -460,7 +468,7 @@ class APIService {
                 to: url,
                 headers: headers
             )
-            .responseDecodable(of: UploadResponse.self) { response in
+            .responseDecodable(of: UploadResponse.self, decoder: decoder) { response in
                 switch response.result {
                 case .success(let uploadResponse):
                     if uploadResponse.success, let imageUrl = uploadResponse.data?.url {

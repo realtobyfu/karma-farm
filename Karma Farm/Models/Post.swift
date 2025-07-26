@@ -176,7 +176,7 @@ struct Post: Codable, Identifiable {
             return "0 karma"
         case .cash:
             if let amount = paymentAmount {
-                return String(format: "$%.2f", amount)
+                return String(format: "$%.0f", amount.rounded())
             }
             return "$0"
         case .fun:
@@ -190,9 +190,6 @@ struct Post: Codable, Identifiable {
         return type == .task
     }
     
-    var postTypeEmoji: String {
-        return type.postTypeIcon + " " + type.postTypeLabel
-    }
 }
 
 struct Location: Codable {

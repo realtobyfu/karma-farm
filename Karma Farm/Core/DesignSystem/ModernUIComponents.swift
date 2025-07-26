@@ -5,25 +5,14 @@ extension PostType {
     var postTypeLabel: String {
         switch self {
         case .task:
-            return "Needs Help"
+            return "Request"
         case .skillShare:
-            return "Offering"
+            return "Offer"
         case .social:
             return "Social"
         }
     }
-    
-    var postTypeIcon: String {
-        switch self {
-        case .task:
-            return "🙋"
-        case .skillShare:
-            return "💡"
-        case .social:
-            return "🎉"
-        }
-    }
-    
+        
     var postTypeColor: Color {
         switch self {
         case .task:
@@ -48,6 +37,8 @@ struct RewardTypeBadge: View {
             
             Text(value)
                 .font(DesignSystem.Typography.numberSmall)
+                .lineLimit(1)
+                .fixedSize(horizontal: true, vertical: false)
         }
         .foregroundColor(.white)
         .padding(.horizontal, 12)
@@ -131,20 +122,18 @@ struct ModernTaskCard: View {
                 
                 Spacer()
                 
-                // Post Type Indicator
-                HStack(spacing: 4) {
-                    Text(postType.postTypeIcon)
-                        .font(.system(size: 12))
-                    Text(postType.postTypeLabel)
-                        .font(DesignSystem.Typography.caption)
-                        .fontWeight(.medium)
+                if postType != .social {
+                    HStack(spacing: 4) {
+                        Text(postType.postTypeLabel)
+                            .font(DesignSystem.Typography.caption)
+                            .fontWeight(.medium)
+                    }
+                    .foregroundColor(postType.postTypeColor)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background(postType.postTypeColor.opacity(0.1))
+                    .cornerRadius(12)
                 }
-                .foregroundColor(postType.postTypeColor)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(postType.postTypeColor.opacity(0.1))
-                .cornerRadius(12)
-                
                 // Reward Type Badge
                 RewardTypeBadge(rewardType: rewardType, value: value)
             }

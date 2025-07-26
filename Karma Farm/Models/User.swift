@@ -39,10 +39,6 @@ struct User: Codable, Identifiable {
     var isCurrentUser: Bool {
         return firebaseUid == Auth.auth().currentUser?.uid
     }
-    
-    enum CodingKeys: String, CodingKey {
-        case id, firebaseUid, username, profilePicture, karmaBalance, email, phoneNumber, isEmailVerified, isPhoneVerified, bio, skills, interests, privateProfile, lastLocation, badges, createdAt, updatedAt, isDiscoverable, isPrivateProfile, privacySettings
-    }
 }
 
 struct PrivateProfile: Codable {

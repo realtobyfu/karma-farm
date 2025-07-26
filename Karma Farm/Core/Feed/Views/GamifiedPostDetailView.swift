@@ -18,32 +18,27 @@ struct GamifiedPostDetailView: View {
                         .padding(.bottom, DesignSystem.Spacing.md)
                     
                     VStack(spacing: DesignSystem.Spacing.lg) {
-                        // Post Type Indicator
-                        HStack {
-                            HStack(spacing: 6) {
-                                Text(post.type.postTypeIcon)
-                                    .font(.system(size: 20))
-                                Text(post.type.postTypeLabel)
-                                    .font(DesignSystem.Typography.title3)
-                                    .fontWeight(.semibold)
-                            }
-                            .foregroundColor(post.type.postTypeColor)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
-                            .background(post.type.postTypeColor.opacity(0.1))
-                            .cornerRadius(20)
-                            
-                            Spacer()
-                        }
-                        .padding(.horizontal, DesignSystem.Spacing.lg)
-                        
                         // Post Main Content Card
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
-                            // Reward Type Badge with Animation
-                            AnimatedTaskBadge(
-                                rewardType: post.rewardType,
-                                value: post.displayValue
-                            )
+                            // Reward Type Badge with Post Type
+                            HStack(spacing: 12) {
+                                AnimatedTaskBadge(
+                                    rewardType: post.rewardType,
+                                    value: post.displayValue
+                                )
+                                
+                                if post.type != .social {
+                                    Text(post.type.postTypeLabel)
+                                        .font(DesignSystem.Typography.caption)
+                                        .foregroundColor(post.type.postTypeColor)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(post.type.postTypeColor.opacity(0.1))
+                                        .cornerRadius(10)
+                                }
+                                
+                                Spacer()
+                            }
                             
                             // Title and Description
                             PostContentSection(
@@ -533,14 +528,11 @@ struct ActionButtonsSection: View {
 struct AnimatedTaskBadge: View {
     let rewardType: RewardType
     let value: String
-    @State private var isAnimating = false
     
     var body: some View {
         HStack(spacing: 6) {
             Image(systemName: rewardType.icon)
                 .font(.system(size: 14, weight: .semibold))
-                .rotationEffect(.degrees(isAnimating ? 360 : 0))
-                .animation(.linear(duration: 2).repeatForever(autoreverses: false), value: isAnimating)
             
             Text(value)
                 .font(DesignSystem.Typography.bodySemibold)
@@ -557,9 +549,6 @@ struct AnimatedTaskBadge: View {
         )
         .cornerRadius(20)
         .shadow(color: rewardType.primaryColor.opacity(0.3), radius: 8, x: 0, y: 4)
-        .onAppear {
-            isAnimating = true
-        }
     }
 }
 

@@ -44,7 +44,9 @@ class ProfileViewModel: ObservableObject {
             request.httpMethod = "GET"
             request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
             let (data, _) = try await URLSession.shared.data(for: request)
-            let stats = try JSONDecoder().decode(UserStats.self, from: data)
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            let stats = try decoder.decode(UserStats.self, from: data)
             self.stats = stats
         } catch {
             print("Failed to load stats: \(error)")
@@ -60,7 +62,9 @@ class ProfileViewModel: ObservableObject {
             request.httpMethod = "GET"
             request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
             let (data, _) = try await URLSession.shared.data(for: request)
-            let posts = try JSONDecoder().decode([Post].self, from: data)
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            let posts = try decoder.decode([Post].self, from: data)
             self.recentPosts = posts
         } catch {
             print("Failed to load recent posts: \(error)")
