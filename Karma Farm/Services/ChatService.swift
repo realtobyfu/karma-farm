@@ -1,22 +1,45 @@
 import Foundation
 import Combine
-import FirebaseDatabase
 
 class ChatService: ObservableObject {
     static let shared = ChatService()
     private let apiService = APIService.shared
-    private var database: DatabaseReference!
+    // TODO: Uncomment when SocketService is implemented
+    // private let socketService = SocketService.shared
     
     @Published var unreadCount: Int = 0
     private var cancellables = Set<AnyCancellable>()
+    private var typingHandlers: [String: (String, Bool) -> Void] = [:]
     
     private init() {
-        setupFirebaseDatabase()
+        // TODO: Uncomment when SocketService is implemented
+        // setupSocketHandlers()
         startUnreadCountMonitoring()
+        
+        // Connect socket when user is authenticated
+        // if let userId = AuthManager.shared.currentUser?.id {
+        //     socketService.connect(userId: userId)
+        // }
     }
     
-    private func setupFirebaseDatabase() {
-        database = Database.database().reference()
+    private func setupSocketHandlers() {
+        // TODO: Implement when SocketService is available
+        /*
+        // Listen for authentication changes
+        NotificationCenter.default.publisher(for: .userDidLogin)
+            .sink { [weak self] _ in
+                if let userId = AuthManager.shared.currentUser?.id {
+                    self?.socketService.connect(userId: userId)
+                }
+            }
+            .store(in: &cancellables)
+        
+        NotificationCenter.default.publisher(for: .userDidLogout)
+            .sink { [weak self] _ in
+                self?.socketService.disconnect()
+            }
+            .store(in: &cancellables)
+        */
     }
     
     // MARK: - Chat Management
@@ -58,6 +81,16 @@ class ChatService: ObservableObject {
     }
     
     func sendMessage(chatId: String, content: String, attachments: [MessageAttachment]? = nil) async throws -> Message {
+        guard let userId = AuthManager.shared.currentUser?.id else {
+            throw NSError(domain: "ChatService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
+        }
+        
+        // TODO: Send via socket for real-time delivery when SocketService is implemented
+        // if socketService.isSocketConnected() {
+        //     socketService.sendMessage(chatId: chatId, userId: userId, content: content)
+        // }
+        
+        // Send via API for persistence
         let request = CreateMessageRequest(
             chatId: chatId,
             content: content,
@@ -75,41 +108,41 @@ class ChatService: ObservableObject {
     // MARK: - Typing Indicators
     
     func updateTypingStatus(chatId: String, isTyping: Bool) {
-        Task {
-            do {
-                let _: EmptyResponse = try await apiService.request(
-                    endpoint: "/chats/\(chatId)/typing",
-                    method: .put,
-                    body: ["isTyping": isTyping],
-                    responseType: EmptyResponse.self
-                )
-            } catch {
-                print("Failed to update typing status: \(error)")
-            }
-        }
+        guard let userId = AuthManager.shared.currentUser?.id else { return }
+        
+        // TODO: Send via socket for real-time updates when SocketService is implemented
+        // socketService.updateTypingStatus(chatId: chatId, userId: userId, isTyping: isTyping)
     }
     
-    func observeTypingStatus(chatId: String, completion: @escaping ([String: Bool]) -> Void) -> DatabaseHandle {
-        let typingRef = database.child("typing").child(chatId)
+    func observeTypingStatus(chatId: String, completion: @escaping ([String: Bool]) -> Void) -> String {
+        let handlerId = UUID().uuidString
+        var typingUsers: [String: Bool] = [:]
         
-        return typingRef.observe(.value) { snapshot in
-            var typingUsers: [String: Bool] = [:]
-            
-            if let value = snapshot.value as? [String: Any] {
-                for (userId, data) in value {
-                    if let typingData = data as? [String: Any],
-                       let isTyping = typingData["isTyping"] as? Bool {
-                        typingUsers[userId] = isTyping
-                    }
-                }
+        // Store the handler
+        typingHandlers[handlerId] = { userId, isTyping in
+            typingUsers[userId] = isTyping
+            // Remove users who stopped typing
+            if !isTyping {
+                typingUsers.removeValue(forKey: userId)
             }
-            
             completion(typingUsers)
         }
+        
+        // TODO: Register socket handler when SocketService is implemented
+        /*
+        socketService.onTypingUpdate { [weak self] (receivedChatId: String, userId: String, isTyping: Bool) in
+            if receivedChatId == chatId,
+               let handler = self?.typingHandlers[handlerId] {
+                handler(userId, isTyping)
+            }
+        }
+        */
+        
+        return handlerId
     }
     
-    func removeTypingObserver(chatId: String, handle: DatabaseHandle) {
-        database.child("typing").child(chatId).removeObserver(withHandle: handle)
+    func removeTypingObserver(chatId: String, handlerId: String) {
+        typingHandlers.removeValue(forKey: handlerId)
     }
     
     // MARK: - Unread Count
@@ -144,52 +177,44 @@ class ChatService: ObservableObject {
         }
     }
     
-    // MARK: - Presence
+    // MARK: - Real-time Message Handling
     
-    func updateUserPresence(isOnline: Bool) {
+    func joinChat(chatId: String) {
         guard let userId = AuthManager.shared.currentUser?.id else { return }
-        
-        let presenceRef = database.child("presence").child(userId)
-        
-        if isOnline {
-            presenceRef.setValue([
-                "online": true,
-                "lastSeen": ServerValue.timestamp()
-            ])
-            
-            // Set up disconnect handler
-            presenceRef.onDisconnectSetValue([
-                "online": false,
-                "lastSeen": ServerValue.timestamp()
-            ])
-        } else {
-            presenceRef.setValue([
-                "online": false,
-                "lastSeen": ServerValue.timestamp()
-            ])
-        }
+        // TODO: Implement when SocketService is available
+        // socketService.joinChat(chatId: chatId, userId: userId)
     }
     
-    func observeUserPresence(userId: String, completion: @escaping (Bool, Date?) -> Void) -> DatabaseHandle {
-        let presenceRef = database.child("presence").child(userId)
-        
-        return presenceRef.observe(.value) { snapshot in
-            if let value = snapshot.value as? [String: Any],
-               let online = value["online"] as? Bool {
-                let lastSeen: Date? = {
-                    if let timestamp = value["lastSeen"] as? TimeInterval {
-                        return Date(timeIntervalSince1970: timestamp / 1000)
-                    }
-                    return nil
-                }()
-                completion(online, lastSeen)
-            } else {
-                completion(false, nil)
+    func leaveChat(chatId: String) {
+        // TODO: Implement when SocketService is available
+        // socketService.leaveChat(chatId: chatId)
+    }
+    
+    func markMessageAsRead(chatId: String, messageId: String) {
+        guard let userId = AuthManager.shared.currentUser?.id else { return }
+        // TODO: Implement when SocketService is available
+        // socketService.markMessageAsRead(chatId: chatId, userId: userId, messageId: messageId)
+    }
+    
+    func observeNewMessages(for chatId: String, completion: @escaping (Message) -> Void) {
+        // TODO: Implement when SocketService is available
+        /*
+        socketService.onNewMessage { receivedChatId, message in
+            if receivedChatId == chatId {
+                completion(message)
             }
         }
+        */
     }
     
-    func removePresenceObserver(userId: String, handle: DatabaseHandle) {
-        database.child("presence").child(userId).removeObserver(withHandle: handle)
+    func observeReadReceipts(for chatId: String, completion: @escaping (String, String) -> Void) {
+        // TODO: Implement when SocketService is available
+        /*
+        socketService.onReadUpdate { receivedChatId, userId, messageId in
+            if receivedChatId == chatId {
+                completion(userId, messageId)
+            }
+        }
+        */
     }
 }

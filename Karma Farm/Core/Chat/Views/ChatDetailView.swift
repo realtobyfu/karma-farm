@@ -1,6 +1,5 @@
 import SwiftUI
 import Combine
-import FirebaseDatabase
 
 struct ChatDetailView: View {
     let chat: Chat
@@ -243,7 +242,7 @@ class ChatDetailViewModel: ObservableObject {
     
     private var chat: Chat?
     private let chatService = ChatService.shared
-    private var typingObserver: DatabaseHandle?
+    private var typingObserver: String?
     private var typingTimer: Timer?
     
     func setupChat(_ chat: Chat) {
@@ -321,7 +320,7 @@ class ChatDetailViewModel: ObservableObject {
     
     func cleanup() {
         if let observer = typingObserver, let chat = chat {
-            chatService.removeTypingObserver(chatId: chat.id, handle: observer)
+            chatService.removeTypingObserver(chatId: chat.id, handlerId: observer)
         }
         typingTimer?.invalidate()
         

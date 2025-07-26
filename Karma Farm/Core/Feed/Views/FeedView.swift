@@ -53,6 +53,9 @@ struct FeedView: View {
                     
                     // Filter chips
                     FilterPickerView(selectedFilter: $selectedFilter)
+                        .onChange(of: selectedFilter) { newFilter in
+                            viewModel.filterChanged(to: newFilter)
+                        }
                     
                     // Feed content
                     if viewModel.isLoading && viewModel.posts.isEmpty {

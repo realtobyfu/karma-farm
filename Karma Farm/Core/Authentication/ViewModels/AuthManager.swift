@@ -9,6 +9,12 @@ import FirebaseAuth
 import Firebase
 import Combine
 
+// MARK: - Notification Names
+extension Notification.Name {
+    static let userDidLogin = Notification.Name("userDidLogin")
+    static let userDidLogout = Notification.Name("userDidLogout")
+}
+
 struct AuthResponse: Codable {
     let isNewUser: Bool
     let user: User
@@ -240,10 +246,15 @@ class AuthManager: ObservableObject {
         
         await MainActor.run {
             self.currentUser = user
+            NotificationCenter.default.post(name: .userDidLogin, object: nil)
         }
     }
     
     // MARK: - User Profile
+    func getIDToken() async -> String? {
+        return try? await Auth.auth().currentUser?.getIDToken()
+    }
+    
     func fetchCurrentUser() async throws {
         guard let idToken = try? await Auth.auth().currentUser?.getIDToken() else {
             throw NSError(domain: "AuthManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Could not get auth token."])
@@ -253,6 +264,7 @@ class AuthManager: ObservableObject {
         
         await MainActor.run {
             self.currentUser = user
+            NotificationCenter.default.post(name: .userDidLogin, object: nil)
         }
     }
     
@@ -263,6 +275,7 @@ class AuthManager: ObservableObject {
     func signOut() {
         do {
             try Auth.auth().signOut()
+            NotificationCenter.default.post(name: .userDidLogout, object: nil)
         } catch {
             print("Error signing out: \(error)")
         }

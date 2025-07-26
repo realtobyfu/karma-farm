@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 import Alamofire
 import Firebase
 import FirebaseAuth
@@ -315,8 +316,19 @@ class APIService {
         )
     }
     
-    func fetchPosts(_ idToken: String) async throws -> [Post] {
-        return try await getPosts(idToken)
+    func fetchPosts(_ idToken: String, parameters: [String: Any] = [:]) async throws -> [Post] {
+        let headers: HTTPHeaders = [
+            "Authorization": "Bearer \(idToken)",
+            "Content-Type": "application/json"
+        ]
+        
+        return try await performRequest(
+            endpoint: "/posts",
+            method: .get,
+            parameters: parameters,
+            headers: headers,
+            responseType: [Post].self
+        )
     }
     
     func fetchNearbyPosts(_ idToken: String, latitude: Double, longitude: Double, radius: Double) async throws -> [Post] {
@@ -536,6 +548,7 @@ class APIService {
     }
     
     // MARK: - Connections
+    /*
     func sendConnectionRequest(_ idToken: String, request: ConnectionRequest) async throws -> Connection {
         let headers: HTTPHeaders = [
             "Authorization": "Bearer \(idToken)",
@@ -555,7 +568,9 @@ class APIService {
             responseType: Connection.self
         )
     }
+    */
     
+    /*
     func acceptConnectionRequest(_ idToken: String, connectionId: String) async throws -> Connection {
         let headers: HTTPHeaders = [
             "Authorization": "Bearer \(idToken)",
@@ -569,7 +584,9 @@ class APIService {
             responseType: Connection.self
         )
     }
+    */
     
+    /*
     func declineConnectionRequest(_ idToken: String, connectionId: String) async throws -> Connection {
         let headers: HTTPHeaders = [
             "Authorization": "Bearer \(idToken)",
@@ -583,7 +600,9 @@ class APIService {
             responseType: Connection.self
         )
     }
+    */
     
+    /*
     func removeConnection(_ idToken: String, connectionId: String) async throws {
         let headers: HTTPHeaders = [
             "Authorization": "Bearer \(idToken)",
@@ -596,7 +615,9 @@ class APIService {
             headers: headers
         )
     }
+    */
     
+    /*
     func getConnections(_ idToken: String, status: ConnectionStatus? = nil) async throws -> [Connection] {
         let headers: HTTPHeaders = [
             "Authorization": "Bearer \(idToken)",
@@ -616,7 +637,9 @@ class APIService {
             responseType: [Connection].self
         )
     }
+    */
     
+    /*
     func getPendingConnectionRequests(_ idToken: String) async throws -> [Connection] {
         let headers: HTTPHeaders = [
             "Authorization": "Bearer \(idToken)",
@@ -630,7 +653,9 @@ class APIService {
             responseType: [Connection].self
         )
     }
+    */
     
+    /*
     func checkConnection(_ idToken: String, userId: String) async throws -> ConnectionCheckResponse {
         let headers: HTTPHeaders = [
             "Authorization": "Bearer \(idToken)",
@@ -644,6 +669,7 @@ class APIService {
             responseType: ConnectionCheckResponse.self
         )
     }
+    */
     
     // MARK: - User Profiles
     func getUserProfile(_ idToken: String, userId: String) async throws -> User {
@@ -807,9 +833,30 @@ class MockAPIService {
         return Chat.mockChats
     }
     
-    func fetchPosts(_ idToken: String) async throws -> [Post] {
+    func fetchPosts(_ idToken: String, parameters: [String: Any] = [:]) async throws -> [Post] {
         await simulateNetworkDelay()
-        return Post.mockPosts
+        
+        // Simple mock filtering
+        var filteredPosts = Post.mockPosts
+        
+        if let type = parameters["type"] as? String {
+            if type == PostType.task.rawValue {
+                filteredPosts = filteredPosts.filter { $0.type == .task }
+            } else if type == PostType.skillShare.rawValue {
+                filteredPosts = filteredPosts.filter { $0.type == .skillShare }
+            }
+        }
+        
+        if let userId = parameters["userId"] as? String {
+            filteredPosts = filteredPosts.filter { $0.userId == userId }
+        }
+        
+        if let status = parameters["status"] as? String,
+           status == PostStatus.active.rawValue {
+            filteredPosts = filteredPosts.filter { $0.status == .active }
+        }
+        
+        return filteredPosts
     }
     
     func fetchNearbyPosts(_ idToken: String, latitude: Double, longitude: Double, radius: Double) async throws -> [Post] {
@@ -833,8 +880,3 @@ extension MockAPIService {
     static let shared = MockAPIService()
 }
 
-enum APIError: Error {
-    case notAuthenticated
-    case invalidResponse
-    case serverError(String)
-}

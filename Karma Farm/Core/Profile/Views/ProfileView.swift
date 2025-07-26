@@ -20,7 +20,7 @@ struct ProfileView: View {
                 VStack(spacing: 24) {
                     if let user = authManager.currentUser {
                         // Profile Header
-                        ProfileHeaderView(user: user)
+                        ProfileHeaderView(user: user, showingKarmaHistory: $showingKarmaHistory)
                         
                         // Stats Section
                         StatsCardView(stats: viewModel.userStats)
@@ -80,7 +80,7 @@ struct ProfileView: View {
                 SettingsView()
             }
             .sheet(isPresented: $showingKarmaHistory) {
-                KarmaHistoryView()
+                 KarmaHistoryView()
             }
         }
         .onAppear {
@@ -91,6 +91,7 @@ struct ProfileView: View {
 
 struct ProfileHeaderView: View {
     let user: User
+    @Binding var showingKarmaHistory: Bool
     
     var body: some View {
         VStack(spacing: 16) {

@@ -180,10 +180,11 @@ struct KarmaTransaction: Codable, Identifiable {
     let postId: String?
     let type: TransactionType
     let createdAt: Date
-    
-    enum TransactionType: String, Codable {
-        case earned = "earned"
-        case given = "given"
-        case bonus = "bonus"
-    }
+}
+
+
+enum TransactionType: String, Codable {
+    case earned = "earned"
+    case given = "given"
+    case bonus = "bonus"
 }

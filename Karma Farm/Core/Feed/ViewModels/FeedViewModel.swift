@@ -13,6 +13,8 @@ import FirebaseAuth
 class FeedViewModel: ObservableObject {
     @Published var posts: [Post] = []
     @Published var isLoading = false
+    @Published var currentFilter: FeedFilter = .all
+    @Published var locationManager = LocationManager.shared
     
     init() {
         Task {
@@ -31,7 +33,35 @@ class FeedViewModel: ObservableObject {
                 return
             }
             let token = try await user.getIDToken()
-            let posts = try await APIService.shared.fetchPosts(token)
+            
+            // Build filter parameters based on current filter
+            var parameters: [String: Any] = [:]
+            
+            switch currentFilter {
+            case .all:
+                // No additional filters
+                break
+            case .requests:
+                parameters["type"] = PostType.task.rawValue
+            case .offers:
+                parameters["type"] = PostType.skillShare.rawValue
+            case .nearby:
+                if let location = locationManager.userLocation {
+                    parameters["latitude"] = location.coordinate.latitude
+                    parameters["longitude"] = location.coordinate.longitude
+                    parameters["radius"] = 5000 // 5km radius
+                }
+            case .following:
+                // TODO: Implement following filter when connections are integrated
+                break
+            case .myPosts:
+                parameters["userId"] = AuthManager.shared.currentUser?.id
+            }
+            
+            // Always filter for active posts
+            parameters["status"] = PostStatus.active.rawValue
+            
+            let posts = try await APIService.shared.fetchPosts(token, parameters: parameters)
             self.posts = posts
         } catch {
             print("Failed to fetch posts: \(error)")
@@ -46,6 +76,9 @@ class FeedViewModel: ObservableObject {
     }
     
     func filterChanged(to filter: FeedFilter) {
-        // TODO: Apply filter and fetch posts
+        currentFilter = filter
+        Task {
+            await fetchPosts()
+        }
     }
 }

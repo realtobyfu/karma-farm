@@ -127,6 +127,10 @@ struct Post: Codable, Identifiable {
     let createdAt: Date
     let expiresAt: Date?
     let completedByUserId: String?
+    let acceptedByUserId: String?
+    let completionRating: Int?
+    let completionReview: String?
+    let ratedByUserId: String?
     let isAnonymous: Bool?
     let anonymousDisplayName: String?
     let tags: [String]
@@ -216,6 +220,10 @@ extension Post {
             createdAt: Date().addingTimeInterval(-86400 * 2),
             expiresAt: Date().addingTimeInterval(86400 * 5),
             completedByUserId: nil,
+            acceptedByUserId: nil,
+            completionRating: nil,
+            completionReview: nil,
+            ratedByUserId: nil,
             isAnonymous: false,
             anonymousDisplayName: nil,
             tags: ["cooking", "italian", "pasta"]
@@ -237,6 +245,10 @@ extension Post {
             createdAt: Date().addingTimeInterval(-86400),
             expiresAt: Date().addingTimeInterval(86400 * 3),
             completedByUserId: nil,
+            acceptedByUserId: nil,
+            completionRating: nil,
+            completionReview: nil,
+            ratedByUserId: nil,
             isAnonymous: false,
             anonymousDisplayName: nil,
             tags: ["moving", "physical", "quick-task"]
@@ -258,6 +270,10 @@ extension Post {
             createdAt: Date().addingTimeInterval(-86400 * 3),
             expiresAt: Date().addingTimeInterval(86400 * 7),
             completedByUserId: nil,
+            acceptedByUserId: nil,
+            completionRating: nil,
+            completionReview: nil,
+            ratedByUserId: nil,
             isAnonymous: false,
             anonymousDisplayName: nil,
             tags: ["ios", "swift", "programming", "mentoring"]
@@ -279,6 +295,10 @@ extension Post {
             createdAt: Date().addingTimeInterval(-86400 * 4),
             expiresAt: Date().addingTimeInterval(86400 * 10),
             completedByUserId: nil,
+            acceptedByUserId: nil,
+            completionRating: nil,
+            completionReview: nil,
+            ratedByUserId: nil,
             isAnonymous: true,
             anonymousDisplayName: "MusicLover42",
             tags: ["music", "guitar", "practice-buddy"]
@@ -300,6 +320,10 @@ extension Post {
             createdAt: Date().addingTimeInterval(-86400 * 10),
             expiresAt: nil,
             completedByUserId: "user-2",
+            acceptedByUserId: "user-2",
+            completionRating: 5,
+            completionReview: "Alex was amazing! Very knowledgeable about plants.",
+            ratedByUserId: "user-1",
             isAnonymous: false,
             anonymousDisplayName: nil,
             tags: ["gardening", "outdoor", "plants"]

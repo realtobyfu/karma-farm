@@ -151,10 +151,11 @@ struct ChatRowView: View {
     }
     
     private func observePresence(userId: String) {
-        _ = ChatService.shared.observeUserPresence(userId: userId) { online, lastSeenDate in
-            isOnline = online
-            lastSeen = lastSeenDate
-        }
+        // TODO: Implement observeUserPresence in ChatService
+        // _ = ChatService.shared.observeUserPresence(userId: userId) { online, lastSeenDate in
+        //     isOnline = online
+        //     lastSeen = lastSeenDate
+        // }
     }
 }
 
