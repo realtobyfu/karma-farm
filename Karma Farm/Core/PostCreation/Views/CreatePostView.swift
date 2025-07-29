@@ -20,15 +20,16 @@ struct CreatePostView: View {
     @State private var selectedType: PostType = .task
     @State private var selectedCategory: PostCategory = .other
     @State private var rewardType: RewardType = .karma
-    @State private var karmaValue = 10
+    @State private var selectedDuration = 60 // Default 60 minutes = 60 karma
     @State private var paymentAmount: Double = 20.0
-    @State private var karmaInputText = "10"
     @State private var paymentInputText = "20.00"
     @State private var useCurrentLocation = true
     @State private var customLocationName = ""
     @State private var expirationDate = Date().addingTimeInterval(86400 * 7) // 7 days from now
     @State private var hasExpiration = true
     @State private var showContent = false
+    @State private var isRequest = false
+    @State private var isRemote = false
     
     init(selectedRewardType: RewardType? = nil) {
         self.selectedRewardType = selectedRewardType
@@ -83,6 +84,11 @@ struct CreatePostView: View {
             VStack(spacing: 24) {
                     postTypeSection
                     
+                    // Request/Offer Toggle
+                    if selectedType != .social {
+                        requestOfferSection
+                    }
+                    
                     // Reward Type Selection
                     if selectedType != .social {
                         rewardTypeSection
@@ -118,7 +124,7 @@ struct CreatePostView: View {
                         ], spacing: 12) {
                             ForEach(PostCategory.categories(for: selectedType), id: \.self) { category in
                                 Button(action: { selectedCategory = category }) {
-                                    Text(category.rawValue.capitalized)
+                                    Text(category.displayName)
                                         .font(.system(size: 14, weight: .medium))
                                         .foregroundColor(selectedCategory == category ? .white : DesignSystem.Colors.primaryGreen)
                                         .padding(.horizontal, 16)
@@ -144,35 +150,112 @@ struct CreatePostView: View {
                                 .foregroundColor(.primary)
                             
                             if rewardType == .karma {
-                                VStack(spacing: 12) {
+                                VStack(spacing: 16) {
                                     HStack {
-                                        Text("Enter karma amount")
+                                        Text("How much time will this take?")
                                             .font(.system(size: 14))
                                             .foregroundColor(.secondary)
                                         
                                         Spacer()
                                     }
                                     
-                                    HStack {
-                                        TextField("10", text: $karmaInputText)
-                                            .keyboardType(.numberPad)
-                                            .textFieldStyle(CreatePostTextFieldStyle())
-                                            .onChange(of: karmaInputText) { newValue in
-                                                // Allow only numbers
-                                                let filtered = newValue.filter { $0.isNumber }
-                                                if filtered != newValue {
-                                                    karmaInputText = filtered
-                                                }
-                                                if let value = Int(filtered) {
-                                                    karmaValue = max(1, min(1000, value))
-                                                }
-                                            }
-                                        
-                                        Text("karma")
-                                            .font(.system(size: 16, weight: .semibold))
-                                            .foregroundColor(DesignSystem.Colors.primaryBlue)
-                                            .padding(.horizontal, 12)
+                                    // Time preset buttons
+                                    LazyVGrid(columns: [
+                                        GridItem(.flexible()),
+                                        GridItem(.flexible()),
+                                        GridItem(.flexible()),
+                                        GridItem(.flexible())
+                                    ], spacing: 12) {
+                                        TimePresetButton(
+                                            minutes: 15,
+                                            isSelected: selectedDuration == 15,
+                                            action: { withAnimation(.easeInOut(duration: 0.2)) { selectedDuration = 15 } }
+                                        )
+                                        TimePresetButton(
+                                            minutes: 30,
+                                            isSelected: selectedDuration == 30,
+                                            action: { withAnimation(.easeInOut(duration: 0.2)) { selectedDuration = 30 } }
+                                        )
+                                        TimePresetButton(
+                                            minutes: 45,
+                                            isSelected: selectedDuration == 45,
+                                            action: { withAnimation(.easeInOut(duration: 0.2)) { selectedDuration = 45 } }
+                                        )
+                                        TimePresetButton(
+                                            minutes: 60,
+                                            isSelected: selectedDuration == 60,
+                                            action: { withAnimation(.easeInOut(duration: 0.2)) { selectedDuration = 60 } }
+                                        )
+                                        TimePresetButton(
+                                            minutes: 90,
+                                            isSelected: selectedDuration == 90,
+                                            action: { withAnimation(.easeInOut(duration: 0.2)) { selectedDuration = 90 } }
+                                        )
+                                        TimePresetButton(
+                                            minutes: 120,
+                                            isSelected: selectedDuration == 120,
+                                            action: { withAnimation(.easeInOut(duration: 0.2)) { selectedDuration = 120 } }
+                                        )
+                                        TimePresetButton(
+                                            minutes: 180,
+                                            isSelected: selectedDuration == 180,
+                                            action: { withAnimation(.easeInOut(duration: 0.2)) { selectedDuration = 180 } }
+                                        )
+                                        TimePresetButton(
+                                            minutes: 240,
+                                            isSelected: selectedDuration == 240,
+                                            action: { withAnimation(.easeInOut(duration: 0.2)) { selectedDuration = 240 } }
+                                        )
                                     }
+                                    
+                                    // Custom time slider
+                                    VStack(spacing: 8) {
+                                        HStack {
+                                            Text("Custom time")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.secondary)
+                                            
+                                            Spacer()
+                                            
+                                            Text("\(selectedDuration) minutes")
+                                                .font(.system(size: 12, weight: .medium))
+                                                .foregroundColor(DesignSystem.Colors.primaryGreen)
+                                        }
+                                        
+                                        Slider(value: Binding(
+                                            get: { Double(selectedDuration) },
+                                            set: { selectedDuration = Int($0) }
+                                        ), in: 15...240, step: 5)
+                                        .accentColor(DesignSystem.Colors.primaryGreen)
+                                    }
+                                    
+                                    // Show karma calculation with visual indicator
+                                    HStack(spacing: 12) {
+                                        ZStack {
+                                            Circle()
+                                                .fill(DesignSystem.Colors.primaryGreen.opacity(0.2))
+                                                .frame(width: 40, height: 40)
+                                            
+                                            Text("\(calculatedKarmaValue)")
+                                                .font(.system(size: 16, weight: .bold))
+                                                .foregroundColor(DesignSystem.Colors.primaryGreen)
+                                        }
+                                        
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Karma value")
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.secondary)
+                                            
+                                            Text("1 karma = 1 minute")
+                                                .font(.system(size: 11))
+                                                .foregroundColor(.secondary.opacity(0.8))
+                                        }
+                                        
+                                        Spacer()
+                                    }
+                                    .padding(12)
+                                    .background(DesignSystem.Colors.primaryGreen.opacity(0.1))
+                                    .cornerRadius(10)
                                 }
                             } else if rewardType == .cash {
                                 VStack(spacing: 12) {
@@ -252,13 +335,45 @@ struct CreatePostView: View {
                         }
                     }
                     
-                    // Location
+                    // Location Type
                     VStack(alignment: .leading, spacing: 16) {
-                        Text("Location")
+                        Text("Location Type")
                             .font(.system(size: 18, weight: .semibold))
                             .foregroundColor(.primary)
                         
-                        VStack(spacing: 12) {
+                        HStack(spacing: 12) {
+                            LocationTypeButton(
+                                isRemote: false,
+                                isSelected: !isRemote,
+                                title: "In-Person",
+                                icon: "person.2.fill"
+                            ) {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isRemote = false
+                                }
+                            }
+                            
+                            LocationTypeButton(
+                                isRemote: true,
+                                isSelected: isRemote,
+                                title: "Remote",
+                                icon: "laptopcomputer"
+                            ) {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    isRemote = true
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Location
+                    if !isRemote {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Location")
+                                .font(.system(size: 18, weight: .semibold))
+                                .foregroundColor(.primary)
+                            
+                            VStack(spacing: 12) {
                             Toggle("Use current location", isOn: $useCurrentLocation)
                                 .font(.system(size: 16))
                             
@@ -278,6 +393,7 @@ struct CreatePostView: View {
                                 }
                             }
                         }
+                    }
                     }
                     
                     // Expiration
@@ -305,6 +421,28 @@ struct CreatePostView: View {
         !title.isEmpty && !description.isEmpty && (!useCurrentLocation ? !customLocationName.isEmpty : true)
     }
     
+    private var calculatedKarmaValue: Int {
+        // 1 karma = 1 minute
+        return selectedDuration
+    }
+    
+    private var durationText: String {
+        switch selectedDuration {
+        case 30:
+            return "30 minutes"
+        case 60:
+            return "1 hour"
+        case 120:
+            return "2 hours"
+        case 240:
+            return "4 hours"
+        case 480:
+            return "8 hours"
+        default:
+            return "\(selectedDuration) minutes"
+        }
+    }
+    
     private func createPost() {
         Task {
             do {
@@ -317,11 +455,13 @@ struct CreatePostView: View {
                     type: selectedType,
                     category: selectedCategory,
                     rewardType: selectedType == .social ? .fun : rewardType,
-                    karmaValue: (selectedType != .social && rewardType == .karma) ? karmaValue : 0,
+                    karmaValue: (selectedType != .social && rewardType == .karma) ? calculatedKarmaValue : 0,
                     paymentAmount: (selectedType != .social && rewardType == .cash) ? paymentAmount : nil,
                     location: location,
                     locationName: locationName,
-                    expiresAt: hasExpiration ? expirationDate : nil
+                    expiresAt: hasExpiration ? expirationDate : nil,
+                    isRequest: selectedType != .social ? isRequest : false,
+                    isRemote: isRemote
                 )
                 
                 dismiss()
@@ -370,6 +510,75 @@ struct CreatePostView: View {
                     }
                 }
             }
+        }
+    }
+    
+    private var requestOfferSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Are you offering or requesting?")
+                    .font(DesignSystem.Typography.title3)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
+                
+            }
+            
+            HStack(spacing: 12) {
+                // Offer option
+                RequestOfferOptionButton(
+                    isRequest: false,
+                    isSelected: !isRequest,
+                    title: "Offer"
+                ) {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isRequest = false
+                    }
+                }
+                
+                // Request option
+                RequestOfferOptionButton(
+                    isRequest: true,
+                    isSelected: isRequest,
+                    title: "Request"
+                ) {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        isRequest = true
+                    }
+                }
+            }
+        }
+        .transition(.opacity.combined(with: .move(edge: .top)))
+    }
+    
+    private var requestOfferDescription: String {
+        switch selectedType {
+        case .skillShare:
+            return "Choose whether you're offering to teach or looking to learn"
+        case .task:
+            return "Choose whether you're offering help or need help"
+        case .social:
+            return ""
+        }
+    }
+    
+    private var offerDescription: String {
+        switch selectedType {
+        case .skillShare:
+            return "Teach a skill"
+        case .task:
+            return "Help someone"
+        case .social:
+            return ""
+        }
+    }
+    
+    private var requestDescription: String {
+        switch selectedType {
+        case .skillShare:
+            return "Learn a skill"
+        case .task:
+            return "Need help"
+        case .social:
+            return ""
         }
     }
     
@@ -581,6 +790,140 @@ struct RewardOptionButton: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(isSelected ? Color.clear : Color(.systemGray4), lineWidth: 1)
             )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct RequestOfferOptionButton: View {
+    let isRequest: Bool
+    let isSelected: Bool
+    let title: String
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Image(systemName: isRequest ? "arrow.down.circle.fill" : "arrow.up.circle.fill")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundColor(isSelected ? .white : DesignSystem.Colors.primaryGreen)
+                    
+                    Spacer()
+                    
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                    }
+                }
+                
+                Text(title)
+                    .font(DesignSystem.Typography.bodyMedium)
+                    .foregroundColor(isSelected ? .white : DesignSystem.Colors.textPrimary)
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity)
+            .background(
+                Group {
+                    if isSelected {
+                        DesignSystem.Colors.primaryGreen
+                    } else {
+                        Color(.systemGray6)
+                    }
+                }
+            )
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected ? Color.clear : Color(.systemGray4), lineWidth: 1)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct LocationTypeButton: View {
+    let isRemote: Bool
+    let isSelected: Bool
+    let title: String
+    let icon: String
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            VStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.system(size: 20, weight: .semibold))
+                    .foregroundColor(isSelected ? .white : DesignSystem.Colors.primaryGreen)
+                
+                Text(title)
+                    .font(DesignSystem.Typography.bodyMedium)
+                    .foregroundColor(isSelected ? .white : DesignSystem.Colors.textPrimary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(
+                Group {
+                    if isSelected {
+                        DesignSystem.Colors.primaryGreen
+                    } else {
+                        Color(.systemGray6)
+                    }
+                }
+            )
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(isSelected ? Color.clear : Color(.systemGray4), lineWidth: 1)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+struct TimePresetButton: View {
+    let minutes: Int
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var displayText: String {
+        if minutes < 60 {
+            return "\(minutes)m"
+        } else {
+            let hours = minutes / 60
+            let mins = minutes % 60
+            if mins == 0 {
+                return "\(hours)h"
+            } else {
+                return "\(hours)h\(mins)m"
+            }
+        }
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 4) {
+                Text(displayText)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(isSelected ? .white : DesignSystem.Colors.primaryGreen)
+                
+                Text("\(minutes)")
+                    .font(.system(size: 11))
+                    .foregroundColor(isSelected ? .white.opacity(0.8) : .secondary)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(isSelected ? DesignSystem.Colors.primaryGreen : Color(.systemGray6))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isSelected ? Color.clear : DesignSystem.Colors.primaryGreen.opacity(0.3), lineWidth: 1)
+            )
+            .scaleEffect(isSelected ? 1.05 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
         }
         .buttonStyle(PlainButtonStyle())
     }

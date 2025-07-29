@@ -134,6 +134,8 @@ struct Post: Codable, Identifiable {
     let isAnonymous: Bool?
     let anonymousDisplayName: String?
     let tags: [String]
+    let isRequest: Bool
+    let isRemote: Bool
     
     var coordinate: CLLocationCoordinate2D? {
         guard let location = location else { return nil }
@@ -183,13 +185,6 @@ struct Post: Codable, Identifiable {
             return "Just for fun"
         }
     }
-    
-    var isRequest: Bool {
-        // A post is a request if it's a task type (someone needs help)
-        // Skill shares and social posts are offers
-        return type == .task
-    }
-    
 }
 
 struct Location: Codable {
@@ -209,7 +204,7 @@ extension Post {
             rewardType: .karma,
             title: "Learn to Cook Italian Pasta",
             description: "I'll teach you how to make authentic Italian pasta from scratch! We'll cover different types of pasta, sauces, and cooking techniques. Perfect for beginners.",
-            karmaValue: 25,
+            karmaValue: 90,
             paymentAmount: nil,
             location: Location(latitude: 42.3651, longitude: -71.0540),
             locationName: "North End, Boston",
@@ -223,7 +218,9 @@ extension Post {
             ratedByUserId: nil,
             isAnonymous: false,
             anonymousDisplayName: nil,
-            tags: ["cooking", "italian", "pasta"]
+            tags: ["cooking", "italian", "pasta"],
+            isRequest: false,
+            isRemote: false
         ),
         Post(
             id: "post-2",
@@ -248,7 +245,9 @@ extension Post {
             ratedByUserId: nil,
             isAnonymous: false,
             anonymousDisplayName: nil,
-            tags: ["moving", "physical", "quick-task"]
+            tags: ["moving", "physical", "quick-task"],
+            isRequest: true,
+            isRemote: false
         ),
         Post(
             id: "post-3",
@@ -259,7 +258,7 @@ extension Post {
             rewardType: .karma,
             title: "iOS Development Mentoring",
             description: "Experienced iOS developer offering mentoring sessions. I can help with Swift, SwiftUI, app architecture, and App Store submission process.",
-            karmaValue: 40,
+            karmaValue: 60,
             paymentAmount: nil,
             location: Location(latitude: 42.3581, longitude: -71.0636),
             locationName: "Cambridge, MA",
@@ -273,7 +272,9 @@ extension Post {
             ratedByUserId: nil,
             isAnonymous: false,
             anonymousDisplayName: nil,
-            tags: ["ios", "swift", "programming", "mentoring"]
+            tags: ["ios", "swift", "programming", "mentoring"],
+            isRequest: false,
+            isRemote: true
         ),
         Post(
             id: "post-4",
@@ -298,7 +299,9 @@ extension Post {
             ratedByUserId: nil,
             isAnonymous: true,
             anonymousDisplayName: "MusicLover42",
-            tags: ["music", "guitar", "practice-buddy"]
+            tags: ["music", "guitar", "practice-buddy"],
+            isRequest: false,
+            isRemote: false
         ),
         Post(
             id: "post-5",
@@ -309,7 +312,7 @@ extension Post {
             rewardType: .karma,
             title: "Completed: Garden Setup Help",
             description: "Thanks to Alex for helping me set up my herb garden! Great work and very knowledgeable about plants.",
-            karmaValue: 20,
+            karmaValue: 120,
             paymentAmount: nil,
             location: Location(latitude: 42.3651, longitude: -71.0540),
             locationName: "North End, Boston",
@@ -323,7 +326,90 @@ extension Post {
             ratedByUserId: "user-1",
             isAnonymous: false,
             anonymousDisplayName: nil,
-            tags: ["gardening", "outdoor", "plants"]
+            tags: ["gardening", "outdoor", "plants"],
+            isRequest: true,
+            isRemote: false
+        ),
+        Post(
+            id: "post-6",
+            userId: "user-2",
+            user: User.mockUsers[1],
+            type: .skillShare,
+            category: .technology,
+            rewardType: .karma,
+            title: "Python Tutoring for Beginners",
+            description: "Online Python programming lessons for absolute beginners. We'll start with basics and build up to simple projects. Screen sharing via Zoom.",
+            karmaValue: 60,
+            paymentAmount: nil,
+            location: nil,
+            locationName: "Remote",
+            status: .active,
+            createdAt: Date().addingTimeInterval(-86400),
+            expiresAt: Date().addingTimeInterval(86400 * 14),
+            completedByUserId: nil,
+            acceptedByUserId: nil,
+            completionRating: nil,
+            completionReview: nil,
+            ratedByUserId: nil,
+            isAnonymous: false,
+            anonymousDisplayName: nil,
+            tags: ["python", "programming", "remote", "tutoring"],
+            isRequest: false,
+            isRemote: true
+        ),
+        Post(
+            id: "post-7",
+            userId: "user-1",
+            user: User.mockUsers[0],
+            type: .skillShare,
+            category: .language,
+            rewardType: .karma,
+            title: "Practice Spanish Conversation",
+            description: "Native Spanish speaker offering conversation practice. 30-minute sessions to help improve your speaking confidence. Video call preferred.",
+            karmaValue: 30,
+            paymentAmount: nil,
+            location: nil,
+            locationName: "Remote",
+            status: .active,
+            createdAt: Date().addingTimeInterval(-3600 * 6),
+            expiresAt: Date().addingTimeInterval(86400 * 7),
+            completedByUserId: nil,
+            acceptedByUserId: nil,
+            completionRating: nil,
+            completionReview: nil,
+            ratedByUserId: nil,
+            isAnonymous: false,
+            anonymousDisplayName: nil,
+            tags: ["spanish", "language", "conversation", "remote"],
+            isRequest: false,
+            isRemote: true
+        ),
+        Post(
+            id: "post-8",
+            userId: nil,
+            user: nil,
+            type: .task,
+            category: .other,
+            rewardType: .karma,
+            title: "Review My Resume",
+            description: "Recent grad looking for someone to review my software engineering resume. Should take about 30 minutes. Can share via Google Docs.",
+            karmaValue: 30,
+            paymentAmount: nil,
+            location: nil,
+            locationName: "Remote",
+            status: .active,
+            createdAt: Date().addingTimeInterval(-3600 * 12),
+            expiresAt: Date().addingTimeInterval(86400 * 3),
+            completedByUserId: nil,
+            acceptedByUserId: nil,
+            completionRating: nil,
+            completionReview: nil,
+            ratedByUserId: nil,
+            isAnonymous: true,
+            anonymousDisplayName: "JobSeeker2025",
+            tags: ["resume", "career", "review", "remote"],
+            isRequest: true,
+            isRemote: true
         )
     ]
     

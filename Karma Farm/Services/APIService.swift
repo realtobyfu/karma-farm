@@ -113,7 +113,7 @@ enum APIError: LocalizedError {
 }
 
 // MARK: - APIService
-class APIService {
+final class APIService {
     static let shared = APIService()
     
     private let session: Session

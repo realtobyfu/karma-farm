@@ -174,7 +174,8 @@ struct PostCardView: View {
             timeAgo: timeAgoText(for: post),
             userName: post.user?.username ?? "Anonymous",
             userAvatar: nil,
-            isPrivateProfile: post.user?.isPrivateProfile ?? false
+            isPrivateProfile: post.user?.isPrivateProfile ?? false,
+            isRequest: post.isRequest
         ) {
             showingDetail = true
         }

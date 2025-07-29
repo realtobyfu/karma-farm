@@ -58,7 +58,8 @@ struct ModernUIDemo: View {
                             location: "Cambridge, MA",
                             timeAgo: "2h ago",
                             userName: "John Doe",
-                            userAvatar: nil
+                            userAvatar: nil,
+                            isRequest: true
                         ) {
                             print("Karma task tapped")
                         }
@@ -73,7 +74,8 @@ struct ModernUIDemo: View {
                             location: "Remote",
                             timeAgo: "4h ago",
                             userName: "Sarah Smith",
-                            userAvatar: nil
+                            userAvatar: nil,
+                            isRequest: false
                         ) {
                             print("Cash task tapped")
                         }
@@ -88,7 +90,8 @@ struct ModernUIDemo: View {
                             location: "MIT Courts",
                             timeAgo: "1d ago",
                             userName: "Mike Johnson",
-                            userAvatar: nil
+                            userAvatar: nil,
+                            isRequest: false
                         ) {
                             print("Fun task tapped")
                         }

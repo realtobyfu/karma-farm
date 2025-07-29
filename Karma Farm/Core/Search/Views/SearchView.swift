@@ -215,7 +215,8 @@ struct SearchResultsView: View {
             timeAgo: timeAgo,
             userName: userName,
             userAvatar: userAvatar,
-            isPrivateProfile: isPrivate
+            isPrivateProfile: isPrivate,
+            isRequest: post.isRequest
         ) {
             selectedPost = post
         }

@@ -49,6 +49,13 @@ struct MapView: View {
                         viewModel.loadNearbyPosts(around: location)
                     }
                 }
+                .onChange(of: viewModel.searchRadiusMiles) { _ in
+                    if let location = locationManager.userLocation {
+                        withAnimation(.easeInOut(duration: 0.5)) {
+                            updateCameraPosition(for: location)
+                        }
+                    }
+                }
                 
                 // Controls overlay
                 VStack {
@@ -111,6 +118,24 @@ struct MapView: View {
                                 Label("Offers Only", systemImage: "heart.fill")
                             }
                         }
+                        
+                        Section("Search Radius") {
+                            Button(action: { viewModel.searchRadiusMiles = 5 }) {
+                                Label("5 miles", systemImage: viewModel.searchRadiusMiles == 5 ? "checkmark.circle.fill" : "circle")
+                            }
+                            
+                            Button(action: { viewModel.searchRadiusMiles = 10 }) {
+                                Label("10 miles", systemImage: viewModel.searchRadiusMiles == 10 ? "checkmark.circle.fill" : "circle")
+                            }
+                            
+                            Button(action: { viewModel.searchRadiusMiles = 25 }) {
+                                Label("25 miles", systemImage: viewModel.searchRadiusMiles == 25 ? "checkmark.circle.fill" : "circle")
+                            }
+                            
+                            Button(action: { viewModel.searchRadiusMiles = 50 }) {
+                                Label("50 miles", systemImage: viewModel.searchRadiusMiles == 50 ? "checkmark.circle.fill" : "circle")
+                            }
+                        }
                     } label: {
                         ZStack {
                             Image(systemName: "line.horizontal.3.decrease.circle")
@@ -147,10 +172,14 @@ struct MapView: View {
     }
     
     private func updateCameraPosition(for location: CLLocation) {
+        // Calculate span based on search radius
+        // Rough conversion: 1 degree latitude ≈ 69 miles
+        let spanDegrees = Double(viewModel.searchRadiusMiles) / 69.0 * 2.0 // *2 for full diameter
+        
         cameraPosition = MapCameraPosition.region(
             MKCoordinateRegion(
                 center: location.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
+                span: MKCoordinateSpan(latitudeDelta: spanDegrees, longitudeDelta: spanDegrees)
             )
         )
     }

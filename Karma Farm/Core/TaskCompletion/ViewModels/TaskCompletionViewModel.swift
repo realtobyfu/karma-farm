@@ -44,7 +44,7 @@ class TaskCompletionViewModel: ObservableObject {
     }
     
     // MARK: - Mark Task as Completed
-    func markAsCompleted(notes: String? = nil) async {
+    func markAsCompleted(notes: String? = nil, actualTimeMinutes: Int? = nil, adjustedKarma: Int? = nil) async {
         isLoading = true
         error = nil
         
@@ -54,8 +54,17 @@ class TaskCompletionViewModel: ObservableObject {
             }
             
             // API call to mark task as completed
+            // TODO: Update API to handle actualTimeMinutes and adjustedKarma
             post = try await apiService.completePost(idToken, postId: post.id)
             updateCompletionStatus()
+            
+            // Store the time tracking data for future use
+            if let actualTime = actualTimeMinutes {
+                UserDefaults.standard.set(actualTime, forKey: "task_\(post.id)_actualTime")
+            }
+            if let karma = adjustedKarma {
+                UserDefaults.standard.set(karma, forKey: "task_\(post.id)_adjustedKarma")
+            }
             
             await showSuccessHapticFeedback()
         } catch {

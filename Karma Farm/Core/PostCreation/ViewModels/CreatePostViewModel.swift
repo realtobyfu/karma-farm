@@ -25,7 +25,9 @@ class CreatePostViewModel: ObservableObject {
         paymentAmount: Double? = nil,
         location: CLLocation?,
         locationName: String,
-        expiresAt: Date?
+        expiresAt: Date?,
+        isRequest: Bool = false,
+        isRemote: Bool = false
     ) async throws {
         isLoading = true
         errorMessage = nil
@@ -40,7 +42,9 @@ class CreatePostViewModel: ObservableObject {
                 "description": description,
                 "type": type.rawValue,
                 "category": category.rawValue,
-                "locationName": locationName
+                "locationName": locationName,
+                "isRequest": isRequest,
+                "isRemote": isRemote
             ]
             
             if let karmaValue = karmaValue {

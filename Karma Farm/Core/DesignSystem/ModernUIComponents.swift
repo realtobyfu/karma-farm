@@ -60,6 +60,7 @@ struct ModernTaskCard: View {
     let userName: String
     let userAvatar: String?
     let isPrivateProfile: Bool
+    let isRequest: Bool
     let onTap: () -> Void
     
     init(rewardType: RewardType,
@@ -72,6 +73,7 @@ struct ModernTaskCard: View {
          userName: String,
          userAvatar: String? = nil,
          isPrivateProfile: Bool = false,
+         isRequest: Bool = false,
          onTap: @escaping () -> Void) {
         self.rewardType = rewardType
         self.postType = postType
@@ -83,10 +85,15 @@ struct ModernTaskCard: View {
         self.userName = userName
         self.userAvatar = userAvatar
         self.isPrivateProfile = isPrivateProfile
+        self.isRequest = isRequest
         self.onTap = onTap
     }
     
     @State private var isPressed = false
+    
+    private var postTypeLabel: String {
+        return isRequest ? "Request" : "Offer"
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -124,7 +131,7 @@ struct ModernTaskCard: View {
                 
                 if postType != .social {
                     HStack(spacing: 4) {
-                        Text(postType.postTypeLabel)
+                        Text(postTypeLabel)
                             .font(DesignSystem.Typography.caption)
                             .fontWeight(.medium)
                     }

@@ -23,7 +23,19 @@ class MapViewModel: ObservableObject {
         center: CLLocationCoordinate2D(latitude: 42.4075, longitude: -71.1190),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
-    @Published var searchRadius: Double = 10
+    @Published var searchRadiusMiles: Int = 5 {
+        didSet {
+            if let location = LocationManager.shared.userLocation {
+                loadNearbyPosts(around: location)
+            }
+        }
+    }
+    
+    // Computed property for km
+    var searchRadius: Double {
+        // Convert miles to km (1 mile = 1.60934 km)
+        return Double(searchRadiusMiles) * 1.60934
+    }
     @Published var filterType: MapFilterType = .all {
         didSet {
             applyFilter()

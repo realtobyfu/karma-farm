@@ -33,17 +33,68 @@ struct SearchFiltersView: View {
                     // Distance
                     FilterSection(title: "Distance") {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.sm) {
-                            HStack {
-                                Text("\(Int(filters.radiusKm)) km")
-                                    .font(DesignSystem.Typography.bodyMedium)
-                                Spacer()
-                                Text(filters.radiusKm > 40 ? "Any distance" : "")
-                                    .font(DesignSystem.Typography.caption)
-                                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                            // Radius Options
+                            VStack(spacing: DesignSystem.Spacing.sm) {
+                                HStack(spacing: DesignSystem.Spacing.sm) {
+                                    DistanceButton(
+                                        title: "5 mi",
+                                        miles: 5,
+                                        isSelected: filters.radiusMiles == 5,
+                                        action: { filters.radiusMiles = 5; filters.viewGlobal = false }
+                                    )
+                                    
+                                    DistanceButton(
+                                        title: "10 mi",
+                                        miles: 10,
+                                        isSelected: filters.radiusMiles == 10,
+                                        action: { filters.radiusMiles = 10; filters.viewGlobal = false }
+                                    )
+                                    
+                                    DistanceButton(
+                                        title: "25 mi",
+                                        miles: 25,
+                                        isSelected: filters.radiusMiles == 25,
+                                        action: { filters.radiusMiles = 25; filters.viewGlobal = false }
+                                    )
+                                    
+                                    DistanceButton(
+                                        title: "50 mi",
+                                        miles: 50,
+                                        isSelected: filters.radiusMiles == 50,
+                                        action: { filters.radiusMiles = 50; filters.viewGlobal = false }
+                                    )
+                                }
+                                
+                                // View Global Toggle
+                                Toggle("View Global (All locations)", isOn: $filters.viewGlobal)
+                                    .tint(DesignSystem.Colors.primaryGreen)
+                                    .onChange(of: filters.viewGlobal) { newValue in
+                                        if newValue {
+                                            filters.radiusMiles = nil
+                                        }
+                                    }
                             }
                             
-                            Slider(value: $filters.radiusKm, in: 1...50, step: 1)
-                                .accentColor(DesignSystem.Colors.primaryGreen)
+                            // Current selection display
+                            if let radiusMiles = filters.radiusMiles, !filters.viewGlobal {
+                                HStack {
+                                    Image(systemName: "location.circle.fill")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(DesignSystem.Colors.primaryGreen)
+                                    Text("Within \(radiusMiles) miles")
+                                        .font(DesignSystem.Typography.caption)
+                                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                                }
+                            } else if filters.viewGlobal {
+                                HStack {
+                                    Image(systemName: "globe")
+                                        .font(.system(size: 14))
+                                        .foregroundColor(DesignSystem.Colors.primaryBlue)
+                                    Text("Viewing all locations globally")
+                                        .font(DesignSystem.Typography.caption)
+                                        .foregroundColor(DesignSystem.Colors.textSecondary)
+                                }
+                            }
                         }
                     }
                     
@@ -78,6 +129,15 @@ struct SearchFiltersView: View {
                     // Additional Options
                     FilterSection(title: "Additional Filters") {
                         VStack(alignment: .leading, spacing: DesignSystem.Spacing.md) {
+                            Toggle("Remote OK", isOn: $filters.includeRemote)
+                                .tint(DesignSystem.Colors.primaryGreen)
+                            
+                            Text("Include tasks that can be done remotely")
+                                .font(DesignSystem.Typography.caption)
+                                .foregroundColor(DesignSystem.Colors.textSecondary)
+                                .padding(.leading, 32)
+                                .padding(.top, -8)
+                            
                             Toggle("Verified users only", isOn: $filters.verifiedUsersOnly)
                                 .tint(DesignSystem.Colors.primaryGreen)
                             
@@ -136,17 +196,60 @@ struct FilterSection<Content: View>: View {
     }
 }
 
+struct DistanceButton: View {
+    let title: String
+    let miles: Int
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(DesignSystem.Typography.bodyMedium)
+                .foregroundColor(isSelected ? .white : DesignSystem.Colors.primaryGreen)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(isSelected ? DesignSystem.Colors.primaryGreen : Color.clear)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(DesignSystem.Colors.primaryGreen, lineWidth: 1.5)
+                        )
+                )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
 // MARK: - Search Models
 struct SearchFilters {
     var postType: RewardType?
     var isRequest: Bool?
-    var radiusKm: Double = 10
+    var radiusMiles: Int? = 5 // Default 5 miles
+    var viewGlobal = false
     var minKarma: Int?
     var maxKarma: Int?
     var verifiedUsersOnly = false
     var includeAnonymous = true
+    var includeRemote = false
     var sortBy: SearchSortOption = .createdAt
     var tags: [String] = []
+    
+    // Computed property for backward compatibility
+    var radiusKm: Double {
+        get {
+            if viewGlobal {
+                return Double.infinity
+            }
+            // Convert miles to km (1 mile = 1.60934 km)
+            return Double(radiusMiles ?? 5) * 1.60934
+        }
+        set {
+            // Convert km back to miles
+            radiusMiles = Int(newValue / 1.60934)
+        }
+    }
 }
 
 enum SearchSortOption: String, CaseIterable {
