@@ -76,6 +76,8 @@
 		3E7E70C22E02529400E5E93F /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 3E7E70C12E02529400E5E93F /* Alamofire */; };
 		3E9C491A2E312D8000B92E21 /* KarmaHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E9C49192E312D8000B92E21 /* KarmaHistoryView.swift */; };
 		3EBF9DCC2E1C856600AD1315 /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 3EBF9DCB2E1C856600AD1315 /* FirebaseDatabase */; };
+		3ED0E29B2E577E3700D2965E /* EmailPromptView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ED0E29A2E577E3700D2965E /* EmailPromptView.swift */; };
+		3ED0E29D2E577E8100D2965E /* AddEmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ED0E29C2E577E8100D2965E /* AddEmailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -165,6 +167,8 @@
 		3E80EF9B2E02264F007AA9BE /* Karma FarmTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Karma FarmTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E80EFA52E02264F007AA9BE /* Karma FarmUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Karma FarmUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3E9C49192E312D8000B92E21 /* KarmaHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KarmaHistoryView.swift; sourceTree = "<group>"; };
+		3ED0E29A2E577E3700D2965E /* EmailPromptView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailPromptView.swift; sourceTree = "<group>"; };
+		3ED0E29C2E577E8100D2965E /* AddEmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEmailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -355,6 +359,7 @@
 		3E58C13A2E2592BE009ED880 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				3ED0E29A2E577E3700D2965E /* EmailPromptView.swift */,
 				3E58C1362E2592BE009ED880 /* BadgeSetupView.swift */,
 				3E58C1372E2592BE009ED880 /* LocationPermissionView.swift */,
 				3E58C1382E2592BE009ED880 /* OnboardingContainerView.swift */,
@@ -409,6 +414,7 @@
 		3E58C1482E2592BE009ED880 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				3ED0E29C2E577E8100D2965E /* AddEmailView.swift */,
 				3E58C1442E2592BE009ED880 /* PrivacySettingsView.swift */,
 				3E58C1452E2592BE009ED880 /* ProfileDetailsView.swift */,
 				3E58C1462E2592BE009ED880 /* ProfileView.swift */,
@@ -784,6 +790,7 @@
 				3E58C1872E2592BE009ED880 /* EmailSignUpView.swift in Sources */,
 				3E58C1882E2592BE009ED880 /* Karma_Farm.xcdatamodeld in Sources */,
 				3E58C1892E2592BE009ED880 /* TestingUtils.swift in Sources */,
+				3ED0E29D2E577E8100D2965E /* AddEmailView.swift in Sources */,
 				3E58C18A2E2592BE009ED880 /* TaskCompletionViewModel.swift in Sources */,
 				3E58C18B2E2592BE009ED880 /* MapView.swift in Sources */,
 				3E58C18C2E2592BE009ED880 /* NotificationBell.swift in Sources */,
@@ -795,6 +802,7 @@
 				3E58C1922E2592BE009ED880 /* PhoneAuthView.swift in Sources */,
 				3E58C1932E2592BE009ED880 /* ChatService.swift in Sources */,
 				3E58C1942E2592BE009ED880 /* MapStyleToggle.swift in Sources */,
+				3ED0E29B2E577E3700D2965E /* EmailPromptView.swift in Sources */,
 				3E58C1952E2592BE009ED880 /* MapLegend.swift in Sources */,
 				3E58C1962E2592BE009ED880 /* BadgeSetupView.swift in Sources */,
 				3E58C1972E2592BE009ED880 /* TaskRatingView.swift in Sources */,

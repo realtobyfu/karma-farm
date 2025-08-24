@@ -9,7 +9,7 @@ struct SignInView: View {
     @EnvironmentObject var authManager: AuthManager
     @Binding var isPresented: Bool
     
-    @State private var signInMethod: SignInMethod = .email
+    @State private var signInMethod: SignInMethod = .phone
     @State private var email = ""
     @State private var password = ""
     @State private var phoneNumber = ""
@@ -48,8 +48,8 @@ struct SignInView: View {
                 // Sign in method toggle
                 VStack(spacing: 20) {
                     Picker("Sign In Method", selection: $signInMethod) {
-                        Text("Email").tag(SignInMethod.email)
                         Text("Phone").tag(SignInMethod.phone)
+                        Text("Email").tag(SignInMethod.email)
                     }
                     .pickerStyle(SegmentedPickerStyle())
                     .padding(.horizontal, 24)

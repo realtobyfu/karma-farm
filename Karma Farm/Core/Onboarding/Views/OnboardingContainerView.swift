@@ -27,6 +27,7 @@ struct OnboardingContainerView: View {
     @EnvironmentObject var authManager: AuthManager
     @State private var currentStep: OnboardingStep = .profileSetup
     @State private var canProceed = false
+    @State private var showEmailPrompt = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -59,6 +60,10 @@ struct OnboardingContainerView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .background(Color(.systemBackground))
+        .sheet(isPresented: $showEmailPrompt) {
+            EmailPromptView(isPresented: $showEmailPrompt)
+                .environmentObject(authManager)
+        }
     }
     
     private func moveToNextStep() {
@@ -74,8 +79,15 @@ struct OnboardingContainerView: View {
         // Mark onboarding as complete in user preferences
         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
         
-        // This will trigger the main app view since authentication is already handled
-        authManager.objectWillChange.send()
+        // Check if user authenticated with phone and doesn't have email
+        if authManager.currentUser?.primaryAuthMethod == .phone && 
+           (authManager.currentUser?.email == nil || authManager.currentUser?.email?.isEmpty == true) {
+            // Show email prompt for phone users
+            showEmailPrompt = true
+        } else {
+            // This will trigger the main app view since authentication is already handled
+            authManager.objectWillChange.send()
+        }
     }
 }
 

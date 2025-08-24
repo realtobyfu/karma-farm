@@ -12,6 +12,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) var dismiss
     @State private var showingPrivacySettings = false
     @State private var showingDeleteAccount = false
+    @State private var showingAddEmail = false
     
     var body: some View {
         NavigationView {
@@ -23,6 +24,34 @@ struct SettingsView: View {
                         Spacer()
                         Text(authManager.currentUser?.phoneNumber ?? "")
                             .foregroundColor(DesignSystem.Colors.textSecondary)
+                    }
+                    
+                    // Email row - shows add or current email
+                    if let email = authManager.currentUser?.email, !email.isEmpty {
+                        HStack {
+                            Label("Email", systemImage: "envelope")
+                            Spacer()
+                            VStack(alignment: .trailing, spacing: 2) {
+                                Text(email)
+                                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                                    .font(.system(size: 14))
+                                if !(authManager.currentUser?.isEmailVerified ?? false) {
+                                    Text("Not verified")
+                                        .font(.caption)
+                                        .foregroundColor(.orange)
+                                }
+                            }
+                        }
+                    } else {
+                        Button(action: { showingAddEmail = true }) {
+                            HStack {
+                                Label("Add Email for Recovery", systemImage: "envelope.badge.shield.half.filled")
+                                Spacer()
+                                Image(systemName: "plus.circle")
+                                    .foregroundColor(.purple)
+                            }
+                        }
+                        .foregroundColor(.primary)
                     }
                     
                     NavigationLink(destination: PrivacySettingsView()) {
@@ -89,6 +118,9 @@ struct SettingsView: View {
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showingAddEmail) {
+            AddEmailView()
         }
         .alert("Delete Account", isPresented: $showingDeleteAccount) {
             Button("Cancel", role: .cancel) { }

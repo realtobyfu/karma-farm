@@ -26,6 +26,7 @@ struct PhoneAuthView: View {
     @State private var showVerificationField = false
     @State private var selectedCountry = CountryCode(name: "United States", code: "US", dialCode: "+1", flag: "🇺🇸")
     @State private var showCountryPicker = false
+    @State private var hasDetectedCountry = false
     @State private var isResendingCode = false
     @State private var resendTimer = 60
     @State private var canResend = false
@@ -133,11 +134,17 @@ struct PhoneAuthView: View {
                         .background(Color(.systemGray6))
                         .cornerRadius(8)
                         .onChange(of: verificationCode) { newValue in
-                            if newValue.count > 6 {
-                                verificationCode = String(newValue.prefix(6))
+                            // Limit to 6 digits and filter non-numbers
+                            let filtered = newValue.filter { $0.isNumber }
+                            if filtered.count > 6 {
+                                verificationCode = String(filtered.prefix(6))
+                            } else {
+                                verificationCode = filtered
                             }
-                            if verificationCode.count == 6 {
-                            verifyCode()
+                            
+                            // Auto-submit when 6 digits entered
+                            if verificationCode.count == 6 && !authManager.isLoading {
+                                verifyCode()
                             }
                         }
                     
@@ -201,12 +208,11 @@ struct PhoneAuthView: View {
                         .foregroundColor(.primary)
                     }
                 } else {
-                    // Terms text like original signup flow
-                Text("By continuing, you agree to our Terms of Service and Privacy Policy")
-                        .font(.system(size: 12))
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    
+                        
+                    Text("I agree to the **Terms of Service** and **Privacy Policy**")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.leading)
                     // Debug button for testing
                     #if DEBUG
                     Button("🔧 Debug Firebase") {
@@ -226,6 +232,9 @@ struct PhoneAuthView: View {
         .sheet(isPresented: $showCountryPicker) {
             CountryPickerView(selectedCountry: $selectedCountry)
         }
+        .onAppear {
+            detectCountryCode()
+        }
         .onReceive(timer) { _ in
             if showVerificationField && !canResend && resendTimer > 0 {
                 resendTimer -= 1
@@ -234,6 +243,47 @@ struct PhoneAuthView: View {
                 }
             }
         }
+    }
+    
+    // MARK: - Auto-detect Country Code
+    private func detectCountryCode() {
+        guard !hasDetectedCountry else { return }
+        
+        // Get device locale
+        if let regionCode = Locale.current.region?.identifier {
+            // Map common region codes to country codes
+            switch regionCode {
+            case "US":
+                selectedCountry = CountryCode(name: "United States", code: "US", dialCode: "+1", flag: "🇺🇸")
+            case "CA":
+                selectedCountry = CountryCode(name: "Canada", code: "CA", dialCode: "+1", flag: "🇨🇦")
+            case "GB":
+                selectedCountry = CountryCode(name: "United Kingdom", code: "GB", dialCode: "+44", flag: "🇬🇧")
+            case "AU":
+                selectedCountry = CountryCode(name: "Australia", code: "AU", dialCode: "+61", flag: "🇦🇺")
+            case "DE":
+                selectedCountry = CountryCode(name: "Germany", code: "DE", dialCode: "+49", flag: "🇩🇪")
+            case "FR":
+                selectedCountry = CountryCode(name: "France", code: "FR", dialCode: "+33", flag: "🇫🇷")
+            case "JP":
+                selectedCountry = CountryCode(name: "Japan", code: "JP", dialCode: "+81", flag: "🇯🇵")
+            case "KR":
+                selectedCountry = CountryCode(name: "South Korea", code: "KR", dialCode: "+82", flag: "🇰🇷")
+            case "IN":
+                selectedCountry = CountryCode(name: "India", code: "IN", dialCode: "+91", flag: "🇮🇳")
+            case "CN":
+                selectedCountry = CountryCode(name: "China", code: "CN", dialCode: "+86", flag: "🇨🇳")
+            case "BR":
+                selectedCountry = CountryCode(name: "Brazil", code: "BR", dialCode: "+55", flag: "🇧🇷")
+            case "MX":
+                selectedCountry = CountryCode(name: "Mexico", code: "MX", dialCode: "+52", flag: "🇲🇽")
+            default:
+                // Keep default US
+                break
+            }
+        }
+        
+        hasDetectedCountry = true
     }
     
     // MARK: - Computed Properties

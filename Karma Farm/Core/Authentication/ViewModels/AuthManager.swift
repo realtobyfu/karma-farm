@@ -101,7 +101,7 @@ class AuthManager: ObservableObject {
             let idToken = try await authResult.user.getIDToken()
             
             // Verify with backend
-            try await verifyWithBackend(idToken: idToken)
+            try await verifyWithBackend(idToken: idToken, authMethod: .email)
             
             await MainActor.run {
                 isLoading = false
@@ -192,7 +192,7 @@ class AuthManager: ObservableObject {
             let idToken = try await authResult.user.getIDToken()
             
             // Verify with backend
-            try await verifyWithBackend(idToken: idToken)
+            try await verifyWithBackend(idToken: idToken, authMethod: .phone)
             
                 isLoading = false
         } catch {
@@ -203,13 +203,19 @@ class AuthManager: ObservableObject {
     }
     
     // MARK: - Backend Communication
-    private func verifyWithBackend(idToken: String) async throws {
+    private func verifyWithBackend(idToken: String, authMethod: AuthMethod? = nil) async throws {
         guard let url = URL(string: "\(APIConfig.baseURL)/auth/verify") else { return }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Include auth method if provided
+        if let authMethod = authMethod {
+            let body = ["primaryAuthMethod": authMethod.rawValue]
+            request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        }
         
         let (data, _) = try await URLSession.shared.data(for: request)
         
@@ -274,6 +280,32 @@ class AuthManager: ObservableObject {
     
     func updateCurrentUser(_ user: User) {
         self.currentUser = user
+    }
+    
+    func updateUserEmail(email: String) async throws {
+        guard let idToken = try? await Auth.auth().currentUser?.getIDToken() else {
+            throw NSError(domain: "AuthManager", code: 2, userInfo: [NSLocalizedDescriptionKey: "Could not get auth token."])
+        }
+        
+        guard let url = URL(string: "\(APIConfig.baseURL)/auth/update-email") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(idToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let emailData = ["email": email]
+        request.httpBody = try JSONSerialization.data(withJSONObject: emailData)
+        
+        let (data, _) = try await URLSession.shared.data(for: request)
+        
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let user = try decoder.decode(User.self, from: data)
+        
+        await MainActor.run {
+            self.currentUser = user
+        }
     }
     
     func signOut() {

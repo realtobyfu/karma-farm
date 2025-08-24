@@ -9,6 +9,11 @@ import Foundation
 import FirebaseAuth
 // MARK: - Models
 
+enum AuthMethod: String, Codable {
+    case phone = "phone"
+    case email = "email"
+}
+
 struct GeoPoint: Codable {
     var latitude: Double
     var longitude: Double
@@ -35,6 +40,7 @@ struct User: Codable, Identifiable {
     var isDiscoverable: Bool
     var isPrivateProfile: Bool
     var privacySettings: PrivacySettings?
+    var primaryAuthMethod: AuthMethod?
     
     var isCurrentUser: Bool {
         return firebaseUid == Auth.auth().currentUser?.uid

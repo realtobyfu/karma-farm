@@ -119,9 +119,10 @@ struct EmailSignUpView: View {
                         dismiss()
                         isSignInMode = true
                     }
+                    .underline()
                     .font(.system(size: 14))
                     .foregroundColor(.purple)
-                    .padding(.bottom, 34)
+                    .padding(.bottom, 40)
                 }
                 .padding(.horizontal, 24)
             }

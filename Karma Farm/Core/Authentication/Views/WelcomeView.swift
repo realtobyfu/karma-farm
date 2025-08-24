@@ -33,65 +33,38 @@ struct WelcomeView: View {
             .frame(maxHeight: .infinity)
             
             // Sign up options section
-            VStack(spacing: 12) {
-                // Email Sign Up Button
-                Button(action: { showEmailSignUp = true }) {
-                    HStack {
-                        Image(systemName: "envelope.fill")
-                            .font(.system(size: 16, weight: .medium))
-                        Text("Continue with Email")
-                            .font(.system(size: 16, weight: .medium))
+            VStack(spacing: 20) {
+                // Primary sign up options
+                VStack(spacing: 8) {
+                    // Phone Sign Up Button - PRIMARY
+                    Button(action: { showPhoneSignUp = true }) {
+                        HStack {
+                            Image(systemName: "phone.fill")
+                                .font(.system(size: 16, weight: .medium))
+                            Text("Continue with Phone")
+                                .font(.system(size: 16, weight: .medium))
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(Color.purple)
+                        .cornerRadius(12)
                     }
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(Color.purple)
-                    .cornerRadius(12)
-                }
-                
-                // Phone Sign Up Button
-                Button(action: { showPhoneSignUp = true }) {
-                    HStack {
-                        Image(systemName: "phone.fill")
-                            .font(.system(size: 16, weight: .medium))
-                        Text("Continue with Phone")
-                            .font(.system(size: 16, weight: .medium))
+                    
+                    // Email alternative - subtle
+                    Button(action: { showEmailSignUp = true }) {
+                        Text("Use email instead")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
                     }
-                    .foregroundColor(.purple)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(Color.purple.opacity(0.1))
-                    .cornerRadius(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.purple, lineWidth: 1)
-                    )
                 }
                 
-                // Divider with "or"
-                HStack {
-                    Rectangle()
-                        .fill(Color(.systemGray4))
-                        .frame(height: 1)
-                    
-                    Text("or")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 16)
-                    
-                    Rectangle()
-                        .fill(Color(.systemGray4))
-                        .frame(height: 1)
-                }
-                .padding(.vertical, 8)
-                
-                // Sign In Button
+                // Sign In Link - separated
                 Button(action: { isSignInMode = true }) {
                     Text("Already have an account? Sign In")
-                        .font(.system(size: 16, weight: .medium))
+                        .font(.system(size: 15, weight: .medium))
                         .foregroundColor(.purple)
                 }
-                .padding(.bottom, 16)
             }
             .padding(.horizontal, 24)
             
