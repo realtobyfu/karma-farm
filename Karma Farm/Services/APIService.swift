@@ -113,16 +113,17 @@ enum APIError: LocalizedError {
 }
 
 // MARK: - APIService
-final class APIService {
+actor APIService {
     static let shared = APIService()
-    
+
     private let session: Session
-    
+    private let sessionQueue = DispatchQueue(label: "APIService.sessionQueue", qos: .userInitiated)
+
     private init() {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = APIConfig.timeout
         configuration.timeoutIntervalForResource = APIConfig.timeout
-        
+
         self.session = Session(configuration: configuration)
     }
     
@@ -134,9 +135,9 @@ final class APIService {
         headers: HTTPHeaders? = nil,
         responseType: T.Type
     ) async throws -> T {
-        
+
         let url = "\(APIConfig.baseURL)\(endpoint)"
-        
+
         #if DEBUG
         print("🌐 API Request: \(method.rawValue) \(url)")
         if let params = parameters {
@@ -146,7 +147,7 @@ final class APIService {
             print("📄 Headers: \(headers)")
         }
         #endif
-        
+
         return try await withCheckedThrowingContinuation { continuation in
             // Use ISO8601 decoder with fractional seconds for Date fields
             let decoder = JSONDecoder()
@@ -162,30 +163,35 @@ final class APIService {
                 }
                 throw DecodingError.dataCorruptedError(in: container, debugDescription: "Cannot decode date string: \(dateStr)")
             }
-            session.request(
-                url,
-                method: method,
-                parameters: parameters,
-                encoding: method == .get ? URLEncoding.default : JSONEncoding.default,
-                headers: headers
-            )
-            .validate()
-            .responseDecodable(of: T.self, decoder: decoder) { response in
-                #if DEBUG
-                print("📱 API Response Status: \(response.response?.statusCode ?? 0)")
-                if let data = response.data {
-                    print("📄 Response Data: \(String(data: data, encoding: .utf8) ?? "Invalid UTF-8")")
-                }
-                #endif
-                
-                switch response.result {
-                case .success(let value):
-                    continuation.resume(returning: value)
-                case .failure(let error):
+
+            // Perform network request on dedicated queue to avoid actor isolation issues
+            let session = self.session
+            self.sessionQueue.async {
+                session.request(
+                    url,
+                    method: method,
+                    parameters: parameters,
+                    encoding: method == .get ? URLEncoding.default : JSONEncoding.default,
+                    headers: headers
+                )
+                .validate()
+                .responseDecodable(of: T.self, decoder: decoder) { response in
                     #if DEBUG
-                    print("❌ API Error: \(error)")
+                    print("📱 API Response Status: \(response.response?.statusCode ?? 0)")
+                    if let data = response.data {
+                        print("📄 Response Data: \(String(data: data, encoding: .utf8) ?? "Invalid UTF-8")")
+                    }
                     #endif
-                    continuation.resume(throwing: error)
+
+                    switch response.result {
+                    case .success(let value):
+                        continuation.resume(returning: value)
+                    case .failure(let error):
+                        #if DEBUG
+                        print("❌ API Error: \(error)")
+                        #endif
+                        continuation.resume(throwing: error)
+                    }
                 }
             }
         }

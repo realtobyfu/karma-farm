@@ -1,45 +1,47 @@
 import Foundation
 import Combine
 
+@MainActor
 class ChatService: ObservableObject {
     static let shared = ChatService()
     private let apiService = APIService.shared
-    // TODO: Uncomment when SocketService is implemented
-    // private let socketService = SocketService.shared
-    
+    private let socketService = SocketService.shared
+
     @Published var unreadCount: Int = 0
     private var cancellables = Set<AnyCancellable>()
     private var typingHandlers: [String: (String, Bool) -> Void] = [:]
-    
+
     private init() {
-        // TODO: Uncomment when SocketService is implemented
-        // setupSocketHandlers()
+        setupSocketHandlers()
         startUnreadCountMonitoring()
-        
+
         // Connect socket when user is authenticated
-        // if let userId = AuthManager.shared.currentUser?.id {
-        //     socketService.connect(userId: userId)
-        // }
+        Task {
+            if let userId = AuthManager.shared.currentUser?.id {
+                socketService.connect(userId: userId)
+            }
+        }
     }
     
     private func setupSocketHandlers() {
-        // TODO: Implement when SocketService is available
-        /*
         // Listen for authentication changes
         NotificationCenter.default.publisher(for: .userDidLogin)
             .sink { [weak self] _ in
-                if let userId = AuthManager.shared.currentUser?.id {
-                    self?.socketService.connect(userId: userId)
+                Task { @MainActor in
+                    if let userId = AuthManager.shared.currentUser?.id {
+                        self?.socketService.connect(userId: userId)
+                    }
                 }
             }
             .store(in: &cancellables)
-        
+
         NotificationCenter.default.publisher(for: .userDidLogout)
             .sink { [weak self] _ in
-                self?.socketService.disconnect()
+                Task { @MainActor in
+                    self?.socketService.disconnect()
+                }
             }
             .store(in: &cancellables)
-        */
     }
     
     // MARK: - Chat Management
@@ -84,19 +86,19 @@ class ChatService: ObservableObject {
         guard let userId = AuthManager.shared.currentUser?.id else {
             throw NSError(domain: "ChatService", code: 401, userInfo: [NSLocalizedDescriptionKey: "User not authenticated"])
         }
-        
-        // TODO: Send via socket for real-time delivery when SocketService is implemented
-        // if socketService.isSocketConnected() {
-        //     socketService.sendMessage(chatId: chatId, userId: userId, content: content)
-        // }
-        
+
+        // Send via socket for real-time delivery
+        if await socketService.isSocketConnected {
+            socketService.sendMessage(chatId: chatId, userId: userId, content: content)
+        }
+
         // Send via API for persistence
         let request = CreateMessageRequest(
             chatId: chatId,
             content: content,
             attachments: attachments
         )
-        
+
         return try await apiService.request(
             endpoint: "/chats/messages",
             method: .post,
@@ -109,15 +111,15 @@ class ChatService: ObservableObject {
     
     func updateTypingStatus(chatId: String, isTyping: Bool) {
         guard let userId = AuthManager.shared.currentUser?.id else { return }
-        
-        // TODO: Send via socket for real-time updates when SocketService is implemented
-        // socketService.updateTypingStatus(chatId: chatId, userId: userId, isTyping: isTyping)
+
+        // Send via socket for real-time updates
+        socketService.updateTypingStatus(chatId: chatId, userId: userId, isTyping: isTyping)
     }
     
     func observeTypingStatus(chatId: String, completion: @escaping ([String: Bool]) -> Void) -> String {
         let handlerId = UUID().uuidString
         var typingUsers: [String: Bool] = [:]
-        
+
         // Store the handler
         typingHandlers[handlerId] = { userId, isTyping in
             typingUsers[userId] = isTyping
@@ -127,17 +129,17 @@ class ChatService: ObservableObject {
             }
             completion(typingUsers)
         }
-        
-        // TODO: Register socket handler when SocketService is implemented
-        /*
+
+        // Register socket handler
         socketService.onTypingUpdate { [weak self] (receivedChatId: String, userId: String, isTyping: Bool) in
             if receivedChatId == chatId,
                let handler = self?.typingHandlers[handlerId] {
-                handler(userId, isTyping)
+                Task { @MainActor in
+                    handler(userId, isTyping)
+                }
             }
         }
-        */
-        
+
         return handlerId
     }
     
@@ -146,24 +148,23 @@ class ChatService: ObservableObject {
     }
     
     // MARK: - Unread Count
-    
+
     private func startUnreadCountMonitoring() {
         Timer.publish(every: 30, on: .main, in: .common)
             .autoconnect()
             .sink { _ in
-                Task {
+                Task { @MainActor in
                     await self.fetchUnreadCount()
                 }
             }
             .store(in: &cancellables)
-        
+
         // Initial fetch
-        Task {
+        Task { @MainActor in
             await fetchUnreadCount()
         }
     }
-    
-    @MainActor
+
     private func fetchUnreadCount() async {
         do {
             let response: UnreadCountResponse = try await apiService.request(
@@ -178,43 +179,107 @@ class ChatService: ObservableObject {
     }
     
     // MARK: - Real-time Message Handling
-    
+
     func joinChat(chatId: String) {
         guard let userId = AuthManager.shared.currentUser?.id else { return }
-        // TODO: Implement when SocketService is available
-        // socketService.joinChat(chatId: chatId, userId: userId)
+        socketService.joinChat(chatId: chatId, userId: userId)
     }
-    
+
     func leaveChat(chatId: String) {
-        // TODO: Implement when SocketService is available
-        // socketService.leaveChat(chatId: chatId)
+        socketService.leaveChat(chatId: chatId)
     }
-    
+
     func markMessageAsRead(chatId: String, messageId: String) {
         guard let userId = AuthManager.shared.currentUser?.id else { return }
-        // TODO: Implement when SocketService is available
-        // socketService.markMessageAsRead(chatId: chatId, userId: userId, messageId: messageId)
+        socketService.markMessageAsRead(chatId: chatId, userId: userId, messageId: messageId)
     }
-    
+
     func observeNewMessages(for chatId: String, completion: @escaping (Message) -> Void) {
-        // TODO: Implement when SocketService is available
-        /*
         socketService.onNewMessage { receivedChatId, message in
             if receivedChatId == chatId {
-                completion(message)
+                Task { @MainActor in
+                    completion(message)
+                }
             }
         }
-        */
     }
-    
+
     func observeReadReceipts(for chatId: String, completion: @escaping (String, String) -> Void) {
-        // TODO: Implement when SocketService is available
-        /*
         socketService.onReadUpdate { receivedChatId, userId, messageId in
             if receivedChatId == chatId {
-                completion(userId, messageId)
+                Task { @MainActor in
+                    completion(userId, messageId)
+                }
             }
         }
-        */
+    }
+
+    // MARK: - Concurrent Operations
+
+    /// Load chat details with concurrent fetching of chat data and recent messages
+    func loadChatWithMessages(chatId: String) async throws -> (chat: Chat, messages: [Message]) {
+        return try await withThrowingTaskGroup(of: Any.self) { group in
+            var chat: Chat?
+            var messages: [Message] = []
+
+            // Add task to fetch chat details
+            group.addTask {
+                try await self.getChatById(chatId)
+            }
+
+            // Add task to fetch chat messages
+            group.addTask {
+                try await self.getChatMessages(chatId: chatId, limit: 50, offset: 0)
+            }
+
+            // Collect results
+            for try await result in group {
+                if let chatResult = result as? Chat {
+                    chat = chatResult
+                } else if let messagesResult = result as? [Message] {
+                    messages = messagesResult
+                }
+            }
+
+            guard let finalChat = chat else {
+                throw NSError(domain: "ChatService", code: 1, userInfo: [NSLocalizedDescriptionKey: "Failed to load chat"])
+            }
+
+            return (chat: finalChat, messages: messages)
+        }
+    }
+
+    /// Load multiple chats concurrently with their metadata
+    func loadChatsWithUnreadCount() async throws -> (chats: [Chat], unreadCount: Int) {
+        return try await withThrowingTaskGroup(of: Any.self) { group in
+            var chats: [Chat] = []
+            var unreadCount = 0
+
+            // Add task to fetch user chats
+            group.addTask {
+                try await self.getUserChats()
+            }
+
+            // Add task to fetch unread count
+            group.addTask {
+                let response: UnreadCountResponse = try await self.apiService.request(
+                    endpoint: "/chats/unread-count",
+                    method: .get,
+                    responseType: UnreadCountResponse.self
+                )
+                return response.count
+            }
+
+            // Collect results
+            for try await result in group {
+                if let chatsResult = result as? [Chat] {
+                    chats = chatsResult
+                } else if let countResult = result as? Int {
+                    unreadCount = countResult
+                }
+            }
+
+            return (chats: chats, unreadCount: unreadCount)
+        }
     }
 }

@@ -15,7 +15,10 @@ struct Chat: Codable, Identifiable {
     let updatedAt: Date
     
     var otherUser: User? {
-        guard let currentUserId = AuthManager.shared.currentUser?.id else { return nil }
+        let currentUserId = MainActor.assumeIsolated {
+            AuthManager.shared.currentUser?.id
+        }
+        guard let currentUserId = currentUserId else { return nil }
         if requesterId == currentUserId {
             return offerer
         } else {
@@ -40,7 +43,10 @@ struct Message: Codable, Identifiable {
     let createdAt: Date
     
     var isFromCurrentUser: Bool {
-        return senderId == AuthManager.shared.currentUser?.id
+        let currentUserId = MainActor.assumeIsolated {
+            AuthManager.shared.currentUser?.id
+        }
+        return senderId == currentUserId
     }
 }
 

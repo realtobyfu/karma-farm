@@ -2,3 +2,37 @@
 CLAUDE.md
 /website
 /.idea
+Karma-Farm-Info.plist
+
+# API Keys and Secrets
+GoogleService-Info.plist
+*.env
+*.env.*
+**/secrets/
+**/*secret*
+**/*key*
+
+# iOS Specific Security
+*.xcuserdata
+xcuserdata/
+UserInterfaceState.xcuserstate
+IDEFindNavigatorScopes.plist
+*.xcuserdatad
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Logs
+*.log
+logs/
+
+# Config files that might contain secrets
+config.json
+config.plist

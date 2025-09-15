@@ -9,6 +9,7 @@ import Foundation
 import Combine
 import FirebaseAuth
 
+@MainActor
 class PhoneAuthViewModel: ObservableObject {
     @Published var phoneNumber: String = ""
     @Published var verificationCode: String = ""

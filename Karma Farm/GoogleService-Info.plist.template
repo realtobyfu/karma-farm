@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyDWar_d78yspebY-gpXUh1TOGlIgwpQUSY</string>
+	<string>YOUR_FIREBASE_API_KEY_HERE</string>
 	<key>GCM_SENDER_ID</key>
-	<string>307905052917</string>
+	<string>YOUR_GCM_SENDER_ID_HERE</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.tobiasfu.karma-farm</string>
 	<key>PROJECT_ID</key>
-	<string>karma-farm-1</string>
+	<string>YOUR_FIREBASE_PROJECT_ID_HERE</string>
 	<key>STORAGE_BUCKET</key>
-	<string>karma-farm-1.appspot.com</string>
+	<string>YOUR_FIREBASE_PROJECT_ID_HERE.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false/>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,10 +25,10 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true/>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:307905052917:ios:d4f65f4186d71e27fc05bc</string>
+	<string>YOUR_GOOGLE_APP_ID_HERE</string>
 	<key>CLIENT_ID</key>
-	<string>307905052917-cq8p0ino91c1kbc9a3q3ssc2gsjp9gvi.apps.googleusercontent.com</string>
+	<string>YOUR_GOOGLE_CLIENT_ID_HERE</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.307905052917-cq8p0ino91c1kbc9a3q3ssc2gsjp9gvi</string>
+	<string>YOUR_REVERSED_CLIENT_ID_HERE</string>
 </dict>
 </plist>

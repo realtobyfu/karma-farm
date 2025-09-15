@@ -23,41 +23,42 @@ struct AuthResponse: Codable {
 // Add this typealias if you need to reference the Firebase user object
 // typealias FirebaseUser = FirebaseAuth.User
 
+@MainActor
 class AuthManager: ObservableObject {
     static let shared = AuthManager()
-    
+
     @Published var isAuthenticated = false
     @Published var currentUser: User?
     @Published var firebaseUser: FirebaseAuth.User?
     @Published var isLoading = false
     @Published var errorMessage: String?
-    
+
     private var handle: AuthStateDidChangeListenerHandle?
     private var cancellables = Set<AnyCancellable>()
-    
+
     init() {
         setupAuthListener()
     }
-    
+
     private func setupAuthListener() {
         handle = Auth.auth().addStateDidChangeListener { [weak self] _, user in
-                    self?.firebaseUser = user
-                    self?.isAuthenticated = user != nil
-            
+            Task { @MainActor in
+                self?.firebaseUser = user
+                self?.isAuthenticated = user != nil
+
                 if user != nil {
                     self?.fetchUserProfile()
                 } else {
-                        self?.currentUser = nil
+                    self?.currentUser = nil
+                }
             }
         }
     }
     
     // MARK: - Email Authentication
     func signUpWithEmail(email: String, password: String, firstName: String, lastName: String) async throws {
-        await MainActor.run {
-            isLoading = true
-            errorMessage = nil
-        }
+        isLoading = true
+        errorMessage = nil
         
         do {
             let authResult = try await Auth.auth().createUser(withEmail: email, password: password)
@@ -75,24 +76,18 @@ class AuthManager: ObservableObject {
             
             // Setup profile with backend
             try await setupUserProfile(idToken: idToken, firstName: firstName, lastName: lastName)
-            
-            await MainActor.run {
-                isLoading = false
-            }
+
+            isLoading = false
         } catch {
-            await MainActor.run {
-                isLoading = false
-                errorMessage = error.localizedDescription
-            }
+            isLoading = false
+            errorMessage = error.localizedDescription
             throw error
         }
     }
     
     func signInWithEmail(email: String, password: String) async throws {
-        await MainActor.run {
-            isLoading = true
-            errorMessage = nil
-        }
+        isLoading = true
+        errorMessage = nil
         
         do {
             let authResult = try await Auth.auth().signIn(withEmail: email, password: password)
@@ -102,15 +97,11 @@ class AuthManager: ObservableObject {
             
             // Verify with backend
             try await verifyWithBackend(idToken: idToken, authMethod: .email)
-            
-            await MainActor.run {
-                isLoading = false
-            }
+
+            isLoading = false
         } catch {
-            await MainActor.run {
-                isLoading = false
-                errorMessage = error.localizedDescription
-            }
+            isLoading = false
+            errorMessage = error.localizedDescription
             throw error
         }
     }
@@ -119,22 +110,16 @@ class AuthManager: ObservableObject {
         guard let user = Auth.auth().currentUser else {
             throw NSError(domain: "AuthManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "No user signed in"])
         }
-        
-        await MainActor.run {
-            isLoading = true
-            errorMessage = nil
-        }
+
+        isLoading = true
+        errorMessage = nil
         
         do {
             try await user.sendEmailVerification()
-            await MainActor.run {
-                isLoading = false
-            }
+            isLoading = false
         } catch {
-            await MainActor.run {
-                isLoading = false
-                errorMessage = error.localizedDescription
-            }
+            isLoading = false
+            errorMessage = error.localizedDescription
             throw error
         }
     }
@@ -149,38 +134,32 @@ class AuthManager: ObservableObject {
             throw NSError(domain: "AuthManager", code: 1, userInfo: [NSLocalizedDescriptionKey: "Firebase is not configured"])
         }
         
-        await MainActor.run {
-            isLoading = true
-            errorMessage = nil
-        }
+        isLoading = true
+        errorMessage = nil
         
         do {
             print("🔥 AuthManager: Calling Firebase PhoneAuthProvider")
             let verificationID = try await PhoneAuthProvider.provider()
                 .verifyPhoneNumber(phoneNumber, uiDelegate: nil)
             print("🔥 AuthManager: Firebase returned verification ID: \(verificationID)")
-            
-            await MainActor.run {
-                isLoading = false
-            }
+
+            isLoading = false
             return verificationID
         } catch {
             print("🔥 AuthManager ERROR: \(error)")
             if let nsError = error as NSError? {
                 print("🔥 AuthManager ERROR Details: Domain: \(nsError.domain), Code: \(nsError.code), UserInfo: \(nsError.userInfo)")
             }
-            
-            await MainActor.run {
-                isLoading = false
-                errorMessage = error.localizedDescription
-            }
+
+            isLoading = false
+            errorMessage = error.localizedDescription
             throw error
         }
     }
     
     func verifyCode(verificationID: String, code: String) async throws {
-            isLoading = true
-            errorMessage = nil
+        isLoading = true
+        errorMessage = nil
         
         do {
             let credential = PhoneAuthProvider.provider()
@@ -193,11 +172,11 @@ class AuthManager: ObservableObject {
             
             // Verify with backend
             try await verifyWithBackend(idToken: idToken, authMethod: .phone)
-            
-                isLoading = false
+
+            isLoading = false
         } catch {
-                isLoading = false
-                errorMessage = error.localizedDescription
+            isLoading = false
+            errorMessage = error.localizedDescription
             throw error
         }
     }
@@ -222,14 +201,12 @@ class AuthManager: ObservableObject {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let response = try decoder.decode(AuthResponse.self, from: data)
-        
-        await MainActor.run {
-            if response.isNewUser {
-                // Navigate to profile setup
-                self.currentUser = response.user
-            } else {
-                self.currentUser = response.user
-            }
+
+        if response.isNewUser {
+            // Navigate to profile setup
+            self.currentUser = response.user
+        } else {
+            self.currentUser = response.user
         }
     }
     
@@ -253,11 +230,9 @@ class AuthManager: ObservableObject {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let user = try decoder.decode(User.self, from: data)
-        
-        await MainActor.run {
-            self.currentUser = user
-            NotificationCenter.default.post(name: .userDidLogin, object: nil)
-        }
+
+        self.currentUser = user
+        NotificationCenter.default.post(name: .userDidLogin, object: nil)
     }
     
     // MARK: - User Profile
@@ -271,11 +246,9 @@ class AuthManager: ObservableObject {
         }
         
         let user = try await APIService.shared.getCurrentUser(idToken)
-        
-        await MainActor.run {
-            self.currentUser = user
-            NotificationCenter.default.post(name: .userDidLogin, object: nil)
-        }
+
+        self.currentUser = user
+        NotificationCenter.default.post(name: .userDidLogin, object: nil)
     }
     
     func updateCurrentUser(_ user: User) {
@@ -302,10 +275,8 @@ class AuthManager: ObservableObject {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         let user = try decoder.decode(User.self, from: data)
-        
-        await MainActor.run {
-            self.currentUser = user
-        }
+
+        self.currentUser = user
     }
     
     func signOut() {
@@ -336,11 +307,11 @@ class AuthManager: ObservableObject {
                 let decoder = JSONDecoder()
                 decoder.keyDecodingStrategy = .convertFromSnakeCase
                 let fetchedUser = try decoder.decode(User.self, from: data)
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.currentUser = fetchedUser
                 }
             } catch {
-                DispatchQueue.main.async {
+                await MainActor.run {
                     self.errorMessage = error.localizedDescription
                 }
             }

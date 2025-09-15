@@ -164,8 +164,14 @@ struct Post: Codable, Identifiable {
     
     var isCurrentUserPost: Bool {
         // Check if this post belongs to the current user
-        guard let userId = userId,
-              let currentUserId = AuthManager.shared.currentUser?.id else { return false }
+        guard let userId = userId else { return false }
+
+        // Access main actor-isolated currentUser property safely
+        let currentUserId = MainActor.assumeIsolated {
+            AuthManager.shared.currentUser?.id
+        }
+
+        guard let currentUserId = currentUserId else { return false }
         return userId == currentUserId
     }
     
